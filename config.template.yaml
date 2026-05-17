@@ -1,0 +1,162 @@
+# =============================================================================
+# Vizer Configuration Template
+# =============================================================================
+# Ce fichier est la SEULE source de paramètres pour le pipeline.
+# Aucun script ne doit hardcoder une valeur présente ici.
+#
+# Copier ce fichier vers `config.yaml` dans chaque projet, puis adapter.
+# =============================================================================
+
+# Sport courant (utilisé pour les chemins par défaut et la validation)
+sport: nba                              # nba | nhl
+
+# -----------------------------------------------------------------------------
+# Données
+# -----------------------------------------------------------------------------
+data:
+  paths:
+    teams: "data/NBA_TEAMS.csv"
+    players: "data/NBA_PLAYERS.csv"
+    games: "data/NBA_GAMES.csv"
+    player_games: "data/NBA_PLAYER_GAMES.csv"
+    # NHL ajouterait: shots, period_stats, csa_stats, goalies_rolling_gsae, team_p1_priors
+  season_format: "22XXX"                # NBA: 22000-22025 ; NHL: 2008-2024
+
+# -----------------------------------------------------------------------------
+# Feature engineering
+# -----------------------------------------------------------------------------
+features:
+  rolling_windows: [5, 10, 20]
+  include_h2h: false
+  filter_dead_features_threshold: 1.0e-10   # Désactive les features avec var quasi-nulle (NHL)
+  fill_missing_with: 0                       # Stratégie pour features manquantes
+
+# -----------------------------------------------------------------------------
+# Split temporel
+# -----------------------------------------------------------------------------
+data_split:
+  # Pour train.py (évaluation)
+  train_season_start: 22000
+  train_season_end: 22024
+  test_season: 22025
+  # Pour train_full.py: utilise toutes les saisons disponibles, pas de test set
+
+# -----------------------------------------------------------------------------
+# Persistance
+# -----------------------------------------------------------------------------
+models:
+  output_path: "models/nba_model.joblib"
+  format: "joblib"                      # Toujours joblib, jamais pickle nu
+
+# -----------------------------------------------------------------------------
+# Marchés actifs
+# -----------------------------------------------------------------------------
+# Chaque marché correspond à un fichier dans src/models/markets/.
+# `enabled: false` désactive complètement le marché (ne sera ni entraîné ni prédit).
+# Les seuils ci-dessous sont utilisés pour filtrer les value bets.
+# -----------------------------------------------------------------------------
+markets:
+
+  moneyline:
+    enabled: true
+    edge_threshold: 0.04                # Edge minimum pour un value bet
+    kelly_factor: 0.25                  # Fraction du Kelly à miser
+    hyperparameters:
+      model: xgboost                    # xgboost | lightgbm | stacking
+      n_estimators: 200
+      max_depth: 6
+      learning_rate: 0.1
+      random_state: 42
+      eval_metric: logloss
+
+  total:
+    enabled: true
+    edge_threshold: 0.05
+    kelly_factor: 0.25
+    hyperparameters:
+      model: xgboost
+      n_estimators: 200
+      max_depth: 6
+      learning_rate: 0.1
+      random_state: 42
+
+  spread:
+    enabled: false                      # À activer pour NBA (handicap)
+    edge_threshold: 0.04
+    kelly_factor: 0.20
+
+  period_total:                         # P1 NHL / Q1 NBA — total sur la 1ère période
+    enabled: false                      # NBA: désactivé par défaut (à enrichir)
+    edge_threshold: 0.05
+    kelly_factor: 0.20
+    period_goal_ratio: 0.30             # NHL validé empiriquement ; NBA à mesurer
+
+  period_winner:                        # Vainqueur P1 (NHL: 3-way ; NBA: Q1 winner)
+    enabled: false
+    edge_threshold: 0.05
+    confidence_threshold: high          # Ne parier que sur confidence 'high'
+    bayesian:
+      n_default: 20                     # Force du prior Bayesian
+
+  btts:                                 # Both Teams To Score (NHL P1)
+    enabled: false                      # NBA: pas applicable
+    edge_threshold: 0.06
+    quality_filter:
+      lambda_min_strict: 0.85           # ≥ 0.85 → fiable
+      lambda_min_moderate: 0.70         # 0.70-0.85 → modéré
+      # < 0.70 → éviter
+
+  interval:                             # Intervalles de buts (0-2 / 3-4 / 5-6 / ...)
+    enabled: false                      # NHL only au démarrage
+    edge_threshold: 0.06
+    intervals: [[0, 2], [3, 4], [5, 6], [7, 8], [9, 99]]
+    model: ordinal                      # ordinal regression (XGBoost multi:softprob)
+
+  exact_total:
+    enabled: false
+    edge_threshold: 0.08
+    kelly_factor: 0.10                  # Mise réduite (variance élevée)
+
+  exact_score:
+    enabled: false
+    edge_threshold: 0.12
+    kelly_factor: 0.05                  # Mise très réduite
+    top_n: 5                            # Garder les N scores les plus probables
+
+# -----------------------------------------------------------------------------
+# Sources externes
+# -----------------------------------------------------------------------------
+apis:
+  odds_api:
+    key: ""                             # Renseigner dans config.yaml local, pas dans le template
+    sport: basketball_nba               # basketball_nba | icehockey_nhl
+    markets: ["h2h", "totals"]
+    credits_warning_threshold: 100
+
+  schedule_api:
+    primary: "nba_api"                  # nba_api | nhl_web_api
+    fallback_manual: true               # Permet la saisie manuelle si DNS bloqué (NHL)
+
+# -----------------------------------------------------------------------------
+# Prédictions
+# -----------------------------------------------------------------------------
+predictions:
+  output_dir: "predictions"
+  output_file_today: "predictions_today.json"
+  save_history: true                    # Sauvegarde dans predictions/YYYY-MM-DD.json
+
+# -----------------------------------------------------------------------------
+# Logging
+# -----------------------------------------------------------------------------
+logging:
+  level: INFO                           # DEBUG | INFO | WARNING | ERROR
+  log_dir: logs
+  log_file: training.log
+
+# -----------------------------------------------------------------------------
+# Options d'exécution
+# -----------------------------------------------------------------------------
+training:
+  verbose: true
+  continue_on_error: true               # Si un marché échoue, continuer les autres
+  random_seed: 42

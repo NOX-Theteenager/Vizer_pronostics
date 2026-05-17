@@ -1,0 +1,63 @@
+# =============================================================================
+# Vizer — Dépendances complètes (vizer_core + vizer_nba + vizer_nhl)
+# =============================================================================
+# Python requis : >= 3.10 (cf. pyproject.toml de vizer_core)
+#
+# Installation :
+#   pip install -r requirements.txt
+#   pip install -e .                # installe en plus vizer_core en éditable
+#
+# Couvre :
+#   - vizer_core (package partagé)
+#   - vizer_nba (projet NBA actuel + marchés à venir)
+#   - vizer_nhl (projet NHL V5.6, après migration notebooks → scripts)
+#   - Tests, notebooks, dev
+# =============================================================================
+
+# ----------------------------- Core data stack -------------------------------
+# Utilisés partout : vizer_core, NBA, NHL
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0                   # Poisson, distributions stat (NHL + futurs marchés NBA)
+joblib>=1.3.0                   # Persistance ModelRegistry, BasePredictor
+pyyaml>=6.0                     # Lecture config.yaml dans toute la chaîne
+
+# ----------------------------- Machine Learning ------------------------------
+scikit-learn>=1.3.0             # CalibratedClassifierCV, métriques, stacking, splits
+xgboost>=2.0.0                  # NBA win/total + NHL ordinal (multi:softprob)
+lightgbm>=4.0.0                 # Modèle principal NHL V5.6 (stacking XGB+LGB)
+
+# ------------------------------ APIs externes --------------------------------
+nba_api>=1.5.2                  # NBA : scores, scoreboard, box scores (incl. Q1 à venir)
+requests>=2.32.0                # The-Odds API (cotes), Moneypuck CSVs, NHL Web API
+
+# --------------------------- Matching & utilitaires --------------------------
+python-dateutil>=2.8.0          # Manipulation de dates (rolling features, repos)
+fuzzywuzzy>=0.18.0              # Matching noms gardiens NHL (variantes orthographiques)
+python-Levenshtein>=0.21.0      # Accélération native de fuzzywuzzy
+tqdm>=4.66.0                    # Progress bars (fetch_data, backtest)
+
+# --------------------------- Notebooks & visualisation -----------------------
+# Surtout NHL (V5.6 est en notebooks). Garder même après migration en scripts :
+# pratique pour l'exploration et le debug de features.
+jupyter>=1.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# ------------------------------ Tests & qualité ------------------------------
+pytest>=7.4.0
+pytest-cov>=4.1.0               # Couverture de code pour vizer_core
+
+# =============================================================================
+# Dépendances optionnelles (décommenter quand on en a besoin)
+# =============================================================================
+
+# -- Interface utilisateur finale (étape ultérieure du plan NHL) --------------
+# streamlit>=1.30.0             # Interface web pour le user final
+
+# -- Modèles avancés (si besoin de mord pour ordinal pur au lieu de XGB) ------
+# mord>=0.7                     # Ordinal regression pure (si XGB multi:softprob insuffisant)
+
+# -- Pour expérimentation / EDA approfondie -----------------------------------
+# plotly>=5.18.0                # Graphes interactifs (alternative à matplotlib)
+# ipywidgets>=8.1.0             # Widgets interactifs dans Jupyter
