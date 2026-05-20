@@ -1,0 +1,24 @@
+# Datasets — exclus de git (volumineux + publics)
+# Reproductibilité : voir README.md de ce dossier.
+
+# Fichiers bruts Moneypuck
+all_teams.csv
+skaters_*.csv
+goalies_*.csv
+lines_*.csv
+shots_*.csv
+
+# Fichiers agrégés
+dataset_agrege_vizer_nhl.csv
+period_stats.csv
+h2h_lookup.json
+goalies_rolling.csv
+
+# Caches/temporaires
+*.tmp
+*.bak
+.cache/
+
+# On garde explicitement
+!README.md
+!.gitignore

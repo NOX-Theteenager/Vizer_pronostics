@@ -59,6 +59,18 @@ TEAM_NAME_TO_ABBR: dict[str, str] = {
 }
 
 
+# Mapping inverse : abréviation → nom complet (pour l'affichage).
+ABBR_TO_TEAM_NAME: dict[str, str] = {}
+for _name, _abbr in TEAM_NAME_TO_ABBR.items():
+    ABBR_TO_TEAM_NAME.setdefault(_abbr, _name)
+ABBR_TO_TEAM_NAME["LAC"] = "Los Angeles Clippers"  # nom canonique
+
+
+def code_to_team_name(code: str) -> str:
+    """Convertit une abréviation en nom complet, ou retourne le code si inconnu."""
+    return ABBR_TO_TEAM_NAME.get(code, code)
+
+
 @dataclass
 class TotalsLine:
     """Une ligne O/U avec ses cotes over et under."""
@@ -242,10 +254,20 @@ class OddsAPIClient:
             with cache_path.open("r", encoding="utf-8") as f:
                 payload = json.load(f)
         else:
-            payload = self._fetch_api(markets=list(markets), regions=regions)
-            with cache_path.open("w", encoding="utf-8") as f:
-                json.dump(payload, f, ensure_ascii=False, indent=2)
-            print(f"💾 Cotes sauvegardées : {cache_path}", file=sys.stderr)
+            try:
+                payload = self._fetch_api(markets=list(markets), regions=regions)
+                with cache_path.open("w", encoding="utf-8") as f:
+                    json.dump(payload, f, ensure_ascii=False, indent=2)
+                print(f"💾 Cotes sauvegardées : {cache_path}", file=sys.stderr)
+            except OddsAPIError as e:
+                # Fallback : utiliser le cache existant (même périmé) si dispo
+                if cache_path.exists():
+                    print(f"⚠️  Réseau indisponible ({e}).", file=sys.stderr)
+                    print(f"📋 Repli sur le cache existant : {cache_path}", file=sys.stderr)
+                    with cache_path.open("r", encoding="utf-8") as f:
+                        payload = json.load(f)
+                else:
+                    raise
 
         return [self._parse_game(g) for g in payload]
 
@@ -284,7 +306,21 @@ class OddsAPIClient:
             "oddsFormat": "decimal",
         }
         try:
-            r = requests.get(url, params=params, timeout=15)
+            last_exc = None
+            for attempt in range(3):
+                try:
+                    r = requests.get(url, params=params, timeout=15)
+                    break
+                except requests.RequestException as e:
+                    last_exc = e
+                    if attempt < 2:
+                        import time as _t
+                        wait = 2 ** attempt  # 1s, 2s
+                        print(f"⏳ Tentative {attempt+1}/3 échouée, retry dans {wait}s...",
+                              file=sys.stderr)
+                        _t.sleep(wait)
+            else:
+                raise OddsAPIError(f"Erreur réseau (3 tentatives) : {last_exc}") from last_exc
         except requests.RequestException as e:
             raise OddsAPIError(f"Erreur réseau : {e}") from e
 
