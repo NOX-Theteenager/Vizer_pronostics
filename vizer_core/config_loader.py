@@ -87,19 +87,22 @@ def _validate_schema(config: dict[str, Any]) -> None:
         raise ConfigError(msg)
 
 
-def load_config(path: str | Path = "config.yaml") -> dict[str, Any]:
+def load_config(path: str | Path = "config.yaml", validate: bool = True) -> dict[str, Any]:
     """
     Charge et valide un config.yaml.
 
     Args:
-        path : chemin vers le YAML. Par défaut 'config.yaml' dans le cwd.
+        path     : chemin vers le YAML. Par défaut 'config.yaml' dans le cwd.
+        validate : si True (défaut), applique le schéma strict NBA. Mettre à
+                   False pour les configs au format différent (ex: NHL qui a
+                   sa propre structure paths/services).
 
     Returns:
         Dict de configuration.
 
     Raises:
         FileNotFoundError : fichier introuvable.
-        ConfigError       : YAML mal formé ou schéma invalide.
+        ConfigError       : YAML mal formé ou (si validate) schéma invalide.
     """
     path = Path(path)
     if not path.exists():
@@ -117,7 +120,8 @@ def load_config(path: str | Path = "config.yaml") -> dict[str, Any]:
     if not isinstance(config, dict):
         raise ConfigError(f"{path} doit contenir un dict YAML au niveau racine.")
 
-    _validate_schema(config)
+    if validate:
+        _validate_schema(config)
     return config
 
 

@@ -1,0 +1,136 @@
+# =============================================================================
+# Vizer NHL — Configuration V5.6 → V0.1 (migration en cours)
+# =============================================================================
+
+sport: nhl
+version: "0.1.0"   # Session 1 : architecture validée avec moneyline
+
+# Chemins
+paths:
+  data_dir: "data"
+  dataset_filename: "dataset_agrege_vizer_nhl.csv"
+  models_dir: "models"
+  model_filename: "nhl_model.pkl"
+
+# Split temporel
+data_split:
+  exclude_anomalous_seasons: true
+  excluded_years: [2013, 2020]    # lock-out + COVID bubble
+  train_until_year: 2023
+  test_year: 2024
+
+# Feature engineering
+features:
+  elo:
+    k: 20.0
+    home_bonus: 35.0
+    base: 1500.0
+
+# Markets activés
+markets:
+  moneyline:
+    enabled: true
+    edge_threshold: 0.05
+    kelly_factor: 0.25
+    hyperparameters:
+      val_fraction: 0.15
+      xgb:
+        n_estimators: 500
+        max_depth: 4
+        learning_rate: 0.05
+        subsample: 0.8
+        colsample_bytree: 0.8
+        reg_alpha: 0.5
+        reg_lambda: 1.5
+        random_state: 42
+      lgb:
+        n_estimators: 500
+        max_depth: 4
+        learning_rate: 0.05
+        subsample: 0.8
+        colsample_bytree: 0.8
+        random_state: 42
+
+  total:
+    enabled: true
+    edge_threshold: 0.05
+    kelly_factor: 0.25
+    default_ou_line: 5.5
+    # hyperparams partagés via service 'poisson' (cf. ci-dessous)
+
+  btts:
+    enabled: true
+    edge_threshold: 0.05
+    kelly_factor: 0.25
+    # hyperparams partagés via service 'poisson' (cf. ci-dessous)
+
+  p1_winner:
+    enabled: true
+    edge_threshold: 0.05
+    kelly_factor: 0.20    # plus prudent : marché 3-way
+    # hyperparams partagés via service 'poisson_p1'
+
+  p1_total:
+    enabled: true
+    edge_threshold: 0.05
+    kelly_factor: 0.25
+    default_ou_line: 1.5
+    # hyperparams partagés via service 'poisson_p1'
+
+  p1_btts:
+    enabled: true
+    edge_threshold: 0.05
+    kelly_factor: 0.20    # plus prudent : low-probability + odds élevées
+    # hyperparams partagés via service 'poisson_p1'
+
+  exact_score:
+    enabled: true
+    edge_threshold: 0.05
+    kelly_factor: 0.15    # très prudent : marché à forte variance
+    top_n: 10
+    max_goals: 8
+    # hyperparams partagés via service 'poisson'
+
+  goal_intervals:
+    enabled: true
+    edge_threshold: 0.05
+    kelly_factor: 0.20
+    # hyperparams partagés via service 'poisson'
+
+# Services partagés (engines entraînés une fois, consommés par plusieurs markets)
+services:
+  poisson:
+    val_fraction: 0.15
+    early_stopping: 30
+    xgb:
+      n_estimators: 800
+      max_depth: 3
+      learning_rate: 0.02
+      subsample: 0.85
+      colsample_bytree: 0.85
+      reg_alpha: 0.3
+      reg_lambda: 1.5
+      random_state: 42
+
+  poisson_p1:
+    # Mode auto-détecté :
+    #   - 'dedicated' si goals_p1_home/away dans dataset
+    #   - 'fallback' sinon (utilise λ_total × p1_ratio_fallback)
+    val_fraction: 0.15
+    early_stopping: 30
+    p1_ratio_fallback: 0.30   # validé empiriquement sur ~29 000 matchs NHL
+    xgb:
+      n_estimators: 800
+      max_depth: 3
+      learning_rate: 0.02
+      subsample: 0.85
+      colsample_bytree: 0.85
+      reg_alpha: 0.3
+      reg_lambda: 1.5
+      random_state: 42
+
+# Odds API (The-Odds API) — clé réutilisée du projet NHL existant
+odds_api:
+  key: "aaea026bdcd560b9ab5f8119b39adb38"   # clé partagée NHL/NBA
+  sport_key: "icehockey_nhl"
+  cache_ttl_minutes: 60
