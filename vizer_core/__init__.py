@@ -19,8 +19,14 @@ from .model_registry import ModelRegistry
 from .unified_predictor import UnifiedPredictor
 from .config_loader import load_config, ConfigError
 from .utils import detect_target_leakage, assert_no_leakage, LeakageError
+from .backtest import (
+    Backtester, BacktestConfig, BacktestResult,
+    BetRecord, MarketBacktestSummary, CalibrationBucket,
+    OddsProvider, NullOddsProvider, SyntheticOddsProvider, CSVOddsProvider,
+)
+from .synthetic_odds_v2 import CalibratedSyntheticOddsProvider
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 __all__ = [
     "BasePredictor",
@@ -34,4 +40,15 @@ __all__ = [
     "detect_target_leakage",
     "assert_no_leakage",
     "LeakageError",
+    "Backtester",
+    "BacktestConfig",
+    "BacktestResult",
+    "BetRecord",
+    "MarketBacktestSummary",
+    "CalibrationBucket",
+    "OddsProvider",
+    "NullOddsProvider",
+    "SyntheticOddsProvider",
+    "CalibratedSyntheticOddsProvider",
+    "CSVOddsProvider",
 ]
