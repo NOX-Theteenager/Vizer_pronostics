@@ -5,20 +5,29 @@ sans toucher au reste du pipeline.
 
 Architecture :
     MarketBase (vizer_core)
-        ├── MoneylineMarket  (wrap NBAMatchPredictor pour la victoire)
-        └── TotalMarket      (wrap NBATotalPredictor pour le total)
+        ├── MoneylineMarket           (wrap NBAMatchPredictor pour la victoire)
+        ├── TotalMarket               (wrap NBATotalPredictor — XGB régresseur)
+        ├── TotalPoissonMarket        (wrap PoissonTotalPredictor — Poisson conjoint)
+        ├── HomeTeamTotalMarket       (wrap TeamTotalPredictor side='home')
+        └── AwayTeamTotalMarket       (wrap TeamTotalPredictor side='away')
 
-À venir : SpreadMarket, PeriodTotalMarket, PeriodWinnerMarket, TeamTotalMarket.
+À venir : SpreadMarket, PeriodTotalMarket, PeriodWinnerMarket,
+TeamTotalPoissonMarket (extension Poisson aux team totals).
 """
 from .moneyline import MoneylineMarket
 from .total import TotalMarket
+from .total_poisson import TotalPoissonMarket
+from .team_total import HomeTeamTotalMarket, AwayTeamTotalMarket
 
 # Mapping {nom_marché_config → Classe}.
 # Les noms doivent matcher les clés de markets: dans config.yaml.
 AVAILABLE_MARKETS: dict[str, type] = {
-    'win': MoneylineMarket,         # nom historique côté NBA (compat)
-    'moneyline': MoneylineMarket,   # nom standardisé vizer_core
-    'total': TotalMarket,
+    'win': MoneylineMarket,                 # nom historique côté NBA (compat)
+    'moneyline': MoneylineMarket,           # nom standardisé vizer_core
+    'total': TotalMarket,                   # XGB régresseur + sigma gaussien
+    'total_poisson': TotalPoissonMarket,    # Poisson conjoint + distribution exacte
+    'home_team_total': HomeTeamTotalMarket,
+    'away_team_total': AwayTeamTotalMarket,
 }
 
 
@@ -32,4 +41,12 @@ def get_market_class(name: str) -> type:
     return AVAILABLE_MARKETS[name]
 
 
-__all__ = ["MoneylineMarket", "TotalMarket", "AVAILABLE_MARKETS", "get_market_class"]
+__all__ = [
+    "MoneylineMarket",
+    "TotalMarket",
+    "TotalPoissonMarket",
+    "HomeTeamTotalMarket",
+    "AwayTeamTotalMarket",
+    "AVAILABLE_MARKETS",
+    "get_market_class",
+]

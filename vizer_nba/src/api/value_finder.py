@@ -95,6 +95,35 @@ def find_value_bets(
         except Exception as e:
             print(f"  ⚠️  Échec value bet total ({game_odds.home} vs {game_odds.away}): {e}")
 
+    # ─── Marchés Team Total O/U (étape 6) ─────────────────────────────
+    # Si le registre a les markets et que les cotes existent, on calcule.
+    for side in ('home', 'away'):
+        market_name = f"{side}_team_total"
+        if not predictor.registry.has(market_name):
+            continue
+        consensus_tt = game_odds.consensus_team_total_line(side)
+        if consensus_tt is None:
+            continue
+        try:
+            tt_market = predictor.registry.get(market_name)
+            tt_pred = tt_market.predict_for_line(
+                game_odds.home, game_odds.away,
+                line=consensus_tt,
+                context={'features_row': features},
+            )
+            best_over, best_under = game_odds.best_team_over_under_odds(side, consensus_tt)
+            if best_over:
+                vb = tt_market.value_bet(tt_pred, f'over_{consensus_tt}', best_over)
+                if vb:
+                    bets.append(vb)
+            if best_under:
+                vb = tt_market.value_bet(tt_pred, f'under_{consensus_tt}', best_under)
+                if vb:
+                    bets.append(vb)
+        except Exception as e:
+            print(f"  ⚠️  Échec value bet {market_name} "
+                  f"({game_odds.home} vs {game_odds.away}): {e}")
+
     bets.sort(key=lambda b: b.edge, reverse=True)
     return bets
 
@@ -108,7 +137,13 @@ def format_value_bet_human(vb: ValueBet, home: str, away: str) -> str:
     # Pour over/under, le selection est 'over_222.5' ou 'under_222.5'
     if vb.selection.startswith('over_') or vb.selection.startswith('under_'):
         side, line = vb.selection.split('_')
-        selection_human = f"{side.upper()} {line}"
+        # Team totals : préfixer avec le team name pour clarté
+        if vb.market_name == 'home_team_total':
+            selection_human = f"{home} {side.upper()} {line}"
+        elif vb.market_name == 'away_team_total':
+            selection_human = f"{away} {side.upper()} {line}"
+        else:
+            selection_human = f"{side.upper()} {line}"
 
     conf_emoji = {'high': '🟢', 'medium': '🟡', 'low': '⚪'}.get(vb.confidence, '⚪')
 

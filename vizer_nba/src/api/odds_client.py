@@ -68,19 +68,36 @@ class TotalsLine:
 
 
 @dataclass
+class TeamTotalLine:
+    """Une ligne O/U sur les points d'une équipe seule."""
+    team_full_name: str         # nom complet retourné par The-Odds
+    line: float
+    over_odds: float
+    under_odds: float
+
+
+@dataclass
 class BookmakerOdds:
     """Cotes d'un bookmaker précis pour un match."""
     bookmaker: str
     moneyline_home: Optional[float] = None
     moneyline_away: Optional[float] = None
     totals: list[TotalsLine] = field(default_factory=list)
+    # Étape 6 : team totals (un par équipe, parfois plusieurs lignes alternatives)
+    team_totals: list[TeamTotalLine] = field(default_factory=list)
 
     def best_total_line(self) -> Optional[TotalsLine]:
         """Retourne la ligne O/U principale (souvent celle avec cotes ~1.90)."""
         if not self.totals:
             return None
-        # Heuristique : ligne où over_odds est le plus proche de 1.91
         return min(self.totals, key=lambda t: abs(t.over_odds - 1.91))
+
+    def best_team_total_line(self, team_full_name: str) -> Optional[TeamTotalLine]:
+        """Retourne la ligne team total principale pour une équipe donnée."""
+        team_lines = [t for t in self.team_totals if t.team_full_name == team_full_name]
+        if not team_lines:
+            return None
+        return min(team_lines, key=lambda t: abs(t.over_odds - 1.91))
 
 
 @dataclass
@@ -123,6 +140,53 @@ class GameOdds:
         return (max(overs) if overs else None,
                 max(unders) if unders else None)
 
+    # ========================================== Étape 6 : team totals
+    def consensus_team_total_line(self, side: str) -> Optional[float]:
+        """
+        Médiane des lignes team-total principales entre bookmakers pour un côté.
+
+        Args:
+            side : 'home' ou 'away'.
+        """
+        if side == 'home':
+            team_name = self.home_full
+        elif side == 'away':
+            team_name = self.away_full
+        else:
+            raise ValueError(f"side doit être 'home' ou 'away', reçu {side!r}")
+
+        lines = []
+        for b in self.bookmakers:
+            main = b.best_team_total_line(team_name)
+            if main:
+                lines.append(main.line)
+        if not lines:
+            return None
+        lines.sort()
+        return lines[len(lines) // 2]
+
+    def best_team_over_under_odds(
+        self,
+        side: str,
+        line: float,
+    ) -> tuple[Optional[float], Optional[float]]:
+        """Best line shopping pour over/under team-total sur une ligne donnée."""
+        if side == 'home':
+            team_name = self.home_full
+        elif side == 'away':
+            team_name = self.away_full
+        else:
+            raise ValueError(f"side doit être 'home' ou 'away', reçu {side!r}")
+
+        overs, unders = [], []
+        for b in self.bookmakers:
+            for t in b.team_totals:
+                if t.team_full_name == team_name and abs(t.line - line) < 0.01:
+                    overs.append(t.over_odds)
+                    unders.append(t.under_odds)
+        return (max(overs) if overs else None,
+                max(unders) if unders else None)
+
 
 class OddsAPIError(Exception):
     """Erreur lors d'un appel The-Odds API."""
@@ -157,7 +221,7 @@ class OddsAPIClient:
     # ================================================================ API
     def get_odds(
         self,
-        markets: list[str] = ("h2h", "totals"),
+        markets: list[str] = ("h2h", "totals", "team_totals"),
         regions: str = "us",
         force_refresh: bool = False,
     ) -> list[GameOdds]:
@@ -276,6 +340,28 @@ class OddsAPIClient:
                             over_odds=float(side_prices.get("Over", 0)),
                             under_odds=float(side_prices.get("Under", 0)),
                         ))
+                elif key == "team_totals":
+                    # outcomes : { name: Over|Under, description: team_full_name,
+                    #              point: line, price: odds }
+                    # Grouper par (team, line) puis assembler les lignes
+                    by_team_line: dict[tuple[str, float], dict] = {}
+                    for o in outcomes:
+                        team = o.get("description", "")
+                        point = o.get("point")
+                        side_name = o.get("name", "")  # "Over" ou "Under"
+                        price = o.get("price")
+                        if not team or point is None or not price:
+                            continue
+                        key_tl = (team, float(point))
+                        by_team_line.setdefault(key_tl, {})[side_name] = float(price)
+                    for (team, point), prices in by_team_line.items():
+                        if "Over" in prices and "Under" in prices:
+                            bk.team_totals.append(TeamTotalLine(
+                                team_full_name=team,
+                                line=point,
+                                over_odds=prices["Over"],
+                                under_odds=prices["Under"],
+                            ))
             bookmakers.append(bk)
 
         return GameOdds(

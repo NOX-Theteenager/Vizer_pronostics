@@ -1,12 +1,20 @@
 #!/usr/bin/env python
 """
-Script de prédiction JSON unifié (victoire + total + analyse automatique)
+Script de prédiction JSON unifié (victoire + total + analyse automatique).
+
+Étape 4 : support --with-odds pour récupérer automatiquement les cotes via
+The-Odds API et calculer les value bets (edge + Kelly).
 """
 import sys
 import json
 import argparse
 from typing import Optional, List, Dict
+
+from vizer_core import load_config
+
 from src.api.unified_predictor import UnifiedPredictor
+from src.api.odds_client import OddsAPIClient, OddsAPIError
+from src.api.value_finder import find_value_bets, value_bet_to_dict
 
 
 def suggest_lines(predicted_total, spread=15):
@@ -77,10 +85,13 @@ def predict_match(
     date: Optional[str] = None,
     silent: bool = False,
     auto_analyze: bool = True,
-    min_confidence: float = 0.65
+    min_confidence: float = 0.65,
+    with_odds: bool = False,
+    odds_client: Optional[OddsAPIClient] = None,
+    predictor: Optional[UnifiedPredictor] = None,
 ) -> Dict:
     """
-    Prédit un match (victoire + total + analyse automatique)
+    Prédit un match (victoire + total + analyse automatique).
     
     Args:
         home: Abréviation équipe domicile
@@ -90,6 +101,9 @@ def predict_match(
         silent: Si True, n'affiche pas les messages
         auto_analyze: Si True et line=None, analyse automatiquement les lignes
         min_confidence: Confiance minimale pour recommander
+        with_odds: Si True, récupère cotes via The-Odds API et calcule value bets
+        odds_client: Client The-Odds API préinstancié (sinon créé à la demande)
+        predictor: UnifiedPredictor préinstancié (évite recharge)
         
     Returns:
         Dictionnaire avec les prédictions
@@ -111,13 +125,12 @@ def predict_match(
         else:
             return obj
     
-    if not silent:
-        print("📂 Chargement des modèles...", file=sys.stderr)
-    
-    predictor = UnifiedPredictor()
-    
-    if not silent:
-        print("✓ Modèles chargés", file=sys.stderr)
+    if predictor is None:
+        if not silent:
+            print("📂 Chargement des modèles...", file=sys.stderr)
+        predictor = UnifiedPredictor()
+        if not silent:
+            print("✓ Modèles chargés", file=sys.stderr)
     
     try:
         # Prédiction complète
@@ -165,6 +178,45 @@ def predict_match(
                 best = analysis['best_bets'][0]
                 print(f"  🎯 Meilleur pari: {best['recommendation']} {best['line']} ({best['confidence']:.0%})", file=sys.stderr)
         
+        # Récupération cotes + value bets (étape 4)
+        if with_odds and odds_client is not None:
+            try:
+                if not silent:
+                    print(f"  💰 Récupération cotes {home} vs {away}...", file=sys.stderr)
+                game_odds = odds_client.get_odds_for_match(home, away)
+                if game_odds is None:
+                    if not silent:
+                        print(f"  ⊘ Cotes non disponibles pour {home} vs {away}", file=sys.stderr)
+                    result['value_bets'] = []
+                    result['bookmaker_odds'] = None
+                else:
+                    bets = find_value_bets(predictor, game_odds, date)
+                    result['value_bets'] = [value_bet_to_dict(vb) for vb in bets]
+                    result['bookmaker_odds'] = {
+                        'moneyline_home': game_odds.best_moneyline_odds()[0],
+                        'moneyline_away': game_odds.best_moneyline_odds()[1],
+                        'consensus_total_line': game_odds.consensus_total_line(),
+                        'commence_time': game_odds.commence_time,
+                    }
+                    if not silent:
+                        if bets:
+                            print(f"  💎 {len(bets)} value bet(s) détecté(s)", file=sys.stderr)
+                            for vb in bets:
+                                print(f"     • {vb.market_name} {vb.selection} @ {vb.bookmaker_odds:.2f} "
+                                      f"edge={vb.edge:+.3f} kelly={vb.kelly_stake*100:.1f}%", file=sys.stderr)
+                        else:
+                            print(f"  💤 Aucun value bet (edge insuffisant)", file=sys.stderr)
+            except OddsAPIError as e:
+                if not silent:
+                    print(f"  ⚠️  Erreur The-Odds API : {e}", file=sys.stderr)
+                result['value_bets'] = []
+                result['odds_error'] = str(e)
+            except Exception as e:
+                if not silent:
+                    print(f"  ⚠️  Erreur inattendue cotes : {e}", file=sys.stderr)
+                result['value_bets'] = []
+                result['odds_error'] = str(e)
+
         return convert_types(result)
         
     except Exception as e:
@@ -177,10 +229,13 @@ def predict_multiple(
     date: Optional[str] = None,
     silent: bool = False,
     auto_analyze: bool = True,
-    min_confidence: float = 0.65
+    min_confidence: float = 0.65,
+    with_odds: bool = False,
+    odds_client: Optional[OddsAPIClient] = None,
+    predictor: Optional[UnifiedPredictor] = None,
 ) -> List[Dict]:
     """
-    Prédit plusieurs matchs
+    Prédit plusieurs matchs avec partage du predictor et de l'odds_client.
     
     Args:
         matches: Liste de tuples (home, away)
@@ -189,6 +244,9 @@ def predict_multiple(
         silent: Si True, n'affiche pas les messages
         auto_analyze: Si True, analyse automatiquement les lignes
         min_confidence: Confiance minimale
+        with_odds: Si True, récupère les cotes pour chaque match
+        odds_client: OddsAPIClient préinstancié (sinon créé via config)
+        predictor: UnifiedPredictor préinstancié (sinon créé)
         
     Returns:
         Liste de prédictions
@@ -196,10 +254,20 @@ def predict_multiple(
     if lines is None:
         lines = [None] * len(matches)
     
+    # Partager le predictor entre tous les matchs (évite recharge × N)
+    if predictor is None:
+        if not silent:
+            print("📂 Chargement des modèles (partagé)...", file=sys.stderr)
+        predictor = UnifiedPredictor()
+        if not silent:
+            print("✓ Modèles chargés", file=sys.stderr)
+    
     results = []
     for (home, away), line in zip(matches, lines):
         result = predict_match(home, away, line, date, silent=True, 
-                             auto_analyze=auto_analyze, min_confidence=min_confidence)
+                             auto_analyze=auto_analyze, min_confidence=min_confidence,
+                             with_odds=with_odds, odds_client=odds_client,
+                             predictor=predictor)
         results.append(result)
     
     return results
@@ -217,20 +285,22 @@ def main():
                        help='Désactiver l\'analyse automatique des lignes')
     parser.add_argument('--min-confidence', type=float, default=0.65,
                        help='Confiance minimale pour recommander (défaut: 0.65)')
+    parser.add_argument('--with-odds', action='store_true',
+                       help='Récupère cotes via The-Odds API et calcule value bets '
+                            '(1 crédit API par run, mis en cache 60min)')
+    parser.add_argument('--config', default='config.yaml',
+                       help='Chemin du config.yaml (défaut: config.yaml)')
     
     args = parser.parse_args()
     
     # Parser les matchs
     matches = []
     if len(args.matches) == 1 and ':' in args.matches[0]:
-        # Format: LAL:GSW
         home, away = args.matches[0].split(':')
         matches.append((home.strip(), away.strip()))
     elif len(args.matches) == 2 and ':' not in args.matches[0]:
-        # Format: LAL GSW
         matches.append((args.matches[0], args.matches[1]))
     else:
-        # Format multiple: LAL:GSW BOS:MIA
         for match_str in args.matches:
             if ':' in match_str:
                 home, away = match_str.split(':')
@@ -239,9 +309,24 @@ def main():
                 print(f"❌ Format invalide: {match_str}. Utilisez HOME:AWAY", file=sys.stderr)
                 return 1
     
+    # Instancier l'OddsAPIClient si --with-odds (réutilisé pour tous les matchs)
+    odds_client = None
+    if args.with_odds:
+        try:
+            config = load_config(args.config)
+            api_key = config.get('apis', {}).get('odds_api', {}).get('key', '')
+            sport_key = config.get('apis', {}).get('odds_api', {}).get('sport', 'basketball_nba')
+            if not api_key:
+                print(f"⚠️  config.yaml apis.odds_api.key vide → --with-odds désactivé", file=sys.stderr)
+            else:
+                odds_client = OddsAPIClient(api_key=api_key, sport_key=sport_key)
+                if not args.silent:
+                    print(f"💰 The-Odds API configuré (sport={sport_key})", file=sys.stderr)
+        except Exception as e:
+            print(f"⚠️  Échec init The-Odds API : {e} → --with-odds désactivé", file=sys.stderr)
+    
     # Prédire
     if len(matches) == 1:
-        # Un seul match
         line = args.lines[0] if args.lines else None
         result = predict_match(
             matches[0][0], 
@@ -250,10 +335,11 @@ def main():
             args.date, 
             args.silent,
             auto_analyze=not args.no_auto_analyze,
-            min_confidence=args.min_confidence
+            min_confidence=args.min_confidence,
+            with_odds=args.with_odds and odds_client is not None,
+            odds_client=odds_client,
         )
     else:
-        # Plusieurs matchs
         result = {
             'matches': predict_multiple(
                 matches, 
@@ -261,7 +347,9 @@ def main():
                 args.date, 
                 args.silent,
                 auto_analyze=not args.no_auto_analyze,
-                min_confidence=args.min_confidence
+                min_confidence=args.min_confidence,
+                with_odds=args.with_odds and odds_client is not None,
+                odds_client=odds_client,
             ),
             'count': len(matches)
         }

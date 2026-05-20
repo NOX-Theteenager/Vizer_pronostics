@@ -170,7 +170,7 @@ class UnifiedPredictor:
         total_market = self.registry.get('total')
         t_pred = total_market.predict(home_team, away_team, context={'features_row': features})
 
-        return {
+        result = {
             'home_team': home_team,
             'away_team': away_team,
             'win': {
@@ -185,6 +185,121 @@ class UnifiedPredictor:
                 'home_ratio': float(home_talent_ratio),
                 'away_ratio': float(away_talent_ratio),
             },
+        }
+
+        # Étape 6 : team totals si markets disponibles dans le registre.
+        # Optionnel — si home_team_total / away_team_total ne sont pas entraînés,
+        # on saute silencieusement (rétrocompat avec anciens modèles).
+        if self.registry.has('home_team_total'):
+            htt = self.registry.get('home_team_total')
+            htt_pred = htt.predict(home_team, away_team, context={'features_row': features})
+            result['home_team_total'] = {
+                'prediction': float(htt_pred.expected_value),
+                'line_default': float(htt_pred.metadata.get('line_used')),
+                'over_default_proba': float(
+                    htt_pred.probabilities[f"over_{htt_pred.metadata['line_used']}"]
+                ),
+            }
+        if self.registry.has('away_team_total'):
+            att = self.registry.get('away_team_total')
+            att_pred = att.predict(home_team, away_team, context={'features_row': features})
+            result['away_team_total'] = {
+                'prediction': float(att_pred.expected_value),
+                'line_default': float(att_pred.metadata.get('line_used')),
+                'over_default_proba': float(
+                    att_pred.probabilities[f"over_{att_pred.metadata['line_used']}"]
+                ),
+            }
+
+        return result
+
+    # =================================================== Team Total (étape 6)
+    def predict_team_total(
+        self,
+        home_team: str,
+        away_team: str,
+        side: str = 'home',
+        date: Optional[str] = None,
+        home_talent_ratio: float = 1.0,
+        away_talent_ratio: float = 1.0,
+    ) -> Dict[str, Any]:
+        """
+        Prédit les points d'une équipe seule (home ou away).
+
+        Args:
+            side : 'home' ou 'away'.
+
+        Returns:
+            {'prediction': float, 'side': 'home'|'away', 'team': abbr, ...}
+        """
+        if side not in ('home', 'away'):
+            raise ValueError(f"side doit être 'home' ou 'away', reçu {side!r}")
+        market_name = f"{side}_team_total"
+        if not self.registry.has(market_name):
+            raise KeyError(
+                f"Marché '{market_name}' non disponible. "
+                f"Active-le dans config.yaml et relance train.py."
+            )
+
+        features = self._prepare_game_features(
+            home_team, away_team, date, home_talent_ratio, away_talent_ratio
+        )
+        market = self.registry.get(market_name)
+        pred = market.predict(home_team, away_team, context={'features_row': features})
+
+        return {
+            'prediction': float(pred.expected_value),
+            'side': side,
+            'team': home_team if side == 'home' else away_team,
+            'opponent': away_team if side == 'home' else home_team,
+            'home_team': home_team,
+            'away_team': away_team,
+        }
+
+    def predict_team_under_over(
+        self,
+        home_team: str,
+        away_team: str,
+        side: str,
+        line: float,
+        date: Optional[str] = None,
+        home_talent_ratio: float = 1.0,
+        away_talent_ratio: float = 1.0,
+    ) -> Dict[str, Any]:
+        """
+        Prédit Over/Under sur une ligne précise pour le total d'une équipe.
+        Utilise la calibration gaussienne (sigma = RMSE test du market).
+        """
+        if side not in ('home', 'away'):
+            raise ValueError(f"side doit être 'home' ou 'away', reçu {side!r}")
+        market_name = f"{side}_team_total"
+        if not self.registry.has(market_name):
+            raise KeyError(
+                f"Marché '{market_name}' non disponible. "
+                f"Active-le dans config.yaml et relance train.py."
+            )
+
+        features = self._prepare_game_features(
+            home_team, away_team, date, home_talent_ratio, away_talent_ratio
+        )
+        market = self.registry.get(market_name)
+        pred = market.predict_for_line(
+            home_team, away_team, line=line, context={'features_row': features}
+        )
+        predicted_pts = float(pred.expected_value)
+        p_over = float(pred.probabilities[f'over_{line}'])
+        p_under = float(pred.probabilities[f'under_{line}'])
+
+        return {
+            'prediction': predicted_pts,
+            'side': side,
+            'team': home_team if side == 'home' else away_team,
+            'line': line,
+            'over_proba': p_over,
+            'under_proba': p_under,
+            'recommendation': 'over' if predicted_pts > line else 'under',
+            'home_team': home_team,
+            'away_team': away_team,
         }
 
     # ==================================================== Feature builder
