@@ -31,6 +31,7 @@ except Exception:
 
 from src.data.downloader import MoneypuckDownloader
 from src.data.aggregator import NHLAggregator
+from src.data.period_aggregator import PeriodAggregator
 
 
 def main():
@@ -38,8 +39,8 @@ def main():
     parser.add_argument('--config', default='config.yaml')
     parser.add_argument('--mode', choices=['update', 'rebuild'], default='update',
                         help="'update' = download + agrège ; 'rebuild' = agrège local")
-    parser.add_argument('--season', type=int, default=2025,
-                        help="Année de la saison courante (défaut 2025)")
+    parser.add_argument('--season', type=int, default=None,
+                        help="Année de la saison courante (défaut: auto-détectée)")
     parser.add_argument('--with-shots', action='store_true',
                         help="Télécharge aussi les fichiers shots (pour period_stats / P1)")
     parser.add_argument('--no-download', action='store_true',
@@ -49,6 +50,14 @@ def main():
 
     if args.no_download:
         args.mode = 'rebuild'
+
+    # Détection auto de la saison NHL si non précisée
+    from src.season import current_nhl_season, is_offseason, detect_available_seasons
+    if args.season is None:
+        args.season = current_nhl_season()
+        auto_note = " (auto-détectée)"
+    else:
+        auto_note = ""
 
     # Config (data_dir + filename)
     data_dir = args.data_dir or 'data'
@@ -67,9 +76,21 @@ def main():
     print("🏒 MISE À JOUR DU DATASET NHL")
     print("=" * 70)
     print(f"Mode      : {args.mode}")
-    print(f"Saison    : {args.season}")
+    print(f"Saison    : {args.season}{auto_note}")
     print(f"Data dir  : {data_dir}")
     print(f"Sortie    : {output_filename}")
+
+    if is_offseason():
+        print("\nℹ️  Intersaison NHL (juillet-septembre) : pas de nouveaux matchs "
+              "attendus avant octobre.")
+
+    # Détecter les saisons déjà présentes localement
+    local_seasons = detect_available_seasons(data_dir, category='skaters')
+    if local_seasons:
+        print(f"Saisons locales détectées : {local_seasons[0]}–{local_seasons[-1]} "
+              f"({len(local_seasons)} saisons)")
+        if args.season not in local_seasons and args.mode == 'update':
+            print(f"🆕 Nouvelle saison {args.season} détectée — sera téléchargée.")
 
     # ── Étape 1 : Téléchargement (mode update seulement) ──
     if args.mode == 'update':
@@ -83,7 +104,21 @@ def main():
     else:
         print("\nℹ️  Mode rebuild : pas de téléchargement, ré-agrégation locale.")
 
-    # ── Étape 2 : Agrégation ──
+    # ── Étape 1b : Agrégation des tirs → period_stats (réplique 02b) ──
+    # On l'exécute si des fichiers shots sont présents (téléchargés ou locaux),
+    # AVANT l'agrégation principale, pour que period_stats.csv soit prêt à être
+    # fusionné (goals_p1) par NHLAggregator._merge_period_stats.
+    shots_present = bool(list(Path(data_dir).glob('shots_*.csv')))
+    if args.with_shots or shots_present:
+        print(f"\n🎯 Agrégation des tirs → period_stats (1re période)...")
+        print("-" * 70)
+        try:
+            PeriodAggregator(data_dir=data_dir, verbose=True).build(save=True)
+        except Exception as e:
+            print(f"⚠️  Échec agrégation des tirs ({e}). "
+                  f"Les markets P1 utiliseront le fallback 30%.", file=sys.stderr)
+
+    # ── Étape 2 : Agrégation du dataset principal ──
     print(f"\n🔧 Agrégation du dataset...")
     print("-" * 70)
     agg = NHLAggregator(data_dir=data_dir, verbose=True)

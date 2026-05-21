@@ -42,9 +42,13 @@ class MoneypuckDownloader:
         timeout  : timeout HTTP en secondes
     """
 
-    def __init__(self, data_dir: str = 'data', season: int = 2025, timeout: int = 60):
+    def __init__(self, data_dir: str = 'data', season: Optional[int] = None,
+                 timeout: int = 60):
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
+        if season is None:
+            from ..season import current_nhl_season
+            season = current_nhl_season()
         self.season = season
         self.timeout = timeout
 

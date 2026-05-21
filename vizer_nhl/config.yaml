@@ -16,8 +16,8 @@ paths:
 data_split:
   exclude_anomalous_seasons: true
   excluded_years: [2013, 2020]    # lock-out + COVID bubble
-  train_until_year: 2023
-  test_year: 2024
+  train_until_year: null   # null = auto-détection (dernière saison = test)
+  test_year: null          # null = auto-détection
 
 # Feature engineering
 features:

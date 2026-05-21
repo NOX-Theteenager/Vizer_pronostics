@@ -135,11 +135,13 @@ def main():
     print(f"\n📅 Split temporel")
     train_until = split_cfg.get('train_until_year')
     test_year = split_cfg.get('test_year')
-    if train_until is None:
-        # Auto : dernière année - 1
-        max_year = int(df_eng['gameDate_home'].dt.year.max())
-        train_until = max_year - 1
-        test_year = max_year
+    # Auto-détection si non précisé, ou si explicitement mis à 'auto'/null
+    if train_until in (None, 'auto'):
+        from src.season import detect_dataset_seasons, suggest_train_test_split
+        seasons = detect_dataset_seasons(df_eng)
+        train_until, test_year = suggest_train_test_split(seasons)
+        print(f"  🔍 Split auto-détecté depuis les saisons du dataset "
+              f"({seasons[0]}–{seasons[-1]})")
     train_df, test_df = loader.split_chronological(
         df_eng, train_until_year=train_until, test_year=test_year
     )
