@@ -1,0 +1,16 @@
+{
+  "id": "__KAGGLE_USERNAME__/vizer-training-pipeline",
+  "title": "Vizer Training Pipeline",
+  "code_file": "vizer_training_notebook.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": "true",
+  "enable_gpu": "false",
+  "enable_internet": "true",
+  "dataset_sources": [
+    "__KAGGLE_USERNAME__/vizer-nhl-data",
+    "__KAGGLE_USERNAME__/vizer-nba-data"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}

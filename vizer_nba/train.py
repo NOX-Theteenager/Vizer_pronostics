@@ -59,9 +59,13 @@ def main(config_path: str = 'config.yaml') -> int:
         return 1
 
     enabled_markets = [m for m, c in config['markets'].items() if c.get('enabled')]
+    _ds = config['data_split']
+    _split_desc = (f"{_ds.get('train_season_start')} → {_ds.get('train_season_end')}"
+                   if _ds.get('train_season_end') not in (None, 'auto')
+                   else "auto-détecté")
     print(f"  ✓ Sport         : {config['sport']}")
-    print(f"  ✓ Train seasons : {config['data_split']['train_season_start']} → {config['data_split']['train_season_end']}")
-    print(f"  ✓ Test season   : {config['data_split']['test_season']}")
+    print(f"  ✓ Train seasons : {_split_desc}")
+    print(f"  ✓ Test season   : {_ds.get('test_season') if _ds.get('test_season') not in (None,'auto') else 'auto-détecté'}")
     print(f"  ✓ Marchés actifs: {enabled_markets}")
     print()
 
@@ -99,9 +103,29 @@ def main(config_path: str = 'config.yaml') -> int:
     # ─── 3. SPLIT ───────────────────────────────────────────────────────────
     print("📊 Étape 3/6 : Split temporel")
     print("-" * 70)
-    train_start = config['data_split']['train_season_start']
-    train_end = config['data_split']['train_season_end']
-    test_season = config['data_split']['test_season']
+    split_cfg = config['data_split']
+    train_start = split_cfg.get('train_season_start')
+    train_end = split_cfg.get('train_season_end')
+    test_season = split_cfg.get('test_season')
+
+    # Auto-détection si non précisé (ou 'auto'/null) : test = dernière saison,
+    # train = N saisons récentes précédentes (fenêtre glissante post-COVID).
+    if train_end in (None, 'auto') or test_season in (None, 'auto'):
+        available = sorted(int(s) for s in features_df['SEASON_ID'].unique())
+        if len(available) >= 2:
+            test_season = available[-1]
+            train_end = available[-2]
+            # Fenêtre glissante : garder train_window saisons (défaut 5)
+            train_window = split_cfg.get('train_window', 5)
+            # SEASON_ID est séquentiel (22020, 22021, ...) → soustraction directe
+            candidate_start = train_end - (train_window - 1)
+            train_start = max(candidate_start, available[0])
+            print(f"  🔍 Split auto-détecté (fenêtre {train_window} saisons) "
+                  f"depuis {available[0]}–{available[-1]}")
+        else:
+            # Pas assez de saisons : tout en train sauf rien
+            test_season = available[-1] if available else None
+            train_start = train_end = available[0] if available else None
 
     train_df = features_df[
         (features_df['SEASON_ID'] >= train_start)

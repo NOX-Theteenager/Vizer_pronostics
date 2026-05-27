@@ -16,15 +16,14 @@ def fetch_all_games(incremental=True):
         incremental: Si True, ne télécharge que les nouvelles données
     """
     import os
-    
-    # Saisons à récupérer (de 2000-01 à 2025-26)
-    all_seasons = [
-        '2000-01', '2001-02', '2002-03', '2003-04', '2004-05',
-        '2005-06', '2006-07', '2007-08', '2008-09', '2009-10',
-        '2010-11', '2011-12', '2012-13', '2013-14', '2014-15',
-        '2015-16', '2016-17', '2017-18', '2018-19', '2019-20',
-        '2020-21', '2021-22', '2022-23', '2023-24', '2024-25', '2025-26'
-    ]
+
+    # Saisons à récupérer : générées DYNAMIQUEMENT de 2000-01 jusqu'à la
+    # saison courante (incluse). Évite la liste figée qui empêchait la
+    # récupération des nouvelles saisons après 2025-26.
+    now = datetime.now()
+    # Après juillet → la nouvelle saison (year-year+1) a démarré
+    end_year = now.year if now.month >= 7 else now.year - 1
+    all_seasons = [f"{y}-{str(y + 1)[-2:]}" for y in range(2000, end_year + 1)]
     
     existing_df = None
     seasons_to_fetch = all_seasons

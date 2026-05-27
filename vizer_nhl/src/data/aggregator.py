@@ -73,21 +73,39 @@ class NHLAggregator:
         if self.verbose:
             print(msg)
 
-    def _read_concat(self, hist: str, current: str) -> pd.DataFrame:
-        """Concatène un CSV historique + saison courante (si présente)."""
-        frames = []
-        if self._path(hist).exists():
-            frames.append(pd.read_csv(self._path(hist)))
-        if self._path(current).exists():
-            frames.append(pd.read_csv(self._path(current)))
-        if not frames:
-            raise FileNotFoundError(f"Aucun fichier trouvé : {hist} ni {current}")
-        return pd.concat(frames, ignore_index=True)
+    def _read_concat(self, category: str) -> pd.DataFrame:
+        """
+        Concatène TOUS les fichiers d'une catégorie présents dans data_dir.
+
+        Détecte automatiquement via glob :
+          - le fichier historique multi-saisons : {category}_2008_2024.csv
+          - chaque fichier mono-saison : {category}_2025.csv, _2026.csv, ...
+
+        Ainsi, quand une nouvelle saison arrive (ex: skaters_2026.csv ajouté
+        par le downloader), elle est intégrée sans modifier le code.
+        Déduplication par (gameId, playerTeam/team) après concat.
+        """
+        files = sorted(self.data_dir.glob(f'{category}_*.csv'))
+        if not files:
+            raise FileNotFoundError(
+                f"Aucun fichier '{category}_*.csv' trouvé dans {self.data_dir}/"
+            )
+        self._log(f"   {category}: {len(files)} fichier(s) — "
+                  f"{[f.name for f in files]}")
+        frames = [pd.read_csv(f) for f in files]
+        df = pd.concat(frames, ignore_index=True)
+
+        # Dédup si un même match apparaît dans 2 fichiers (chevauchement saisons)
+        key_cols = [c for c in ['gameId', 'playerTeam', 'team', 'situation']
+                    if c in df.columns]
+        if 'gameId' in df.columns and len(key_cols) > 1:
+            df = df.drop_duplicates(subset=key_cols, keep='last')
+        return df
 
     # ─────────────────────────────────────────────── Étape 1 : Gardiens
     def _build_goalies(self) -> pd.DataFrame:
         self._log("🧤 Étape 1 — Gardiens...")
-        df_g = self._read_concat('goalies_2008_2024.csv', 'goalies_2025.csv')
+        df_g = self._read_concat('goalies')
         df_g = normalize_teams(df_g)
         df_g['GSAE'] = df_g['xGoals'] - df_g['goals']
         df_g = (df_g[df_g['situation'] == 'all']
@@ -100,7 +118,7 @@ class NHLAggregator:
     # ─────────────────────────────────────────────── Étape 2 : Skaters + Lignes
     def _build_skaters_lines(self) -> tuple[pd.DataFrame, pd.DataFrame]:
         self._log("⛸️  Étape 2 — Skaters & Lignes...")
-        df_s = self._read_concat('skaters_2008_2024.csv', 'skaters_2025.csv')
+        df_s = self._read_concat('skaters')
         df_s = normalize_teams(df_s)
         df_s = df_s[df_s['situation'] == 'all'].copy()
         df_s['star_impact'] = df_s['onIce_xGoalsPercentage'] - df_s['offIce_xGoalsPercentage']
@@ -112,7 +130,7 @@ class NHLAggregator:
         df_s_agg = df_s_agg.rename(columns={'playerTeam': 'team'})
         del df_s; gc.collect()
 
-        df_l = self._read_concat('lines_2008_2024.csv', 'lines_2025.csv')
+        df_l = self._read_concat('lines')
         df_l = normalize_teams(df_l).copy()
         df_l['panic_score'] = df_l['dZoneGiveawaysAgainst'] / (df_l['icetime'] / 60 + 0.001)
         df_l_top = (df_l[df_l['iceTimeRank'] <= 2]

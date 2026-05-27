@@ -10,14 +10,23 @@ from nba_api.stats.static import players
 import sys
 import os
 
-def fetch_player_games(seasons=['2024-25', '2025-26'], active_only=True):
+def recent_seasons(n: int = 2):
+    """Retourne les n dernières saisons NBA au format 'YYYY-YY' (dynamique)."""
+    now = datetime.now()
+    end_year = now.year if now.month >= 7 else now.year - 1
+    return [f"{y}-{str(y + 1)[-2:]}" for y in range(end_year - n + 1, end_year + 1)]
+
+
+def fetch_player_games(seasons=None, active_only=True):
     """
     Récupère les stats des joueurs par match
-    
+
     Args:
-        seasons: Liste des saisons à récupérer
+        seasons: Liste des saisons à récupérer (défaut: 2 dernières, dynamique)
         active_only: Si True, récupère uniquement les joueurs actifs
     """
+    if seasons is None:
+        seasons = recent_seasons(2)
     
     print("=" * 70)
     print("RÉCUPÉRATION DES STATS JOUEURS PAR MATCH")
@@ -142,8 +151,8 @@ if __name__ == "__main__":
     import argparse
     
     parser = argparse.ArgumentParser(description='Récupérer les stats des joueurs par match')
-    parser.add_argument('--seasons', nargs='+', default=['2024-25', '2025-26'],
-                        help='Saisons à récupérer (ex: 2023-24 2024-25)')
+    parser.add_argument('--seasons', nargs='+', default=None,
+                        help='Saisons à récupérer (défaut: 2 dernières, auto-détectées)')
     parser.add_argument('--all-players', action='store_true',
                         help='Récupérer tous les joueurs (pas seulement les actifs)')
     
