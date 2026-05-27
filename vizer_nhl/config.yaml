@@ -52,7 +52,7 @@ markets:
         random_state: 42
 
   total:
-    enabled: true
+    enabled: false   # ROI -11 % en backtest — désactivé jusqu'à recalibration
     edge_threshold: 0.05
     kelly_factor: 0.25
     default_ou_line: 5.5
@@ -131,6 +131,6 @@ services:
 
 # Odds API (The-Odds API) — clé réutilisée du projet NHL existant
 odds_api:
-  key: "aaea026bdcd560b9ab5f8119b39adb38"   # clé partagée NHL/NBA
+  key: ""   # laisser vide : lu depuis $ODDS_API_KEY (env var) ou --api-key
   sport_key: "icehockey_nhl"
   cache_ttl_minutes: 60

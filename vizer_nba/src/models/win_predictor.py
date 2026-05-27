@@ -89,82 +89,98 @@ class NBAMatchPredictor(BaseNBAModel):
         return X, y
     
     def train(
-        self, 
+        self,
         train_df: pd.DataFrame,
         test_df: pd.DataFrame,
-        verbose: bool = True
+        verbose: bool = True,
     ) -> Dict:
         """
-        Entraîne le modèle avec validation temporelle
-        
-        Args:
-            train_df: DataFrame avec features et target pour l'entraînement
-            test_df: DataFrame avec features et target pour le test
-            verbose: Afficher les résultats
-            
-        Returns:
-            Dictionnaire avec les métriques de performance
+        Entraîne le modèle avec validation temporelle.
+
+        Si calibrate=True, applique une calibration isotonique sur un split
+        chronologique de la fin du train (calib_fraction, défaut 15 %).
+        On utilise cv='prefit' (et non cv=5) pour respecter l'ordre temporel :
+        les folds aléatoires de cv=5 mélangeraient passé et futur sur des données
+        de séries temporelles.
         """
-        # Préparer les features
-        X_train, y_train = self.prepare_features(train_df)
+        calib_fraction = self.hyperparameters.get('calib_fraction', 0.15)
+
+        X_train_full, y_train_full = self.prepare_features(train_df)
         X_test, y_test = self.prepare_features(test_df)
-        
+
         if verbose:
             print("📊 Entraînement du modèle")
             print("=" * 50)
-            print(f"Train: {len(X_train):,} matchs")
+            print(f"Train: {len(X_train_full):,} matchs")
             print(f"Test:  {len(X_test):,} matchs")
             print(f"Features: {len(self.feature_columns)}")
             if self.calibrate:
-                print("⚙️  Calibration des probabilités activée")
-        
-        # Entraîner le modèle de base
-        self.base_model.fit(X_train, y_train)
-        
-        # Calibrer si demandé
+                n_calib = int(len(X_train_full) * calib_fraction)
+                print(f"⚙️  Calibration isotonique — split chrono "
+                      f"{100*(1-calib_fraction):.0f}%/{100*calib_fraction:.0f}% "
+                      f"({len(X_train_full)-n_calib:,} fit / {n_calib:,} calib)")
+
         if self.calibrate:
+            # Split chronologique : les matchs les plus récents servent à calibrer
+            calib_idx = int(len(X_train_full) * (1 - calib_fraction))
+            X_fit,   y_fit   = X_train_full.iloc[:calib_idx],  y_train_full.iloc[:calib_idx]
+            X_calib, y_calib = X_train_full.iloc[calib_idx:],  y_train_full.iloc[calib_idx:]
+
+            # 1. XGBoost entraîné sur les matchs les plus anciens
+            self.base_model.fit(X_fit, y_fit)
+
+            # 2. Calibration isotonique sur les matchs les plus récents (cv='prefit')
             if verbose:
-                print("🔧 Calibration des probabilités...")
-            
-            # Calibrer avec cross-validation (cv=5)
-            # Cela va réentraîner le modèle 5 fois pour calibrer
+                print("🔧 Calibration isotonique (cv='prefit', split chrono)...")
             self.model = CalibratedClassifierCV(
                 self.base_model,
                 method='isotonic',
-                cv=5,
-                n_jobs=-1
+                cv='prefit',
             )
-            self.model.fit(X_train, y_train)
+            self.model.fit(X_calib, y_calib)
+
+            # Brier avant / après calibration sur le set de calibration
+            if verbose:
+                raw_proba  = self.base_model.predict_proba(X_calib)[:, 1]
+                cal_proba  = self.model.predict_proba(X_calib)[:, 1]
+                brier_raw  = brier_score_loss(y_calib, raw_proba)
+                brier_cal  = brier_score_loss(y_calib, cal_proba)
+                delta      = brier_raw - brier_cal
+                sign       = "↓" if delta > 0 else "↑"
+                print(f"   Brier (calib set) : {brier_raw:.4f} → {brier_cal:.4f} "
+                      f"({sign}{abs(delta):.4f})")
         else:
+            self.base_model.fit(X_train_full, y_train_full)
             self.model = self.base_model
-        
+
         self.is_trained = True
-        
+
         # Prédictions
-        y_pred_train = self.model.predict(X_train)
-        y_pred_test = self.model.predict(X_test)
-        
+        y_pred_train = self.model.predict(X_train_full)
+        y_pred_test  = self.model.predict(X_test)
+
         # Probabilités
-        y_proba_train = self.model.predict_proba(X_train)[:, 1]
-        y_proba_test = self.model.predict_proba(X_test)[:, 1]
+        y_proba_train = self.model.predict_proba(X_train_full)[:, 1]
+        y_proba_test  = self.model.predict_proba(X_test)[:, 1]
         
         # Métriques
-        train_acc = accuracy_score(y_train, y_pred_train)
-        test_acc = accuracy_score(y_test, y_pred_test)
-        
+        train_acc = accuracy_score(y_train_full, y_pred_train)
+        test_acc  = accuracy_score(y_test,       y_pred_test)
+
         # Brier score (mesure de calibration)
-        train_brier = brier_score_loss(y_train, y_proba_train)
-        test_brier = brier_score_loss(y_test, y_proba_test)
-        
+        train_brier = brier_score_loss(y_train_full, y_proba_train)
+        test_brier  = brier_score_loss(y_test,       y_proba_test)
+
         # Sauvegarder les métriques
         self.metrics = {
-            'train_accuracy': train_acc,
-            'test_accuracy': test_acc,
+            'train_accuracy':   train_acc,
+            'test_accuracy':    test_acc,
             'train_brier_score': train_brier,
-            'test_brier_score': test_brier,
-            'n_train': len(X_train),
-            'n_test': len(X_test),
-            'calibrated': self.calibrate
+            'test_brier_score':  test_brier,
+            'n_train': len(X_train_full),
+            'n_test':  len(X_test),
+            'calibrated': self.calibrate,
+            'calibration_method': 'isotonic_prefit_chrono' if self.calibrate else 'none',
         }
         
         if verbose:

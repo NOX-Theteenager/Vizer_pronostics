@@ -5,16 +5,18 @@ Télécharge les fichiers de la saison courante depuis Moneypuck et les fusionne
 de façon incrémentale (seuls les gameId absents sont ajoutés) avec les CSVs
 historiques locaux.
 
-Source : https://peter-tanner.com/moneypuck/downloads/
-  - skaters/<saison>.zip
-  - lines/<saison>.zip
-  - goalies/<saison>.zip
-  - all_teams.csv (téléchargé séparément / historique)
+Sources :
+  https://peter-tanner.com/moneypuck/downloads/
+    - skaters/<saison>.zip
+    - lines/<saison>.zip
+    - goalies/<saison>.zip
+  https://moneypuck.com/moneypuck/playerData/careers/gameByGame/
+    - all_teams.csv  (toutes saisons confondues, base du pipeline de feature engineering)
 
 Usage :
     from src.data.downloader import MoneypuckDownloader
     dl = MoneypuckDownloader(data_dir='data', season=2025)
-    dl.update_current_season()        # skaters/lines/goalies de la saison
+    dl.update_current_season()        # skaters/lines/goalies + all_teams.csv
     dl.download_shots()               # optionnel (2.5 GB) pour period_stats
 """
 from __future__ import annotations
@@ -29,7 +31,9 @@ import pandas as pd
 import requests
 
 
-MONEYPUCK_BASE = "https://peter-tanner.com/moneypuck/downloads"
+MONEYPUCK_BASE    = "https://peter-tanner.com/moneypuck/downloads"
+ALL_TEAMS_URL     = ("https://moneypuck.com/moneypuck/playerData"
+                     "/careers/gameByGame/all_teams.csv")
 
 
 class MoneypuckDownloader:
@@ -77,14 +81,67 @@ class MoneypuckDownloader:
             csv_name = [f for f in z.namelist() if f.endswith('.csv')][0]
             return pd.read_csv(z.open(csv_name))
 
+    def download_all_teams(self) -> str:
+        """
+        Télécharge / met à jour all_teams.csv depuis Moneypuck (incrémental).
+
+        all_teams.csv est la source principale de l'agrégateur (Étape 3) :
+        stats 5v5/all/PP/PK, goalsFor/Against, xGoals, home_or_away, etc.
+        Sans ce fichier, NHLAggregator.build() échoue immédiatement.
+
+        La mise à jour est incrémentale : seuls les (gameId, team, situation)
+        absents du fichier local sont ajoutés pour éviter de réécrire 2 Go
+        à chaque run.
+
+        Returns:
+            Chaîne de statut (loggée par update_current_season).
+        """
+        path = self.data_dir / 'all_teams.csv'
+        try:
+            print(f"  ⬇️  all_teams.csv depuis Moneypuck...", file=sys.stderr)
+            r = requests.get(ALL_TEAMS_URL, timeout=self.timeout)
+            r.raise_for_status()
+            df_new = pd.read_csv(io.BytesIO(r.content))
+
+            if path.exists():
+                # Clé de dédup : (gameId, team, situation) — identifie chaque ligne de façon unique
+                key_cols = ['gameId', 'team', 'situation']
+                key_cols = [c for c in key_cols if c in df_new.columns]
+                df_existing = pd.read_csv(path, usecols=key_cols)
+                existing_keys = set(
+                    map(tuple, df_existing[key_cols].itertuples(index=False, name=None))
+                )
+                df_new_keys = df_new[key_cols].apply(tuple, axis=1)
+                df_to_add = df_new[~df_new_keys.isin(existing_keys)]
+                if not df_to_add.empty:
+                    n_games = df_to_add['gameId'].nunique() if 'gameId' in df_to_add.columns else '?'
+                    df_to_add.to_csv(path, mode='a', header=False, index=False)
+                    status = f"✅ +{len(df_to_add):,} lignes ({n_games} matchs)"
+                else:
+                    status = "✓ Déjà à jour"
+            else:
+                df_new.to_csv(path, index=False)
+                n_games = df_new['gameId'].nunique() if 'gameId' in df_new.columns else '?'
+                status = f"🆕 Créé ({len(df_new):,} lignes, {n_games} matchs)"
+
+        except Exception as e:
+            status = f"❌ Erreur : {str(e)[:100]}"
+
+        print(f"  {'ALL_TEAMS':<10} {status}", file=sys.stderr)
+        return status
+
     def update_current_season(self) -> dict[str, str]:
         """
-        Met à jour skaters/lines/goalies de la saison courante (incrémental).
+        Met à jour skaters/lines/goalies de la saison courante + all_teams.csv.
 
         Returns:
             dict {catégorie: statut} récapitulatif.
         """
         results = {}
+
+        # all_teams.csv en premier — requis par l'agrégateur, absent du pipeline sinon
+        results['all_teams'] = self.download_all_teams()
+
         for cat, info in self._files_config().items():
             path = info['path']
             try:

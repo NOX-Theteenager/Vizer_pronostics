@@ -13,6 +13,7 @@ Usage :
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
@@ -120,9 +121,32 @@ def load_config(path: str | Path = "config.yaml", validate: bool = True) -> dict
     if not isinstance(config, dict):
         raise ConfigError(f"{path} doit contenir un dict YAML au niveau racine.")
 
+    # Surcharge de la clé API depuis la variable d'environnement ODDS_API_KEY.
+    # Priorité : env var > config.yaml (permet de ne pas exposer la clé dans le dépôt).
+    _inject_env_api_key(config)
+
     if validate:
         _validate_schema(config)
     return config
+
+
+def _inject_env_api_key(config: dict[str, Any]) -> None:
+    """Surcharge la clé Odds API depuis ODDS_API_KEY si la variable est définie.
+
+    Supporte les deux formats de config :
+      - NHL : config.odds_api.key
+      - NBA : config.apis.odds_api.key
+    """
+    env_key = os.environ.get("ODDS_API_KEY", "").strip()
+    if not env_key:
+        return
+    # Format NHL
+    if isinstance(config.get("odds_api"), dict):
+        config["odds_api"]["key"] = env_key
+    # Format NBA
+    apis = config.get("apis")
+    if isinstance(apis, dict) and isinstance(apis.get("odds_api"), dict):
+        apis["odds_api"]["key"] = env_key
 
 
 def get_market_config(config: dict[str, Any], market_name: str) -> dict[str, Any]:

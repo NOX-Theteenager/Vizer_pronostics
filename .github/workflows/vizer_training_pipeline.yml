@@ -1,0 +1,272 @@
+# =============================================================================
+# Vizer Training Pipeline — GitHub Actions
+# =============================================================================
+#
+# Chef d'orchestre du pipeline MLOps hybride GitHub Actions / Kaggle.
+#
+# Déclenchement :
+#   - Cron automatique : chaque lundi à 4h UTC (après les matchs du weekend)
+#   - Manuel (workflow_dispatch) : sport, branche et cible de déploiement
+#     configurables à la volée
+#
+# Secrets GitHub requis :
+#   KAGGLE_USERNAME     → nom d'utilisateur Kaggle (public, ex: nox-theteenager)
+#   KAGGLE_KEY          → clé API Kaggle (Kaggle > Account > API > Create New Token)
+#
+# Secrets supplémentaires pour le déploiement Streamlit Cloud :
+#   (aucun secret requis, git push avec le GITHUB_TOKEN natif)
+#
+# Secrets supplémentaires pour le déploiement Raspberry Pi :
+#   RPI_SSH_KEY         → clé privée SSH (contenu PEM, ex: cat ~/.ssh/id_rsa)
+#   RPI_HOST            → IP ou hostname du Raspberry Pi (ex: 192.168.1.50)
+#   RPI_USER            → utilisateur SSH (ex: pi)
+#   RPI_MODELS_PATH     → chemin distant vers les modèles (ex: /home/pi/vizer/models)
+# =============================================================================
+
+name: Vizer Training Pipeline
+
+on:
+  schedule:
+    # Chaque lundi à 4h UTC — suffisant pour capturer la mise à jour hebdomadaire
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      sport:
+        description: 'Sport à entraîner'
+        required: false
+        default: 'both'
+        type: choice
+        options: [both, nhl, nba]
+      branch:
+        description: 'Branche Git à cloner sur Kaggle'
+        required: false
+        default: 'main'
+        type: string
+      deploy:
+        description: 'Cible de déploiement après entraînement'
+        required: false
+        default: 'none'
+        type: choice
+        options: [none, streamlit, rpi]
+
+# Évite les exécutions concurrentes (une seule à la fois par branche)
+concurrency:
+  group: vizer-training-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  train-on-kaggle:
+    name: Entraîner sur Kaggle et déployer
+    runs-on: ubuntu-latest
+    timeout-minutes: 150   # 2h30 max (sécurité si Kaggle est lent)
+
+    env:
+      SPORT_INPUT:   ${{ github.event.inputs.sport  || 'both' }}
+      GH_REF_INPUT:  ${{ github.event.inputs.branch || 'main' }}
+      DEPLOY_TARGET: ${{ github.event.inputs.deploy || 'none' }}
+      KAGGLE_SLUG:   vizer-training-pipeline   # doit correspondre à kernel-metadata.json
+
+    steps:
+      # ── 1. Checkout ─────────────────────────────────────────────────────────
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      # ── 2. Python ────────────────────────────────────────────────────────────
+      - name: Configurer Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      # ── 3. Kaggle CLI ────────────────────────────────────────────────────────
+      - name: Installer la CLI Kaggle
+        run: pip install --quiet "kaggle>=1.6"
+
+      - name: Configurer les credentials Kaggle
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          KAGGLE_KEY:      ${{ secrets.KAGGLE_KEY }}
+        run: |
+          mkdir -p ~/.kaggle
+          printf '{"username":"%s","key":"%s"}\n' \
+            "$KAGGLE_USERNAME" "$KAGGLE_KEY" > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json
+          echo "✅ Credentials Kaggle configurés pour $KAGGLE_USERNAME"
+
+      # ── 4. Préparer le notebook ───────────────────────────────────────────────
+      # Les placeholders __VIZER_*__ dans le template sont remplacés par les
+      # valeurs du run courant avant envoi à Kaggle.
+      - name: Préparer le notebook (injection des paramètres de run)
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+        run: |
+          # Copier le template dans un fichier de travail temporaire
+          cp kaggle/vizer_training_notebook.py /tmp/nb_run.py
+          cp kaggle/kernel-metadata.json        /tmp/meta_run.json
+
+          # Substituer les placeholders dans le notebook
+          sed -i "s|__VIZER_SPORT__|${SPORT_INPUT}|g"      /tmp/nb_run.py
+          sed -i "s|__VIZER_GH_REPO__|${{ github.repository }}|g" /tmp/nb_run.py
+          sed -i "s|__VIZER_GH_REF__|${GH_REF_INPUT}|g"   /tmp/nb_run.py
+
+          # Injecter le username Kaggle dans le metadata (non-secret, c'est public)
+          sed -i "s|__KAGGLE_USERNAME__|${KAGGLE_USERNAME}|g" /tmp/meta_run.json
+
+          # Recopier dans le dossier kaggle/ avant le push
+          cp /tmp/nb_run.py    kaggle/vizer_training_notebook.py
+          cp /tmp/meta_run.json kaggle/kernel-metadata.json
+
+          echo "=== Paramètres du run ==="
+          echo "  Sport    : ${SPORT_INPUT}"
+          echo "  Dépôt    : ${{ github.repository }}"
+          echo "  Branche  : ${GH_REF_INPUT}"
+          echo "  Kaggle   : ${KAGGLE_USERNAME}/${KAGGLE_SLUG}"
+
+      # ── 5. Déclencher le kernel Kaggle ────────────────────────────────────────
+      - name: Pousser et déclencher le kernel Kaggle
+        run: |
+          kaggle kernels push -p kaggle/
+          echo "✅ Kernel poussé — exécution déclenchée sur Kaggle"
+
+      # ── 6. Attendre la fin ──────────────────────────────────────────────────
+      - name: Attendre la fin de l'exécution Kaggle
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+        run: |
+          python kaggle/poll_kernel.py \
+            "$KAGGLE_USERNAME" \
+            "$KAGGLE_SLUG"    \
+            7200
+
+      # ── 7. Télécharger les artefacts ─────────────────────────────────────────
+      - name: Télécharger les sorties du kernel
+        env:
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+        run: |
+          mkdir -p /tmp/kaggle_outputs
+          kaggle kernels output \
+            "${KAGGLE_USERNAME}/${KAGGLE_SLUG}" \
+            -p /tmp/kaggle_outputs
+          echo "─── Fichiers téléchargés ───"
+          ls -lah /tmp/kaggle_outputs/
+
+      - name: Extraire l'archive des modèles
+        run: |
+          mkdir -p /tmp/models/{nhl,nba}
+          ARCHIVE=/tmp/kaggle_outputs/vizer_models.zip
+          if [ ! -f "$ARCHIVE" ]; then
+            echo "❌ vizer_models.zip introuvable dans les sorties Kaggle"
+            ls -la /tmp/kaggle_outputs/ || true
+            exit 1
+          fi
+          unzip -q "$ARCHIVE" -d /tmp/models
+          echo "─── Modèles extraits ───"
+          find /tmp/models -type f | sort
+
+      # ── 8. Sauvegarder comme artefact GitHub ──────────────────────────────────
+      - name: Sauvegarder les modèles comme artefact GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: vizer-models-run${{ github.run_number }}-${{ env.SPORT_INPUT }}
+          path: /tmp/models/
+          retention-days: 30
+          if-no-files-found: error
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # DÉPLOIEMENT — Option A : Streamlit Cloud (git push vers models-artifacts)
+      # ═══════════════════════════════════════════════════════════════════════
+      # Prérequis :
+      #   - L'application Streamlit est configurée pour lire les modèles depuis
+      #     la branche "models-artifacts" (ou depuis le même dépôt).
+      #   - Le GITHUB_TOKEN natif a les droits d'écriture (Settings > Actions >
+      #     Workflow permissions > Read and write).
+      - name: "[Streamlit] Pousser les modèles vers models-artifacts"
+        if: env.DEPLOY_TARGET == 'streamlit'
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name  "GitHub Actions [Vizer]"
+
+          # Checkout de la branche dédiée (orpheline si elle n'existe pas encore)
+          git fetch origin models-artifacts 2>/dev/null \
+            && git checkout models-artifacts \
+            || git checkout --orphan models-artifacts
+
+          # Supprimer les anciens modèles trackés pour éviter les conflits
+          git rm -rf --cached "vizer_nhl/models/" "vizer_nba/models/" 2>/dev/null || true
+
+          # Copier les modèles fraîchement entraînés
+          mkdir -p vizer_nhl/models vizer_nba/models
+          cp /tmp/models/nhl/*.pkl  vizer_nhl/models/ 2>/dev/null \
+            || echo "ℹ️  Aucun modèle NHL à copier"
+          cp /tmp/models/nba/*.pkl  vizer_nba/models/ 2>/dev/null \
+            || echo "ℹ️  Aucun modèle NBA à copier"
+
+          # Commit horodaté
+          git add vizer_nhl/models/ vizer_nba/models/
+          COMMIT_MSG="chore(models): $(date -u '+%Y-%m-%d %H:%M UTC') [sport: ${SPORT_INPUT}, run: #${{ github.run_number }}]"
+          git diff --cached --quiet \
+            && echo "ℹ️  Aucun changement de modèle à commiter" \
+            || git commit -m "$COMMIT_MSG"
+
+          git push origin models-artifacts
+          echo "✅ Modèles poussés vers la branche models-artifacts"
+          echo "   Streamlit Cloud se redéploiera automatiquement."
+
+      # ═══════════════════════════════════════════════════════════════════════
+      # DÉPLOIEMENT — Option B : Serveur distant (SSH + SCP, ex. Raspberry Pi)
+      # ═══════════════════════════════════════════════════════════════════════
+      # Secrets requis : RPI_SSH_KEY, RPI_HOST, RPI_USER, RPI_MODELS_PATH
+      - name: "[RPI] Transférer les modèles via SSH/SCP"
+        if: env.DEPLOY_TARGET == 'rpi'
+        env:
+          SSH_KEY:    ${{ secrets.RPI_SSH_KEY }}
+          RPI_HOST:   ${{ secrets.RPI_HOST }}
+          RPI_USER:   ${{ secrets.RPI_USER }}
+          RPI_PATH:   ${{ secrets.RPI_MODELS_PATH }}
+        run: |
+          # Configurer la clé SSH éphémère
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_vizer_rpi
+          chmod 600 ~/.ssh/id_vizer_rpi
+          ssh-keyscan -H "$RPI_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+          SSH="ssh -i ~/.ssh/id_vizer_rpi -o StrictHostKeyChecking=no"
+          SCP="scp -i ~/.ssh/id_vizer_rpi -o StrictHostKeyChecking=no"
+
+          # Créer les dossiers distants si nécessaire
+          $SSH "${RPI_USER}@${RPI_HOST}" \
+            "mkdir -p '${RPI_PATH}/nhl' '${RPI_PATH}/nba'"
+
+          # Transférer les modèles NHL
+          if ls /tmp/models/nhl/*.pkl &>/dev/null 2>&1; then
+            $SCP /tmp/models/nhl/*.pkl "${RPI_USER}@${RPI_HOST}:${RPI_PATH}/nhl/"
+            echo "✅ Modèles NHL transférés → ${RPI_HOST}:${RPI_PATH}/nhl/"
+          fi
+
+          # Transférer les modèles NBA
+          if ls /tmp/models/nba/*.pkl &>/dev/null 2>&1; then
+            $SCP /tmp/models/nba/*.pkl "${RPI_USER}@${RPI_HOST}:${RPI_PATH}/nba/"
+            echo "✅ Modèles NBA transférés → ${RPI_HOST}:${RPI_PATH}/nba/"
+          fi
+
+          # Redémarrer le service applicatif (adapter le nom selon ta config systemd)
+          $SSH "${RPI_USER}@${RPI_HOST}" \
+            "sudo systemctl restart vizer-api.service 2>/dev/null \
+             && echo '✅ Service vizer-api redémarré' \
+             || echo 'ℹ️  Pas de service vizer-api à redémarrer (normal si première install)'"
+
+          echo "✅ Déploiement Raspberry Pi terminé"
+
+      # ── 9. Résumé du run ─────────────────────────────────────────────────────
+      - name: Résumé du pipeline
+        if: always()
+        run: |
+          echo "═══════════════════════════════════════════"
+          echo "  Vizer Training Pipeline — Résumé du run"
+          echo "═══════════════════════════════════════════"
+          echo "  Run n°       : ${{ github.run_number }}"
+          echo "  Sport        : ${SPORT_INPUT}"
+          echo "  Branche      : ${GH_REF_INPUT}"
+          echo "  Déploiement  : ${DEPLOY_TARGET}"
+          echo "  Statut       : ${{ job.status }}"
+          echo "═══════════════════════════════════════════"
