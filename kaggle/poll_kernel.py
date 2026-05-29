@@ -34,9 +34,14 @@ def get_kernel_status(username: str, slug: str) -> str:
       "queued" | "running" | "complete" | "error" | "cancelacknowledged" | "unknown"
 
     Lève RuntimeError si la CLI échoue ou si la sortie est vide.
+
+    Compatibilité :
+      - CLI v1.6+ : `kernels status` renvoie des lignes "key: value" (--csv supprimé)
+      - CLI v1.5  : `kernels status --csv` renvoyait un CSV header+data (fallback conservé)
     """
+    # v1.6+ : sans --csv
     result = subprocess.run(
-        ["kaggle", "kernels", "status", f"{username}/{slug}", "--csv"],
+        ["kaggle", "kernels", "status", f"{username}/{slug}"],
         capture_output=True,
         text=True,
     )
@@ -48,28 +53,23 @@ def get_kernel_status(username: str, slug: str) -> str:
     if not output:
         raise RuntimeError("La CLI Kaggle a retourné une réponse vide.")
 
-    # Parsing CSV minimal : header + 1 ligne de données
-    # Format attendu : ref,lastRunTime,totalRunningTime,statusData
-    lines = [l.strip() for l in output.splitlines() if l.strip()]
-    if len(lines) < 2:
-        # Fallback : chercher le statut par mot-clé dans la sortie brute
-        output_lower = output.lower()
-        for s in ["complete", "running", "queued", "error", "cancelacknowledged"]:
-            if s in output_lower:
-                return s
-        return "unknown"
+    # Format v1.6+ : lignes "key: value"
+    # Ex: "statusData: running" ou "status_data: running"
+    for line in output.splitlines():
+        line = line.strip()
+        for key in ("statusdata", "status_data", "status"):
+            if line.lower().startswith(key + ":"):
+                return line.split(":", 1)[1].strip().lower()
 
-    # Parse le CSV proprement (la virgule peut apparaître dans le champ lastRunTime)
-    headers = [h.strip() for h in lines[0].split(",")]
-    values  = [v.strip() for v in lines[1].split(",")]
+    # Fallback : chercher le statut par mot-clé dans la sortie brute
+    output_lower = output.lower()
+    for s in ["complete", "running", "queued", "error", "cancelacknowledged"]:
+        if s in output_lower:
+            return s
 
-    # statusData est la dernière colonne
-    try:
-        idx = headers.index("statusData")
-        return values[idx].lower()
-    except (ValueError, IndexError):
-        # Dernière colonne par défaut
-        return values[-1].lower() if values else "unknown"
+    # Debug : afficher la sortie brute si on ne reconnaît rien
+    print(f"[DEBUG] Sortie brute kaggle kernels status :\n{output}", file=sys.stderr)
+    return "unknown"
 
 
 def poll(username: str, slug: str, max_wait: int = 7200) -> int:
