@@ -87,18 +87,27 @@ jobs:
           KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
           KAGGLE_KEY:      ${{ secrets.KAGGLE_KEY }}
         run: |
+          # ── Kaggle CLI v1.6+ : KAGGLE_API_TOKEN (JSON) ──────────────────────
+          # Les variables env: d'un step ne sont pas visibles des steps suivants.
+          # $GITHUB_ENV exporte une variable pour TOUS les steps du job.
+          TOKEN_JSON="{\"username\":\"${KAGGLE_USERNAME}\",\"key\":\"${KAGGLE_KEY}\"}"
+          echo "KAGGLE_API_TOKEN=${TOKEN_JSON}"  >> "$GITHUB_ENV"
+          echo "KAGGLE_USERNAME=${KAGGLE_USERNAME}" >> "$GITHUB_ENV"
+
+          # ── Fichiers de credentials (double compatibilité) ───────────────────
           mkdir -p ~/.kaggle
-          printf '{"username":"%s","key":"%s"}\n' \
-            "$KAGGLE_USERNAME" "$KAGGLE_KEY" > ~/.kaggle/kaggle.json
-          chmod 600 ~/.kaggle/kaggle.json
-          echo "✅ Credentials Kaggle configurés pour $KAGGLE_USERNAME"
+          # Format v1.6+ : access_token
+          echo "${TOKEN_JSON}" > ~/.kaggle/access_token
+          # Format legacy v1.5 : kaggle.json
+          echo "${TOKEN_JSON}" > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/access_token ~/.kaggle/kaggle.json
+
+          echo "✅ Credentials Kaggle configurés pour ${KAGGLE_USERNAME}"
 
       # ── 4. Préparer le notebook ───────────────────────────────────────────────
       # Les placeholders __VIZER_*__ dans le template sont remplacés par les
       # valeurs du run courant avant envoi à Kaggle.
       - name: Préparer le notebook (injection des paramètres de run)
-        env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
         run: |
           # Copier le template dans un fichier de travail temporaire
           cp kaggle/vizer_training_notebook.py /tmp/nb_run.py
@@ -130,8 +139,6 @@ jobs:
 
       # ── 6. Attendre la fin ──────────────────────────────────────────────────
       - name: Attendre la fin de l'exécution Kaggle
-        env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
         run: |
           python kaggle/poll_kernel.py \
             "$KAGGLE_USERNAME" \
@@ -140,8 +147,6 @@ jobs:
 
       # ── 7. Télécharger les artefacts ─────────────────────────────────────────
       - name: Télécharger les sorties du kernel
-        env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
         run: |
           mkdir -p /tmp/kaggle_outputs
           kaggle kernels output \
