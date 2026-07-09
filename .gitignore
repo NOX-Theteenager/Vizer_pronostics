@@ -1,5 +1,16 @@
-/bootstrap_vizer.py
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
 /venv
-/Vizer_nhl/*.csv
-/Vizer_nhl/*.png
+
+# Projet
+/bootstrap_vizer.py
+/vizer_nhl/*.csv
+/vizer_nhl/*.png
 .claude
+
+# Caches locaux
+odds_cache/
+logs/

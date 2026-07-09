@@ -10,7 +10,7 @@ Persistance :
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -41,7 +41,7 @@ class ModelRegistry:
     def __init__(self, sport: str = "unknown"):
         self.sport: str = sport
         self.version: str = self.REGISTRY_VERSION
-        self.created_at: str = datetime.utcnow().isoformat()
+        self.created_at: str = datetime.now(timezone.utc).isoformat()
         self._markets: dict[str, MarketBase] = {}
         self._metrics: dict[str, dict[str, float]] = {}
         self._metadata: dict[str, Any] = {}

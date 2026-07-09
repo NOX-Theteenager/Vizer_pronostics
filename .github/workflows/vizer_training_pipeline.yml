@@ -65,6 +65,11 @@ jobs:
       GH_REF_INPUT:  ${{ github.event.inputs.branch || 'main' }}
       DEPLOY_TARGET: ${{ github.event.inputs.deploy || 'none' }}
       KAGGLE_SLUG:   vizer-training-pipeline   # doit correspondre à kernel-metadata.json
+      # Auth Kaggle CLI 2.x : env vars username+key au niveau du job (visibles de
+      # tous les steps). Ne PAS utiliser KAGGLE_API_TOKEN avec ces secrets : il
+      # attend un token brut généré via l'UI, pas un JSON username/key.
+      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY:      ${{ secrets.KAGGLE_KEY }}
 
     steps:
       # ── 1. Checkout ─────────────────────────────────────────────────────────
@@ -79,28 +84,18 @@ jobs:
           cache: pip
 
       # ── 3. Kaggle CLI ────────────────────────────────────────────────────────
+      # Version épinglée : la CLI a déjà cassé le pipeline deux fois en changeant
+      # son mécanisme d'auth (v1.6 puis v2.x). Monter de version = test manuel.
       - name: Installer la CLI Kaggle
-        run: pip install --quiet "kaggle>=1.6"
+        run: pip install --quiet "kaggle~=2.2"
 
       - name: Configurer les credentials Kaggle
-        env:
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          KAGGLE_KEY:      ${{ secrets.KAGGLE_KEY }}
         run: |
-          # ── Kaggle CLI v1.6+ : KAGGLE_API_TOKEN (JSON) ──────────────────────
-          # Les variables env: d'un step ne sont pas visibles des steps suivants.
-          # $GITHUB_ENV exporte une variable pour TOUS les steps du job.
-          TOKEN_JSON="{\"username\":\"${KAGGLE_USERNAME}\",\"key\":\"${KAGGLE_KEY}\"}"
-          echo "KAGGLE_API_TOKEN=${TOKEN_JSON}"  >> "$GITHUB_ENV"
-          echo "KAGGLE_USERNAME=${KAGGLE_USERNAME}" >> "$GITHUB_ENV"
-
-          # ── Fichiers de credentials (double compatibilité) ───────────────────
+          # Fichier kaggle.json en secours des env vars du job (formats legacy
+          # toujours supportés par la CLI 2.x).
           mkdir -p ~/.kaggle
-          # Format v1.6+ : access_token
-          echo "${TOKEN_JSON}" > ~/.kaggle/access_token
-          # Format legacy v1.5 : kaggle.json
-          echo "${TOKEN_JSON}" > ~/.kaggle/kaggle.json
-          chmod 600 ~/.kaggle/access_token ~/.kaggle/kaggle.json
+          printf '{"username":"%s","key":"%s"}' "$KAGGLE_USERNAME" "$KAGGLE_KEY" > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json
 
           echo "✅ Credentials Kaggle configurés pour ${KAGGLE_USERNAME}"
 
@@ -190,6 +185,10 @@ jobs:
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name  "GitHub Actions [Vizer]"
+
+          # Annuler les substitutions sed du step 4 : un arbre de travail sale
+          # ferait échouer le checkout de la branche models-artifacts.
+          git checkout -- kaggle/
 
           # Checkout de la branche dédiée (orpheline si elle n'existe pas encore)
           git fetch origin models-artifacts 2>/dev/null \

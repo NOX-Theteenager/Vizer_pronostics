@@ -15,6 +15,7 @@ Codes de retour :
     1 → kernel échoué ("error", "cancelAcknowledged") ou timeout
     2 → erreur d'utilisation (arguments manquants)
 """
+import re
 import sys
 import time
 import subprocess
@@ -22,7 +23,7 @@ import subprocess
 
 # Statuts terminaux reconnus par Kaggle
 _TERMINAL_OK  = {"complete"}
-_TERMINAL_ERR = {"error", "cancelacknowledged", "cancelled"}
+_TERMINAL_ERR = {"error", "cancelacknowledged", "cancelled", "cancel_acknowledged"}
 _POLL_INTERVAL = 60   # secondes entre chaque vérification
 
 
@@ -36,10 +37,10 @@ def get_kernel_status(username: str, slug: str) -> str:
     Lève RuntimeError si la CLI échoue ou si la sortie est vide.
 
     Compatibilité :
-      - CLI v1.6+ : `kernels status` renvoie des lignes "key: value" (--csv supprimé)
-      - CLI v1.5  : `kernels status --csv` renvoyait un CSV header+data (fallback conservé)
+      - CLI v2.x  : `owner/slug has status "KernelWorkerStatus.COMPLETE"`
+      - CLI v1.6+ : lignes "key: value" (--csv supprimé)
+      - CLI v1.5  : CSV header+data (fallback par mots-clés conservé)
     """
-    # v1.6+ : sans --csv
     result = subprocess.run(
         ["kaggle", "kernels", "status", f"{username}/{slug}"],
         capture_output=True,
@@ -53,6 +54,11 @@ def get_kernel_status(username: str, slug: str) -> str:
     if not output:
         raise RuntimeError("La CLI Kaggle a retourné une réponse vide.")
 
+    # Format v2.x : owner/slug has status "KernelWorkerStatus.COMPLETE"
+    m = re.search(r'has status "(?:KernelWorkerStatus\.)?([A-Za-z_]+)"', output)
+    if m:
+        return m.group(1).lower()
+
     # Format v1.6+ : lignes "key: value"
     # Ex: "statusData: running" ou "status_data: running"
     for line in output.splitlines():
@@ -63,7 +69,7 @@ def get_kernel_status(username: str, slug: str) -> str:
 
     # Fallback : chercher le statut par mot-clé dans la sortie brute
     output_lower = output.lower()
-    for s in ["complete", "running", "queued", "error", "cancelacknowledged"]:
+    for s in ["complete", "running", "queued", "error", "cancel_acknowledged", "cancelacknowledged"]:
         if s in output_lower:
             return s
 
