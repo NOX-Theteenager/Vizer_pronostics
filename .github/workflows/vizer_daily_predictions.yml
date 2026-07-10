@@ -1,0 +1,220 @@
+# =============================================================================
+# Vizer Daily Predictions — GitHub Actions
+# =============================================================================
+#
+# Job quotidien : exécute predict_all.py --json pour NHL et NBA, puis publie
+# les JSON sur la branche models-artifacts, consommée par la PWA.
+#
+# Arborescence publiée (branche models-artifacts) :
+#   predictions/latest/nhl.json            ← toujours le dernier run
+#   predictions/latest/nba.json
+#   predictions/archive/YYYY-MM-DD/*.json  ← archives (écran Historique)
+#
+# Sources au runtime :
+#   - Code       : branche main
+#   - Modèles    : branche models-artifacts (poussés par le training hebdo),
+#                  fallback sur les modèles trackés dans main
+#   - Données    : datasets Kaggle vizer-nhl-data / vizer-nba-data
+#                  (téléchargement ciblé, ~85 Mo au lieu des 4,7 Go du dataset)
+#   - Cotes      : The-Odds API
+#
+# Secrets GitHub requis :
+#   KAGGLE_USERNAME, KAGGLE_KEY  → déjà utilisés par le training pipeline
+#   ODDS_API_KEY                 → clé The-Odds API (à ajouter dans
+#                                  Settings > Secrets and variables > Actions)
+# =============================================================================
+
+name: Vizer Daily Predictions
+
+on:
+  schedule:
+    # Tous les jours à 7h UTC : les cotes du jour sont publiées, et les
+    # prédictions sont prêtes pour le café du matin (8-9h en France).
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+    inputs:
+      sport:
+        description: 'Sport à prédire'
+        required: false
+        default: 'both'
+        type: choice
+        options: [both, nhl, nba]
+
+concurrency:
+  group: vizer-daily-predictions
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # push sur models-artifacts avec le GITHUB_TOKEN natif
+
+jobs:
+  predict-and-publish:
+    name: Prédire et publier les matchs du jour
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      SPORT_INPUT: ${{ github.event.inputs.sport || 'both' }}
+      # Auth Kaggle CLI 2.x : env vars username+key (cf. vizer_training_pipeline.yml)
+      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY:      ${{ secrets.KAGGLE_KEY }}
+      ODDS_API_KEY:    ${{ secrets.ODDS_API_KEY }}
+      PREDS_DIR: /tmp/preds
+
+    steps:
+      # ── 0. Garde-fous ────────────────────────────────────────────────────────
+      - name: Vérifier les secrets
+        run: |
+          MISSING=""
+          [ -z "$ODDS_API_KEY" ]    && MISSING="$MISSING ODDS_API_KEY"
+          [ -z "$KAGGLE_USERNAME" ] && MISSING="$MISSING KAGGLE_USERNAME"
+          [ -z "$KAGGLE_KEY" ]      && MISSING="$MISSING KAGGLE_KEY"
+          if [ -n "$MISSING" ]; then
+            echo "❌ Secret(s) manquant(s) :$MISSING"
+            echo "   → Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+          echo "✅ Secrets présents"
+
+      # ── 1. Code ──────────────────────────────────────────────────────────────
+      - name: Checkout du dépôt
+        uses: actions/checkout@v4
+
+      - name: Configurer Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      # ── 2. Dépendances (chemin de prédiction uniquement, pas de notebooks) ──
+      - name: Installer les dépendances
+        run: |
+          pip install --quiet \
+            numpy pandas scipy scikit-learn xgboost lightgbm \
+            joblib pyyaml requests python-dateutil nba_api \
+            "kaggle~=2.2"
+          pip install --quiet -e .
+
+      # ── 3. Modèles frais (models-artifacts si dispo, sinon ceux de main) ────
+      - name: Récupérer les derniers modèles entraînés
+        run: |
+          if git fetch origin models-artifacts 2>/dev/null; then
+            git checkout origin/models-artifacts -- vizer_nhl/models 2>/dev/null \
+              && echo "  ✓ modèles NHL depuis models-artifacts" \
+              || echo "  ℹ️  pas de modèles NHL sur models-artifacts — fallback main"
+            git checkout origin/models-artifacts -- vizer_nba/models 2>/dev/null \
+              && echo "  ✓ modèles NBA depuis models-artifacts" \
+              || echo "  ℹ️  pas de modèles NBA sur models-artifacts — fallback main"
+          else
+            echo "  ℹ️  branche models-artifacts absente — modèles de main utilisés"
+          fi
+
+      # ── 4. Données (téléchargement ciblé depuis les datasets Kaggle) ─────────
+      - name: Télécharger les données NHL
+        if: env.SPORT_INPUT == 'nhl' || env.SPORT_INPUT == 'both'
+        run: |
+          kaggle datasets download "$KAGGLE_USERNAME/vizer-nhl-data" \
+            -f dataset_agrege_vizer_nhl.csv -p vizer_nhl/data --unzip --quiet
+          ls -lah vizer_nhl/data/dataset_agrege_vizer_nhl.csv
+
+      - name: Télécharger les données NBA
+        if: env.SPORT_INPUT == 'nba' || env.SPORT_INPUT == 'both'
+        run: |
+          for f in NBA_TEAMS.csv NBA_PLAYERS.csv NBA_ACTIVE_PLAYERS.csv \
+                   NBA_GAMES.csv NBA_PLAYER_GAMES.csv; do
+            kaggle datasets download "$KAGGLE_USERNAME/vizer-nba-data" \
+              -f "$f" -p vizer_nba/data --unzip --quiet
+          done
+          ls -lah vizer_nba/data/
+
+      # ── 5. Prédictions ───────────────────────────────────────────────────────
+      # Un échec sur un sport ne bloque pas l'autre : on publie ce qui a réussi,
+      # et le job est marqué en échec à la fin (step 8) si un sport a échoué.
+      - name: Prédire les matchs du jour
+        run: |
+          mkdir -p "$PREDS_DIR"
+          FAILED=""
+
+          if [ "$SPORT_INPUT" = "nhl" ] || [ "$SPORT_INPUT" = "both" ]; then
+            echo "─── NHL ───"
+            ( cd vizer_nhl && python predict_all.py --json > "$PREDS_DIR/nhl.json" ) \
+              && echo "  ✅ NHL OK" \
+              || { echo "  ❌ NHL en échec"; FAILED="$FAILED nhl"; rm -f "$PREDS_DIR/nhl.json"; }
+          fi
+
+          if [ "$SPORT_INPUT" = "nba" ] || [ "$SPORT_INPUT" = "both" ]; then
+            echo "─── NBA ───"
+            ( cd vizer_nba && python predict_all.py --json > "$PREDS_DIR/nba.json" ) \
+              && echo "  ✅ NBA OK" \
+              || { echo "  ❌ NBA en échec"; FAILED="$FAILED nba"; rm -f "$PREDS_DIR/nba.json"; }
+          fi
+
+          echo "FAILED_SPORTS=${FAILED}" >> "$GITHUB_ENV"
+          ls -lah "$PREDS_DIR"
+
+      # ── 6. Horodatage ────────────────────────────────────────────────────────
+      # La PWA affiche « Prédictions générées il y a X h » : on injecte
+      # generated_at dans chaque JSON.
+      - name: Injecter generated_at
+        run: |
+          python - <<'EOF'
+          import json, pathlib
+          from datetime import datetime, timezone
+          now = datetime.now(timezone.utc).isoformat(timespec='seconds')
+          for f in pathlib.Path("/tmp/preds").glob("*.json"):
+              data = json.loads(f.read_text())
+              data = {"generated_at": now, **data}
+              f.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+              print(f"  ✓ {f.name} — generated_at={now}")
+          EOF
+
+      # ── 7. Publication sur models-artifacts ─────────────────────────────────
+      # Clone séparé dans /tmp : évite tout conflit avec l'arbre de travail
+      # (données téléchargées, modèles récupérés au step 3).
+      - name: Publier sur la branche models-artifacts
+        run: |
+          if ! ls "$PREDS_DIR"/*.json >/dev/null 2>&1; then
+            echo "ℹ️  Aucune prédiction à publier."
+            exit 0
+          fi
+
+          REPO_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          if git clone --quiet --depth 1 --branch models-artifacts "$REPO_URL" /tmp/pub 2>/dev/null; then
+            echo "  ✓ branche models-artifacts clonée"
+          else
+            echo "  ℹ️  branche models-artifacts absente — création"
+            mkdir -p /tmp/pub
+            git -C /tmp/pub init --quiet -b models-artifacts
+            git -C /tmp/pub remote add origin "$REPO_URL"
+          fi
+
+          cd /tmp/pub
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name  "GitHub Actions [Vizer]"
+
+          TODAY=$(date -u '+%Y-%m-%d')
+          mkdir -p predictions/latest "predictions/archive/${TODAY}"
+          cp "$PREDS_DIR"/*.json predictions/latest/
+          cp "$PREDS_DIR"/*.json "predictions/archive/${TODAY}/"
+
+          git add predictions/
+          if git diff --cached --quiet; then
+            echo "ℹ️  Aucun changement de prédictions à commiter."
+          else
+            git commit --quiet -m "chore(predictions): ${TODAY} [sport: ${SPORT_INPUT}, run: #${{ github.run_number }}]"
+            git push --quiet origin models-artifacts
+            echo "✅ Prédictions publiées → predictions/latest/ + archive/${TODAY}/"
+          fi
+
+      # ── 8. Bilan ─────────────────────────────────────────────────────────────
+      - name: Bilan du run
+        run: |
+          echo "═══════════════════════════════════════════"
+          echo "  Vizer Daily Predictions — Bilan"
+          echo "  Sport demandé : ${SPORT_INPUT}"
+          echo "  Publiés       : $(ls /tmp/preds 2>/dev/null || echo aucun)"
+          if [ -n "${FAILED_SPORTS}" ]; then
+            echo "  ❌ Échec sur :${FAILED_SPORTS}"
+            exit 1
+          fi
+          echo "  ✅ Tout est passé"
