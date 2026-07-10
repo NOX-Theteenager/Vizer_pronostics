@@ -114,6 +114,10 @@ jobs:
           sed -i "s|__VIZER_SPORT__|${SPORT_INPUT}|g"      /tmp/nb_run.py
           sed -i "s|__VIZER_GH_REPO__|${{ github.repository }}|g" /tmp/nb_run.py
           sed -i "s|__VIZER_GH_REF__|${GH_REF_INPUT}|g"   /tmp/nb_run.py
+          # Credentials pour l'étape 6 du notebook (mise à jour du dataset NHL).
+          # Le kernel est privé : la clé n'est visible que du propriétaire.
+          sed -i "s|__VIZER_KAGGLE_USERNAME__|${KAGGLE_USERNAME}|g" /tmp/nb_run.py
+          sed -i "s|__VIZER_KAGGLE_KEY__|${KAGGLE_KEY}|g"           /tmp/nb_run.py
 
           # Injecter le username Kaggle dans le metadata (non-secret, c'est public)
           sed -i "s|__KAGGLE_USERNAME__|${KAGGLE_USERNAME}|g" /tmp/meta_run.json
