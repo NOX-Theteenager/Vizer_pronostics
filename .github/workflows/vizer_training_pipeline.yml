@@ -45,7 +45,7 @@ on:
       deploy:
         description: 'Cible de déploiement après entraînement'
         required: false
-        default: 'none'
+        default: 'streamlit'
         type: choice
         options: [none, streamlit, rpi]
 
@@ -63,7 +63,9 @@ jobs:
     env:
       SPORT_INPUT:   ${{ github.event.inputs.sport  || 'both' }}
       GH_REF_INPUT:  ${{ github.event.inputs.branch || 'main' }}
-      DEPLOY_TARGET: ${{ github.event.inputs.deploy || 'none' }}
+      # Le cron (pas d'inputs) déploie vers models-artifacts ; 'none' reste
+      # sélectionnable en déclenchement manuel.
+      DEPLOY_TARGET: ${{ github.event.inputs.deploy || 'streamlit' }}
       KAGGLE_SLUG:   vizer-training-pipeline   # doit correspondre à kernel-metadata.json
       # Auth Kaggle CLI 2.x : env vars username+key au niveau du job (visibles de
       # tous les steps). Ne PAS utiliser KAGGLE_API_TOKEN avec ces secrets : il
