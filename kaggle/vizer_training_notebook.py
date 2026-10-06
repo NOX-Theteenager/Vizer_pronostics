@@ -11,7 +11,7 @@
 #   1. Clone le dépôt GitHub (branche configurée)
 #   2. Installe les dépendances manquantes sur Kaggle (lightgbm, nba_api, …)
 #   3. Charge les données depuis les datasets Kaggle (montage /kaggle/input, ou
-#      téléchargement CLI en repli pour NBA) et crée les dossiers data/ absents
+#      téléchargement CLI en repli) et crée les dossiers data/ absents
 #   4. Lance update_data.py + train.py (NHL) et/ou update_and_train.py (NBA)
 #   5. Archive nhl/nba/models/ dans /kaggle/working/vizer_models.zip
 #      → téléchargeable via `kaggle kernels output`
@@ -57,6 +57,10 @@ if HAS_CREDS:
 CLONE_DIR    = Path("/kaggle/working/vizer")
 OUT_DIR      = Path("/kaggle/working")
 KAGGLE_INPUT = Path("/kaggle/input")  # datasets Kaggle montés ici si configurés
+# Copie de l'agrégat NHL tel que publié dans le dataset, mise de côté à
+# l'étape 3 : l'étape 4 écrase le fichier dans data/, et l'étape 6 a besoin de
+# l'ancienne version pour décider s'il y a du neuf à publier.
+NHL_SEED_AGREGE = Path("/tmp/vizer_nhl_seed_agrege.csv")
 
 START_TIME = time.time()
 
@@ -98,10 +102,10 @@ def seed_data_from_kaggle_dataset(sport: str, pkg_dir: Path,
       1. Le dataset monté par Kaggle dans /kaggle/input/vizer-{sport}-data/
          (via "dataset_sources" du kernel-metadata.json).
       2. `cli_fallback=True` : à défaut de montage, téléchargement par la CLI
-         avec les credentials injectés. Réservé à NBA : stats.nba.com bloque
-         les IP Kaggle, donc sans les données du dataset l'entraînement NBA
-         n'a aucune source de repli. NHL, lui, retélécharge sans problème
-         depuis Moneypuck — on ne touche pas à ce chemin qui fonctionne.
+         avec les credentials injectés. Les deux sports en ont besoin :
+         stats.nba.com bloque les IP Kaggle, et Moneypuck renvoie des 403
+         intermittents sur all_teams.csv — sans ce repli, update_data.py
+         s'arrête sur « Fichier manquant : data/all_teams.csv ».
 
     Retourne False si aucun des deux n'a abouti.
     """
@@ -109,17 +113,28 @@ def seed_data_from_kaggle_dataset(sport: str, pkg_dir: Path,
     dest.mkdir(parents=True, exist_ok=True)
 
     # ── 1. Dataset monté par Kaggle ───────────────────────────────────────────
-    # Kaggle normalise les slugs de dataset (tirets, minuscules)
-    possible_mounts = [
-        KAGGLE_INPUT / f"vizer-{sport}-data",
+    # La disposition de /kaggle/input a changé au moins une fois (slug à la
+    # racine, puis datasets/<owner>/<slug>) : on teste les emplacements connus
+    # puis, à défaut, on cherche le dossier où qu'il soit sous /kaggle/input.
+    slug_dir = f"vizer-{sport}-data"
+    known = [
+        KAGGLE_INPUT / slug_dir,
+        KAGGLE_INPUT / "datasets" / KAGGLE_USER / slug_dir,
         KAGGLE_INPUT / f"vizer_{sport}_data",
     ]
-    mounted = next((p for p in possible_mounts if p.exists()), None)
+    mounted = next((q for q in known if q.is_dir()), None)
+    if mounted is None and KAGGLE_INPUT.exists():
+        mounted = next((q for q in KAGGLE_INPUT.glob(f"**/{slug_dir}")
+                        if q.is_dir()), None)
+    if mounted is not None:
+        print(f"  [info] Dataset {sport.upper()} monté : {mounted}")
 
     # ── 2. Repli : téléchargement par la CLI ──────────────────────────────────
     if mounted is None:
-        listing = (sorted(q.name for q in KAGGLE_INPUT.iterdir())
-                   if KAGGLE_INPUT.exists() else [])
+        listing = sorted(
+            str(q.relative_to(KAGGLE_INPUT))
+            for q in KAGGLE_INPUT.glob("*/*")
+        ) if KAGGLE_INPUT.exists() else []
         print(f"  [info] Dataset {sport.upper()} non monté "
               f"(/kaggle/input contient : {listing or 'rien'}).")
         if not cli_fallback:
@@ -195,7 +210,11 @@ nba_has_cache = False
 if SPORT in ("nhl", "both"):
     nhl_dir = CLONE_DIR / "vizer_nhl"
     print("── NHL ──")
-    nhl_has_cache = seed_data_from_kaggle_dataset("nhl", nhl_dir)
+    nhl_has_cache = seed_data_from_kaggle_dataset("nhl", nhl_dir,
+                                                  cli_fallback=True)
+    _agrege = nhl_dir / "data" / "dataset_agrege_vizer_nhl.csv"
+    if nhl_has_cache and _agrege.exists():
+        shutil.copy2(_agrege, NHL_SEED_AGREGE)
 
 if SPORT in ("nba", "both"):
     nba_dir = CLONE_DIR / "vizer_nba"
@@ -329,10 +348,10 @@ def update_nhl_kaggle_dataset() -> None:
         print("  ⊘ dataset_agrege_vizer_nhl.csv introuvable — rien à uploader.")
         return
 
-    seed = KAGGLE_INPUT / "vizer-nhl-data" / "dataset_agrege_vizer_nhl.csv"
+    seed = NHL_SEED_AGREGE
     if not seed.exists():
-        print("  [info] Dataset NHL non monté — pas de point de comparaison, "
-              "upload par prudence.")
+        print("  [info] Version précédente du dataset indisponible — pas de "
+              "point de comparaison, upload par prudence.")
     if seed.exists() and not _nhl_data_is_fresher(agrege, seed):
         print("  ⊘ Aucun match plus récent que la version du dataset — upload sauté "
               "(hors-saison ?).")
