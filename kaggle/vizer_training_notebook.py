@@ -210,10 +210,11 @@ run("pip install -q -r requirements-runtime.txt", cwd=CLONE_DIR)
 run("pip install -q -e .", cwd=CLONE_DIR)
 print("  ✅ Dépendances installées")
 # Versions tracées : doivent correspondre à celles du job de prédictions.
-import sklearn, xgboost, lightgbm, numpy, pandas  # noqa: E402
+import sklearn, xgboost, lightgbm, numpy, pandas, scipy, joblib  # noqa: E402
 print(f"  sklearn={sklearn.__version__} xgboost={xgboost.__version__} "
       f"lightgbm={lightgbm.__version__} numpy={numpy.__version__} "
-      f"pandas={pandas.__version__}")
+      f"pandas={pandas.__version__} scipy={scipy.__version__} "
+      f"joblib={joblib.__version__}")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 3. Données historiques (optionnel — depuis des datasets Kaggle)

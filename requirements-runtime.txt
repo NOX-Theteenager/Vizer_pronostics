@@ -20,13 +20,18 @@
 # changer la ligne.
 scikit-learn==1.6.1
 
-# Les boosters XGBoost/LightGBM sont stables en lecture entre versions mineures,
-# d'où un pin plus souple. Les deux côtés affichent leurs versions au démarrage :
-# si un écart apparaît dans les logs, c'est là qu'il faut regarder.
-xgboost~=3.0
-lightgbm~=4.0
+# Versions exactes de l'image Kaggle, relevées dans les logs du run #24.
+# Un premier jet laissait xgboost~=3.0 / lightgbm~=4.0 / pandas>=2.0 : le job
+# de prédictions a installé lightgbm 4.7.0 et pandas 3.0.6 face à 4.6.0 et
+# 2.3.3 côté entraînement. Un écart de version MAJEURE de pandas sous le
+# feature engineering et les DataFrames sérialisés dans le registre, c'est
+# exactement la dérive que ce fichier doit empêcher — d'où des pins exacts.
+xgboost==3.2.0
+lightgbm==4.6.0
+numpy==2.4.6
+pandas==2.3.3
 
-numpy>=1.24.0
-pandas>=2.0.0
+# Moins sensibles (pas d'objet sérialisé), mais tracés dans les logs des deux
+# côtés pour qu'un écart soit visible.
 scipy>=1.11.0
 joblib>=1.3.0

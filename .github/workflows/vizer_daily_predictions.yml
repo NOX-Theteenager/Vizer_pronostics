@@ -103,10 +103,11 @@ jobs:
           # Versions tracées dans les logs : un écart avec celles du notebook
           # Kaggle est la première chose à regarder si les probas dérivent.
           python - <<'PYVER'
-          import sklearn, xgboost, lightgbm, numpy, pandas
+          import sklearn, xgboost, lightgbm, numpy, pandas, scipy, joblib
           print(f"sklearn={sklearn.__version__} xgboost={xgboost.__version__} "
                 f"lightgbm={lightgbm.__version__} numpy={numpy.__version__} "
-                f"pandas={pandas.__version__}")
+                f"pandas={pandas.__version__} scipy={scipy.__version__} "
+                f"joblib={joblib.__version__}")
           PYVER
 
       # ── 3. Modèles frais (models-artifacts si dispo, sinon ceux de main) ────
