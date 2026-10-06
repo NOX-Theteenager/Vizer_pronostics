@@ -10,7 +10,8 @@
 # Flux d'exécution :
 #   1. Clone le dépôt GitHub (branche configurée)
 #   2. Installe les dépendances manquantes sur Kaggle (lightgbm, nba_api, …)
-#   3. [Optionnel] Charge les données historiques NHL depuis un dataset Kaggle
+#   3. Charge les données depuis les datasets Kaggle (montage /kaggle/input, ou
+#      téléchargement CLI en repli pour NBA) et crée les dossiers data/ absents
 #   4. Lance update_data.py + train.py (NHL) et/ou update_and_train.py (NBA)
 #   5. Archive nhl/nba/models/ dans /kaggle/working/vizer_models.zip
 #      → téléchargeable via `kaggle kernels output`
@@ -22,9 +23,9 @@
 #   __VIZER_SPORT__            → nhl | nba | both
 #   __VIZER_GH_REPO__          → owner/repo (ex: NOX-Theteenager/Vizer_pronostics)
 #   __VIZER_GH_REF__           → branche git (ex: main)
-#   __VIZER_KAGGLE_USERNAME__  → username Kaggle (auth de l'étape 6)
-#   __VIZER_KAGGLE_KEY__       → clé API Kaggle (auth de l'étape 6 ; le kernel
-#                                est privé, la clé n'est visible que de toi)
+#   __VIZER_KAGGLE_USERNAME__  → username Kaggle (auth des étapes 3 et 6)
+#   __VIZER_KAGGLE_KEY__       → clé API Kaggle (auth des étapes 3 et 6 ; le
+#                                kernel est privé, la clé n'est visible que de toi)
 #
 # Pour un run Kaggle manuel (via l'UI), modifier les trois constantes ci-dessous
 # directement et lancer le script.
@@ -42,6 +43,15 @@ from pathlib import Path
 SPORT    = "__VIZER_SPORT__"       # nhl | nba | both
 GH_REPO  = "__VIZER_GH_REPO__"    # NOX-Theteenager/Vizer_pronostics
 GH_REF   = "__VIZER_GH_REF__"     # main
+
+# Credentials Kaggle : servent à l'étape 3 (téléchargement des datasets quand
+# Kaggle ne les a pas montés) et à l'étape 6 (publication de vizer-nhl-data).
+KAGGLE_USER = "__VIZER_KAGGLE_USERNAME__"
+KAGGLE_KEY  = "__VIZER_KAGGLE_KEY__"
+HAS_CREDS   = not (KAGGLE_USER.startswith("__") or KAGGLE_KEY.startswith("__"))
+if HAS_CREDS:
+    os.environ["KAGGLE_USERNAME"] = KAGGLE_USER
+    os.environ["KAGGLE_KEY"] = KAGGLE_KEY
 
 # ─── Chemins Kaggle (fixes) ───────────────────────────────────────────────────
 CLONE_DIR    = Path("/kaggle/working/vizer")
@@ -70,46 +80,74 @@ def run(cmd: str, cwd: Path | None = None) -> None:
         )
 
 
-def seed_data_from_kaggle_dataset(sport: str, pkg_dir: Path) -> bool:
+def seed_data_from_kaggle_dataset(sport: str, pkg_dir: Path,
+                                  cli_fallback: bool = False) -> bool:
     """
-    Copie les fichiers de données depuis un dataset Kaggle source vers pkg_dir/data/.
+    Met à disposition les données du dataset Kaggle `vizer-{sport}-data` dans
+    pkg_dir/data/, et crée ce dossier au passage (il est gitignoré, donc absent
+    du clone — sans ça, les scripts fetch_nba_*.py plantent sur
+    « Cannot save file into a non-existent directory: 'data' »).
 
     NHL — dataset contenant les CSVs Moneypuck (skaters_*, goalies_*, lines_*, …)
-    NBA — dataset contenant les 4 CSVs produits par les scripts fetch_nba_*.py
-          (NBA_TEAMS.csv, NBA_PLAYERS.csv, NBA_GAMES.csv, NBA_PLAYER_GAMES.csv)
+    NBA — dataset contenant les 5 CSVs produits par les scripts fetch_nba_*.py
+          (NBA_TEAMS.csv, NBA_PLAYERS.csv, NBA_ACTIVE_PLAYERS.csv,
+          NBA_GAMES.csv, NBA_PLAYER_GAMES.csv), versionnés depuis le PC
+          (cf. vizer_nba/scripts/push_dataset_to_kaggle.py).
 
-    Activer cette fonctionnalité :
-      1. Créer un dataset Kaggle privé nommé "vizer-nhl-data" ou "vizer-nba-data".
-      2. Uploader les fichiers CSV correspondants depuis ton dossier local data/.
-      3. Ajouter "ton-username/vizer-nhl-data" (et/ou "…/vizer-nba-data") dans
-         "dataset_sources" du kernel-metadata.json.
-      4. Kaggle monte le dataset dans /kaggle/input/vizer-{sport}-data/ à chaque run.
+    Deux chemins d'accès :
+      1. Le dataset monté par Kaggle dans /kaggle/input/vizer-{sport}-data/
+         (via "dataset_sources" du kernel-metadata.json).
+      2. `cli_fallback=True` : à défaut de montage, téléchargement par la CLI
+         avec les credentials injectés. Réservé à NBA : stats.nba.com bloque
+         les IP Kaggle, donc sans les données du dataset l'entraînement NBA
+         n'a aucune source de repli. NHL, lui, retélécharge sans problème
+         depuis Moneypuck — on ne touche pas à ce chemin qui fonctionne.
 
-    Si le dataset n'est pas monté, retourne False — le script télécharge depuis
-    la source d'origine (Moneypuck ou stats.nba.com), plus lent mais fonctionnel.
+    Retourne False si aucun des deux n'a abouti.
     """
+    dest = pkg_dir / "data"
+    dest.mkdir(parents=True, exist_ok=True)
+
+    # ── 1. Dataset monté par Kaggle ───────────────────────────────────────────
     # Kaggle normalise les slugs de dataset (tirets, minuscules)
     possible_mounts = [
         KAGGLE_INPUT / f"vizer-{sport}-data",
         KAGGLE_INPUT / f"vizer_{sport}_data",
     ]
     mounted = next((p for p in possible_mounts if p.exists()), None)
-    if mounted is None:
-        print(f"  [info] Pas de dataset {sport.upper()} monté — "
-              f"téléchargement depuis la source d'origine.")
-        return False
 
-    dest = pkg_dir / "data"
-    dest.mkdir(parents=True, exist_ok=True)
+    # ── 2. Repli : téléchargement par la CLI ──────────────────────────────────
+    if mounted is None:
+        listing = (sorted(q.name for q in KAGGLE_INPUT.iterdir())
+                   if KAGGLE_INPUT.exists() else [])
+        print(f"  [info] Dataset {sport.upper()} non monté "
+              f"(/kaggle/input contient : {listing or 'rien'}).")
+        if not cli_fallback:
+            print("  → téléchargement depuis la source d'origine.")
+            return False
+        if not HAS_CREDS:
+            print("  ⊘ Credentials non injectés — pas de repli CLI possible.")
+            return False
+        slug = f"{KAGGLE_USER}/vizer-{sport}-data"
+        print(f"  [info] Repli : téléchargement de {slug} par la CLI Kaggle.")
+        try:
+            run(f"kaggle datasets download {slug} -p {dest} --unzip -q")
+            mounted = dest
+        except RuntimeError as e:
+            print(f"  ⚠️  Téléchargement de {slug} échoué : {e}", file=sys.stderr)
+            return False
+
+    # ── 3. Recopie vers pkg_dir/data/ ─────────────────────────────────────────
     count = 0
     total_mb = 0.0
     for src_file in mounted.glob("**/*"):
         if src_file.is_file():
-            shutil.copy2(src_file, dest / src_file.name)
+            if src_file.parent != dest:
+                shutil.copy2(src_file, dest / src_file.name)
             total_mb += src_file.stat().st_size / 1024 ** 2
             count += 1
 
-    print(f"  ✅ {count} fichier(s) copiés depuis {mounted} → {dest} "
+    print(f"  ✅ {count} fichier(s) disponibles dans {dest} "
           f"({total_mb:.1f} Mo)")
     return count > 0
 
@@ -162,7 +200,8 @@ if SPORT in ("nhl", "both"):
 if SPORT in ("nba", "both"):
     nba_dir = CLONE_DIR / "vizer_nba"
     print("── NBA ──")
-    nba_has_cache = seed_data_from_kaggle_dataset("nba", nba_dir)
+    nba_has_cache = seed_data_from_kaggle_dataset("nba", nba_dir,
+                                                  cli_fallback=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 4. Entraînement
@@ -280,9 +319,7 @@ def _nhl_data_is_fresher(new_csv: Path, seed_csv: Path) -> bool:
 
 
 def update_nhl_kaggle_dataset() -> None:
-    creds_user = "__VIZER_KAGGLE_USERNAME__"
-    creds_key  = "__VIZER_KAGGLE_KEY__"
-    if creds_user.startswith("__") or creds_key.startswith("__"):
+    if not HAS_CREDS:
         print("  ⊘ Credentials non injectés (run manuel ?) — mise à jour sautée.")
         return
 
@@ -293,6 +330,9 @@ def update_nhl_kaggle_dataset() -> None:
         return
 
     seed = KAGGLE_INPUT / "vizer-nhl-data" / "dataset_agrege_vizer_nhl.csv"
+    if not seed.exists():
+        print("  [info] Dataset NHL non monté — pas de point de comparaison, "
+              "upload par prudence.")
     if seed.exists() and not _nhl_data_is_fresher(agrege, seed):
         print("  ⊘ Aucun match plus récent que la version du dataset — upload sauté "
               "(hors-saison ?).")
@@ -315,12 +355,10 @@ def update_nhl_kaggle_dataset() -> None:
 
     import json
     (stage / "dataset-metadata.json").write_text(json.dumps({
-        "id": f"{creds_user}/vizer-nhl-data",
+        "id": f"{KAGGLE_USER}/vizer-nhl-data",
         "title": "vizer-nhl-data",
     }))
 
-    os.environ["KAGGLE_USERNAME"] = creds_user
-    os.environ["KAGGLE_KEY"] = creds_key
     from datetime import datetime, timezone
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     run(f'kaggle datasets version -p {stage} -m "maj auto post-training {stamp}" -q')

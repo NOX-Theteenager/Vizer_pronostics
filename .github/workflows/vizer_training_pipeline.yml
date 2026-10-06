@@ -54,6 +54,11 @@ concurrency:
   group: vizer-training-${{ github.ref }}
   cancel-in-progress: false
 
+# Sans ce bloc, le GITHUB_TOKEN est en lecture seule et le push vers
+# models-artifacts échoue en 403 (« Permission denied to github-actions[bot] »).
+permissions:
+  contents: write   # push des modèles sur models-artifacts
+
 jobs:
   train-on-kaggle:
     name: Entraîner sur Kaggle et déployer
@@ -114,7 +119,8 @@ jobs:
           sed -i "s|__VIZER_SPORT__|${SPORT_INPUT}|g"      /tmp/nb_run.py
           sed -i "s|__VIZER_GH_REPO__|${{ github.repository }}|g" /tmp/nb_run.py
           sed -i "s|__VIZER_GH_REF__|${GH_REF_INPUT}|g"   /tmp/nb_run.py
-          # Credentials pour l'étape 6 du notebook (mise à jour du dataset NHL).
+          # Credentials pour les étapes 3 (téléchargement des datasets si Kaggle
+          # ne les monte pas) et 6 (mise à jour du dataset NHL) du notebook.
           # Le kernel est privé : la clé n'est visible que du propriétaire.
           sed -i "s|__VIZER_KAGGLE_USERNAME__|${KAGGLE_USERNAME}|g" /tmp/nb_run.py
           sed -i "s|__VIZER_KAGGLE_KEY__|${KAGGLE_KEY}|g"           /tmp/nb_run.py
