@@ -1,6 +1,14 @@
 """
 Script pour récupérer les statistiques des joueurs par match
 ATTENTION: Ce dataset est très volumineux (peut prendre 30-60 minutes)
+
+Reprise après interruption : les sauvegardes intermédiaires
+(data/NBA_PLAYER_GAMES_TEMP.csv, tous les 50 joueurs) sont relues au
+démarrage et les joueurs déjà récupérés sont sautés. Sans ça, une
+interruption — PC éteint, coupure réseau — faisait repartir de zéro, et le
+cron hebdomadaire ne publiait jamais rien : c'est ce qui s'est passé le
+16 août 2026, arrêt à 314/530 et dataset Kaggle figé pendant sept semaines.
+Pour forcer un fetch complet : --no-resume.
 """
 import pandas as pd
 import time
@@ -17,13 +25,50 @@ def recent_seasons(n: int = 2):
     return [f"{y}-{str(y + 1)[-2:]}" for y in range(end_year - n + 1, end_year + 1)]
 
 
-def fetch_player_games(seasons=None, active_only=True):
+TEMP_PATH = 'data/NBA_PLAYER_GAMES_TEMP.csv'
+# Au-delà de ce délai, la sauvegarde intermédiaire est jetée. Reprendre depuis
+# un fichier ancien sauterait des joueurs dont les matchs ont été joués entre
+# les deux runs — à cheval sur un début de saison, on publierait un dataset
+# amputé sans le voir. Le cron est hebdomadaire : une reprise légitime arrive
+# dans les heures qui suivent, jamais après plusieurs jours.
+TEMP_MAX_AGE_HOURS = 36
+
+
+def _load_resume_state(resume: bool):
+    """Relit la sauvegarde intermédiaire. Retourne (frames, ids_déjà_faits).
+
+    Toute anomalie de lecture est traitée comme « pas de reprise » : repartir
+    de zéro coûte du temps, repartir d'un fichier corrompu coûte un dataset.
+    """
+    if not resume or not os.path.exists(TEMP_PATH):
+        return [], set()
+    age_h = (time.time() - os.path.getmtime(TEMP_PATH)) / 3600
+    if age_h > TEMP_MAX_AGE_HOURS:
+        print(f"⚠️  {TEMP_PATH} date de {age_h / 24:.1f} jour(s) "
+              f"(> {TEMP_MAX_AGE_HOURS}h) — ignoré, fetch complet.")
+        return [], set()
+    try:
+        temp_df = pd.read_csv(TEMP_PATH)
+        if 'Player_ID' not in temp_df.columns or temp_df.empty:
+            print(f"⚠️  {TEMP_PATH} inutilisable (colonnes inattendues) — fetch complet.")
+            return [], set()
+        done = set(temp_df['Player_ID'].unique())
+        print(f"♻️  Reprise depuis {TEMP_PATH} : {len(done)} joueurs déjà "
+              f"récupérés ({len(temp_df):,} lignes) — ils seront sautés.")
+        return [temp_df], done
+    except Exception as e:
+        print(f"⚠️  Lecture de {TEMP_PATH} impossible ({e}) — fetch complet.")
+        return [], set()
+
+
+def fetch_player_games(seasons=None, active_only=True, resume=True):
     """
     Récupère les stats des joueurs par match
 
     Args:
         seasons: Liste des saisons à récupérer (défaut: 2 dernières, dynamique)
         active_only: Si True, récupère uniquement les joueurs actifs
+        resume: Si True, reprend depuis la sauvegarde intermédiaire existante
     """
     if seasons is None:
         seasons = recent_seasons(2)
@@ -45,15 +90,20 @@ def fetch_player_games(seasons=None, active_only=True):
     
     print(f"✓ {len(player_list)} joueurs")
     
-    all_games = []
+    all_games, already_done = _load_resume_state(resume)
     errors = []
+    skipped = 0
     
     total_players = len(player_list)
     
     for idx, player in enumerate(player_list, 1):
         player_id = player['id']
         player_name = player['full_name']
-        
+
+        if player_id in already_done:
+            skipped += 1
+            continue
+
         print(f"[{idx}/{total_players}] {player_name}...", end=" ", flush=True)
         
         player_games = []
@@ -91,8 +141,11 @@ def fetch_player_games(seasons=None, active_only=True):
         if idx % 50 == 0 and all_games:
             print(f"\n💾 Sauvegarde intermédiaire ({idx} joueurs traités)...")
             temp_df = pd.concat(all_games, ignore_index=True)
-            temp_df.to_csv('data/NBA_PLAYER_GAMES_TEMP.csv', index=False)
-    
+            temp_df.to_csv(TEMP_PATH, index=False)
+
+    if skipped:
+        print(f"\n♻️  {skipped} joueur(s) sautés (déjà dans la reprise).")
+
     if not all_games:
         print("\n✗ Aucune donnée récupérée!")
         return None
@@ -100,6 +153,13 @@ def fetch_player_games(seasons=None, active_only=True):
     # Combiner toutes les données
     print("\n📊 Combinaison des données...")
     combined_df = pd.concat(all_games, ignore_index=True)
+    # La reprise peut réintroduire des lignes déjà présentes si un joueur a été
+    # sauvegardé deux fois (interruption juste après un flush).
+    if {'Player_ID', 'Game_ID'} <= set(combined_df.columns):
+        before = len(combined_df)
+        combined_df = combined_df.drop_duplicates(subset=['Player_ID', 'Game_ID'])
+        if before != len(combined_df):
+            print(f"  ✓ {before - len(combined_df):,} doublon(s) retiré(s)")
     
     # Trier par date
     if 'GAME_DATE' in combined_df.columns:
@@ -142,8 +202,8 @@ def save_dataset(df, output_path='data/NBA_PLAYER_GAMES.csv'):
     print(f"📦 Taille du fichier: {file_size:.2f} MB")
     
     # Supprimer le fichier temporaire si il existe
-    if os.path.exists('data/NBA_PLAYER_GAMES_TEMP.csv'):
-        os.remove('data/NBA_PLAYER_GAMES_TEMP.csv')
+    if os.path.exists(TEMP_PATH):
+        os.remove(TEMP_PATH)
         print("🗑️  Fichier temporaire supprimé")
 
 
@@ -155,6 +215,8 @@ if __name__ == "__main__":
                         help='Saisons à récupérer (défaut: 2 dernières, auto-détectées)')
     parser.add_argument('--all-players', action='store_true',
                         help='Récupérer tous les joueurs (pas seulement les actifs)')
+    parser.add_argument('--no-resume', action='store_true',
+                        help='Ignorer la sauvegarde intermédiaire et tout refetcher')
     
     args = parser.parse_args()
     
@@ -164,7 +226,8 @@ if __name__ == "__main__":
     
     df = fetch_player_games(
         seasons=args.seasons,
-        active_only=not args.all_players
+        active_only=not args.all_players,
+        resume=not args.no_resume,
     )
     
     if df is not None:
