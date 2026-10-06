@@ -23,9 +23,10 @@ joblib>=1.3.0                   # Persistance ModelRegistry, BasePredictor
 pyyaml>=6.0                     # Lecture config.yaml dans toute la chaîne
 
 # ----------------------------- Machine Learning ------------------------------
-scikit-learn>=1.3.0             # CalibratedClassifierCV, métriques, stacking, splits
-xgboost>=2.0.0                  # NBA win/total + NHL ordinal (multi:softprob)
-lightgbm>=4.0.0                 # Modèle principal NHL V5.6 (stacking XGB+LGB)
+# Versions épinglées dans requirements-runtime.txt : ces bibliothèques
+# traversent un pickle entre l'entraînement (Kaggle) et la prédiction (GitHub
+# Actions), donc les deux côtés doivent avoir exactement la même.
+-r requirements-runtime.txt
 
 # ------------------------------ APIs externes --------------------------------
 nba_api>=1.5.2                  # NBA : scores, scoreboard, box scores (incl. Q1 à venir)

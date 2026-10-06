@@ -50,7 +50,10 @@ permissions:
 jobs:
   predict-and-publish:
     name: Prédire et publier les matchs du jour
-    runs-on: ubuntu-latest
+    # Runner figé : ubuntu-latest bascule sur Ubuntu 26 à partir du 19 octobre
+    # 2026. Un pipeline de production ne change pas de distribution tout seul en
+    # pleine saison — la montée se fera volontairement, avec un run de contrôle.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     env:
@@ -78,22 +81,33 @@ jobs:
 
       # ── 1. Code ──────────────────────────────────────────────────────────────
       - name: Checkout du dépôt
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Configurer Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
           cache: pip
 
       # ── 2. Dépendances (chemin de prédiction uniquement, pas de notebooks) ──
+      # Les versions ML viennent de requirements-runtime.txt, partagé avec le
+      # notebook Kaggle : les modèles sont entraînés là-bas et chargés ici, un
+      # écart de version sklearn suffit à fausser les probabilités en silence.
       - name: Installer les dépendances
         run: |
+          pip install --quiet -r requirements-runtime.txt
           pip install --quiet \
-            numpy pandas scipy scikit-learn xgboost lightgbm \
-            joblib pyyaml requests python-dateutil nba_api \
+            pyyaml requests python-dateutil nba_api \
             "kaggle~=2.2"
           pip install --quiet -e .
+          # Versions tracées dans les logs : un écart avec celles du notebook
+          # Kaggle est la première chose à regarder si les probas dérivent.
+          python - <<'PYVER'
+          import sklearn, xgboost, lightgbm, numpy, pandas
+          print(f"sklearn={sklearn.__version__} xgboost={xgboost.__version__} "
+                f"lightgbm={lightgbm.__version__} numpy={numpy.__version__} "
+                f"pandas={pandas.__version__}")
+          PYVER
 
       # ── 3. Modèles frais (models-artifacts si dispo, sinon ceux de main) ────
       - name: Récupérer les derniers modèles entraînés
@@ -200,11 +214,28 @@ jobs:
           git add predictions/
           if git diff --cached --quiet; then
             echo "ℹ️  Aucun changement de prédictions à commiter."
-          else
-            git commit --quiet -m "chore(predictions): ${TODAY} [sport: ${SPORT_INPUT}, run: #${{ github.run_number }}]"
-            git push --quiet origin models-artifacts
-            echo "✅ Prédictions publiées → predictions/latest/ + archive/${TODAY}/"
+            exit 0
           fi
+
+          git commit --quiet -m "chore(predictions): ${TODAY} [sport: ${SPORT_INPUT}, run: #${{ github.run_number }}]"
+
+          # Le workflow de training pousse sur la même branche. En cas de
+          # collision, le push est rejeté : on rejoue sur la nouvelle tête
+          # plutôt que d'échouer et de perdre les prédictions du jour.
+          for attempt in 1 2 3; do
+            if git push --quiet origin models-artifacts; then
+              echo "✅ Prédictions publiées → predictions/latest/ + archive/${TODAY}/"
+              exit 0
+            fi
+            echo "  ⚠️  Push rejeté (tentative ${attempt}/3) — rebase sur origin/models-artifacts"
+            git fetch --quiet --depth 50 origin models-artifacts
+            git rebase --quiet FETCH_HEAD || {
+              echo "  ❌ Rebase impossible"; git rebase --abort || true; exit 1
+            }
+            sleep 5
+          done
+          echo "❌ Push toujours rejeté après 3 tentatives"
+          exit 1
 
       # ── 8. Bilan ─────────────────────────────────────────────────────────────
       - name: Bilan du run

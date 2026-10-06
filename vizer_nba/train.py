@@ -40,7 +40,7 @@ LEAKAGE_ALLOWLIST: list[str] = []
 LEAKAGE_THRESHOLD: float = 0.85
 
 
-def main(config_path: str = 'config.yaml') -> int:
+def main(config_path: str = 'config.yaml', full: bool = False) -> int:
     start_time = time.time()
 
     print("=" * 70)
@@ -110,13 +110,26 @@ def main(config_path: str = 'config.yaml') -> int:
 
     # Auto-détection si non précisé (ou 'auto'/null) : test = dernière saison,
     # train = N saisons récentes précédentes (fenêtre glissante post-COVID).
-    if train_end in (None, 'auto') or test_season in (None, 'auto'):
-        available = sorted(int(s) for s in features_df['SEASON_ID'].unique())
+    available = sorted(int(s) for s in features_df['SEASON_ID'].unique())
+    train_window = split_cfg.get('train_window', 5)
+
+    if full:
+        # Mode production : la fenêtre glissante est décalée d'un cran pour
+        # inclure la saison la plus récente. On ne prend PAS toutes les saisons
+        # disponibles : le train_window de la config existe parce qu'un
+        # distribution shift majeur rend les saisons pré-COVID contre-productives
+        # (cf. commentaire de data_split dans config.yaml).
+        test_season = None
+        train_end = available[-1] if available else None
+        train_start = (max(train_end - (train_window - 1), available[0])
+                       if available else None)
+        print(f"  🚀 Mode production : pas de test, entraînement sur la "
+              f"fenêtre de {train_window} saisons la plus récente")
+    elif train_end in (None, 'auto') or test_season in (None, 'auto'):
         if len(available) >= 2:
             test_season = available[-1]
             train_end = available[-2]
             # Fenêtre glissante : garder train_window saisons (défaut 5)
-            train_window = split_cfg.get('train_window', 5)
             # SEASON_ID est séquentiel (22020, 22021, ...) → soustraction directe
             candidate_start = train_end - (train_window - 1)
             train_start = max(candidate_start, available[0])
@@ -131,9 +144,17 @@ def main(config_path: str = 'config.yaml') -> int:
         (features_df['SEASON_ID'] >= train_start)
         & (features_df['SEASON_ID'] <= train_end)
     ].copy()
-    test_df = features_df[features_df['SEASON_ID'] == test_season].copy()
+    # test_df=None : les marchés calculent alors leurs métriques sur le train
+    # (in-sample). C'est assumé en mode production et signalé dans le registre
+    # par metrics_in_sample — ne jamais afficher ces chiffres comme une
+    # performance de généralisation.
+    test_df = (None if full
+               else features_df[features_df['SEASON_ID'] == test_season].copy())
     print(f"  Train : {len(train_df):,} matchs ({train_start} → {train_end})")
-    print(f"  Test  : {len(test_df):,} matchs ({test_season})")
+    if full:
+        print("  Test  : aucun (métriques in-sample)")
+    else:
+        print(f"  Test  : {len(test_df):,} matchs ({test_season})")
     print()
 
     # ─── 4. ANTI-LEAKAGE ────────────────────────────────────────────────────
@@ -202,9 +223,11 @@ def main(config_path: str = 'config.yaml') -> int:
 
     registry.set_metadata('training_duration_sec', duration)
     registry.set_metadata('n_games_train', len(train_df))
-    registry.set_metadata('n_games_test', len(test_df))
+    registry.set_metadata('n_games_test', 0 if test_df is None else len(test_df))
     registry.set_metadata('train_seasons', f"{train_start}-{train_end}")
     registry.set_metadata('test_season', str(test_season))
+    registry.set_metadata('training_mode', 'full' if full else 'split')
+    registry.set_metadata('metrics_in_sample', full)
     registry.set_metadata('models_trained', trained)
     registry.set_metadata('models_failed', [m for m, _ in failed])
     registry.set_metadata('config_path', config_path)
@@ -282,5 +305,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Entraînement NBA via MarketBase + config.yaml")
     parser.add_argument('-c', '--config', default='config.yaml')
+    parser.add_argument('-f', '--full', action='store_true',
+                        help="Production : entraîne sur la fenêtre la plus "
+                             "récente (saison courante incluse), sans test")
     args = parser.parse_args()
-    sys.exit(main(config_path=args.config))
+    sys.exit(main(config_path=args.config, full=args.full))

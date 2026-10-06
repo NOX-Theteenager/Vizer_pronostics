@@ -62,7 +62,9 @@ permissions:
 jobs:
   train-on-kaggle:
     name: Entraîner sur Kaggle et déployer
-    runs-on: ubuntu-latest
+    # Runner figé : ubuntu-latest bascule sur Ubuntu 26 à partir du 19 octobre
+    # 2026. La montée se fera volontairement, avec un run de contrôle.
+    runs-on: ubuntu-24.04
     timeout-minutes: 150   # 2h30 max (sécurité si Kaggle est lent)
 
     env:
@@ -81,11 +83,11 @@ jobs:
     steps:
       # ── 1. Checkout ─────────────────────────────────────────────────────────
       - name: Checkout du dépôt
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # ── 2. Python ────────────────────────────────────────────────────────────
       - name: Configurer Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
           cache: pip
@@ -177,7 +179,7 @@ jobs:
 
       # ── 8. Sauvegarder comme artefact GitHub ──────────────────────────────────
       - name: Sauvegarder les modèles comme artefact GitHub
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: vizer-models-run${{ github.run_number }}-${{ env.SPORT_INPUT }}
           path: /tmp/models/
@@ -224,9 +226,24 @@ jobs:
             && echo "ℹ️  Aucun changement de modèle à commiter" \
             || git commit -m "$COMMIT_MSG"
 
-          git push origin models-artifacts
-          echo "✅ Modèles poussés vers la branche models-artifacts"
-          echo "   Streamlit Cloud se redéploiera automatiquement."
+          # Le job quotidien de prédictions pousse sur la même branche. En cas
+          # de collision, on rejoue sur la nouvelle tête plutôt que de perdre
+          # les modèles fraîchement entraînés.
+          for attempt in 1 2 3; do
+            if git push origin models-artifacts; then
+              echo "✅ Modèles poussés vers la branche models-artifacts"
+              echo "   Streamlit Cloud se redéploiera automatiquement."
+              exit 0
+            fi
+            echo "  ⚠️  Push rejeté (tentative ${attempt}/3) — rebase"
+            git fetch origin models-artifacts
+            git rebase FETCH_HEAD || {
+              echo "  ❌ Rebase impossible"; git rebase --abort || true; exit 1
+            }
+            sleep 5
+          done
+          echo "❌ Push toujours rejeté après 3 tentatives"
+          exit 1
 
       # ═══════════════════════════════════════════════════════════════════════
       # DÉPLOIEMENT — Option B : Serveur distant (SSH + SCP, ex. Raspberry Pi)

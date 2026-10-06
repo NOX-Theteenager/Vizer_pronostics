@@ -1,5 +1,12 @@
-/data
-/logs
-config.yaml
-bootstrap.py
+# Données et sorties volumineuses : jamais dans git, mais on garde les dossiers
+# pour qu'un clone frais soit directement exécutable (les scripts fetch_nba_*.py
+# écrivent dans data/ sans le créer).
+/data/*
+!/data/.gitkeep
+/logs/*
+!/logs/.gitkeep
+/predictions/*
+!/predictions/.gitkeep
 /odds_cache
+
+bootstrap.py

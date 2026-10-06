@@ -14,9 +14,16 @@ Workflow :
        les références Python détenues par les markets.
 
 Usage :
-    python train.py
+    python train.py                                  # split train/test (évaluation)
+    python train.py --full                           # production (cf. train_full.py)
     python train.py --config config.yaml --output models/nhl_model.pkl
     python train.py --markets moneyline total btts   # subset
+
+Modes :
+    défaut   → split chronologique, métriques out-of-sample.
+    --full   → 100% des matchs, aucun test. Le registre porte
+               metadata['metrics_in_sample'] = True : ses métriques ne sont
+               pas des performances de généralisation.
 """
 from __future__ import annotations
 
@@ -68,7 +75,7 @@ def build_engine(service_name: str, config: dict, verbose: bool):
     raise ValueError(f"Service inconnu : {service_name}")
 
 
-def main():
+def main(argv: list[str] | None = None):
     parser = argparse.ArgumentParser(description="Entraînement pipeline NHL")
     parser.add_argument('--config', default='config.yaml')
     parser.add_argument('--output', default=None,
@@ -76,7 +83,10 @@ def main():
     parser.add_argument('--markets', nargs='*', default=None,
                         help="Subset de markets à entraîner (défaut: tous les enabled)")
     parser.add_argument('--quiet', action='store_true', help="Réduit les logs")
-    args = parser.parse_args()
+    parser.add_argument('--full', action='store_true',
+                        help="Production : entraîne sur 100%% des matchs "
+                             "(saison courante incluse), sans jeu de test")
+    args = parser.parse_args(argv)
 
     verbose = not args.quiet
     t0 = time.time()
@@ -135,18 +145,31 @@ def main():
     print(f"\n📅 Split temporel")
     train_until = split_cfg.get('train_until_year')
     test_year = split_cfg.get('test_year')
-    # Auto-détection si non précisé, ou si explicitement mis à 'auto'/null
-    if train_until in (None, 'auto'):
-        from src.season import detect_dataset_seasons, suggest_train_test_split
+    if args.full:
+        # Mode production : aucun match réservé. Sans ça, le modèle déployé
+        # n'a jamais vu la saison en cours, et l'écart grandit chaque semaine.
+        from src.season import detect_dataset_seasons
         seasons = detect_dataset_seasons(df_eng)
-        train_until, test_year = suggest_train_test_split(seasons)
-        print(f"  🔍 Split auto-détecté depuis les saisons du dataset "
-              f"({seasons[0]}–{seasons[-1]})")
-    train_df, test_df = loader.split_chronological(
-        df_eng, train_until_year=train_until, test_year=test_year
-    )
-    print(f"  Train : {len(train_df):,} matchs (≤ {train_until})")
-    print(f"  Test  : {len(test_df):,} matchs ({test_year})")
+        train_df, test_df = df_eng.copy(), None
+        train_until, test_year = (seasons[-1] if seasons else None), None
+        print(f"  🚀 Mode production : 100% des matchs, pas de test "
+              f"(saisons {seasons[0]}–{seasons[-1]})" if seasons
+              else "  🚀 Mode production : 100% des matchs, pas de test")
+        print(f"  Train : {len(train_df):,} matchs")
+        print("  Test  : aucun (métriques in-sample)")
+    else:
+        # Auto-détection si non précisé, ou si explicitement mis à 'auto'/null
+        if train_until in (None, 'auto'):
+            from src.season import detect_dataset_seasons, suggest_train_test_split
+            seasons = detect_dataset_seasons(df_eng)
+            train_until, test_year = suggest_train_test_split(seasons)
+            print(f"  🔍 Split auto-détecté depuis les saisons du dataset "
+                  f"({seasons[0]}–{seasons[-1]})")
+        train_df, test_df = loader.split_chronological(
+            df_eng, train_until_year=train_until, test_year=test_year
+        )
+        print(f"  Train : {len(train_df):,} matchs (≤ {train_until})")
+        print(f"  Test  : {len(test_df):,} matchs ({test_year})")
 
     # ---- 5. Anti-leakage ----
     print(f"\n🛡️  Vérification anti-leakage")
@@ -210,9 +233,11 @@ def main():
         'features_dead': engineer.features_dead,
         'team_elos': engineer.team_elos,
         'n_games_train': len(train_df),
-        'n_games_test': len(test_df),
+        'n_games_test': 0 if test_df is None else len(test_df),
         'train_until_year': train_until,
         'test_year': test_year,
+        'training_mode': 'full' if args.full else 'split',
+        'metrics_in_sample': args.full,
         'p1_mode': engines['poisson_p1'].mode if 'poisson_p1' in engines else None,
         'training_duration_sec': time.time() - t0,
     }

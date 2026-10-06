@@ -1,0 +1,235 @@
+# =============================================================================
+# Vizer NBA — Configuration concrète
+# =============================================================================
+# Dérivé de config.template.yaml. Adapter les chemins / saisons selon ton env.
+# =============================================================================
+
+sport: nba
+
+# -----------------------------------------------------------------------------
+# Données
+# -----------------------------------------------------------------------------
+data:
+  paths:
+    teams: "data/NBA_TEAMS.csv"
+    players: "data/NBA_PLAYERS.csv"
+    games: "data/NBA_GAMES.csv"
+    player_games: "data/NBA_PLAYER_GAMES.csv"
+  season_format: "22XXX"
+
+# -----------------------------------------------------------------------------
+# Feature engineering
+# -----------------------------------------------------------------------------
+features:
+  rolling_windows: [5, 10, 20]
+  include_h2h: false
+  filter_dead_features_threshold: 1.0e-10
+  fill_missing_with: 0
+
+# -----------------------------------------------------------------------------
+# Split temporel
+# -----------------------------------------------------------------------------
+# Le diagnostic du 2026-05-17 a montré un distribution shift majeur (+26.5 pts)
+# entre les anciennes saisons et la saison test 22025. On restreint donc
+# l'entraînement aux 5 saisons récentes (22020-22024), post-COVID, où le style
+# de jeu est cohérent (range 7.4 pts au lieu de 42 pts sur 25 ans).
+# La feature SEASON_AVG_TOTAL ajoutée par engineer.py absorbe le shift résiduel.
+# -----------------------------------------------------------------------------
+data_split:
+  # Auto-détection : test = dernière saison du dataset, train = train_window
+  # saisons récentes précédentes (fenêtre glissante post-COVID).
+  # Mettre des valeurs explicites pour figer le split (ex: train_season_end: 22024).
+  train_season_start: null     # null = auto (calculé depuis train_window)
+  train_season_end: null       # null = auto-détection (avant-dernière saison)
+  test_season: null            # null = auto-détection (dernière saison)
+  train_window: 5              # nombre de saisons récentes pour l'entraînement
+
+# -----------------------------------------------------------------------------
+# Persistance
+# -----------------------------------------------------------------------------
+models:
+  output_path: "models/nba_model.pkl"
+  format: "pickle"
+
+# -----------------------------------------------------------------------------
+# Marchés actifs
+# -----------------------------------------------------------------------------
+# Hyperparams révisés après diagnostic (2026-05-17) :
+# - max_depth réduit pour limiter l'overfit (Win: 82→64% / Total: R² 0.64→0.07)
+# - learning_rate réduit + n_estimators élargi pour convergence plus douce
+# - early_stopping_rounds sur le total (split 85/15 chronologique interne)
+# - reg_alpha / reg_lambda pour limiter la surcomplexité
+# - scale_pos_weight pour rééquilibrer la classe Away (recall 38% trop bas)
+# -----------------------------------------------------------------------------
+markets:
+
+  win:
+    enabled: true
+    edge_threshold: 0.04
+    kelly_factor: 0.25
+    hyperparameters:
+      model: xgboost
+      n_estimators: 300
+      max_depth: 4
+      learning_rate: 0.05
+      random_state: 42
+      eval_metric: logloss
+      reg_alpha: 0.3
+      reg_lambda: 1.0
+      subsample: 0.8
+      colsample_bytree: 0.8
+      scale_pos_weight: 0.72       # ≈ P(away)/P(home) ≈ 0.42/0.58
+
+  total:
+    enabled: true
+    edge_threshold: 0.05
+    kelly_factor: 0.25
+    hyperparameters:
+      model: xgboost
+      n_estimators: 500            # ↑ pour permettre l'early stopping
+      max_depth: 4                 # ↓ contre l'overfit
+      learning_rate: 0.05          # ↓ pour convergence douce
+      random_state: 42
+      reg_alpha: 0.5
+      reg_lambda: 1.5
+      subsample: 0.8
+      colsample_bytree: 0.8
+      early_stopping_rounds: 30    # géré par total_predictor (split 85/15 chronologique)
+
+  # -- ÉTAPE 7 (2026-05-18) : Total via Poisson conjoint --
+  # Modélise log(λ_home) et log(λ_away) via XGBoost objective='count:poisson',
+  # puis dérive :
+  #   E[total]    = λ_home + λ_away
+  #   P(total>L)  = poisson.sf(L, λ_home+λ_away)            (exact, pas gaussien)
+  #   P(home_W)   = 1 - skellam.cdf(0, λ_home, λ_away)      (cross-check ML)
+  # Robuste aux distribution shifts (arbres bornés vs régression linéaire).
+  total_poisson:
+    enabled: true
+    edge_threshold: 0.05
+    kelly_factor: 0.25
+    default_ou_line: 225.0
+    hyperparameters:
+      n_estimators: 500
+      max_depth: 4
+      learning_rate: 0.05
+      random_state: 42
+      reg_alpha: 0.5
+      reg_lambda: 1.5
+      subsample: 0.8
+      colsample_bytree: 0.8
+      early_stopping_rounds: 30
+
+  # -- ÉTAPE 6 (2026-05-18) : Team Totals --
+  # Over/Under sur les points d'une équipe seule.
+  # Lignes par défaut : HOME ~112.5, AWAY ~110.5 (médiane NBA 2024-25).
+  # Sigma calibré (RMSE test) → typiquement 12-14 pts (moins de variance que
+  # le total global qui est ~18). Edge attendu ~5% sur certains bookmakers.
+  # Modèle XGB régresseur identique à total, mais target = HOME_PTS ou AWAY_PTS.
+
+  home_team_total:
+    enabled: true
+    edge_threshold: 0.05
+    kelly_factor: 0.20
+    default_ou_line: 112.5
+    hyperparameters:
+      model: xgboost
+      n_estimators: 500
+      max_depth: 4
+      learning_rate: 0.05
+      random_state: 42
+      reg_alpha: 0.5
+      reg_lambda: 1.5
+      subsample: 0.8
+      colsample_bytree: 0.8
+      early_stopping_rounds: 30
+
+  away_team_total:
+    enabled: true
+    edge_threshold: 0.05
+    kelly_factor: 0.20
+    default_ou_line: 110.5
+    hyperparameters:
+      model: xgboost
+      n_estimators: 500
+      max_depth: 4
+      learning_rate: 0.05
+      random_state: 42
+      reg_alpha: 0.5
+      reg_lambda: 1.5
+      subsample: 0.8
+      colsample_bytree: 0.8
+      early_stopping_rounds: 30
+
+  # -- À activer après implémentation (cf. plan de migration) --
+
+  spread:
+    enabled: false
+    edge_threshold: 0.04
+    kelly_factor: 0.20
+
+  period_total:                  # Over/Under Q1 (équivalent P1 NHL)
+    enabled: false
+    edge_threshold: 0.05
+    kelly_factor: 0.20
+    period_goal_ratio: 0.25      # ~25% des points sont marqués en Q1 NBA (à valider)
+
+  period_winner:                 # Vainqueur Q1 (Bayesian avec priors équipe)
+    enabled: false
+    edge_threshold: 0.05
+    confidence_threshold: high
+    bayesian:
+      n_default: 20
+
+  interval:                      # Intervalles de points totaux (ordinal)
+    enabled: false
+    edge_threshold: 0.06
+    intervals: [[0, 200], [200, 210], [210, 220], [220, 230], [230, 999]]
+    model: ordinal
+
+  exact_total:
+    enabled: false
+    edge_threshold: 0.08
+    kelly_factor: 0.10
+
+  exact_score:
+    enabled: false
+    edge_threshold: 0.12
+    kelly_factor: 0.05
+    top_n: 5
+
+# -----------------------------------------------------------------------------
+# Sources externes
+# -----------------------------------------------------------------------------
+apis:
+  odds_api:
+    key: ""   # laisser vide : lu depuis $ODDS_API_KEY (env var) ou --api-key
+    sport: basketball_nba
+    markets: ["h2h", "totals"]
+    credits_warning_threshold: 100
+  schedule_api:
+    primary: "nba_api"
+    fallback_manual: false        # NBA API fonctionne, pas besoin de fallback manuel
+
+# -----------------------------------------------------------------------------
+# Prédictions
+# -----------------------------------------------------------------------------
+predictions:
+  output_dir: "predictions"
+  output_file_today: "predictions_today.json"
+  save_history: true
+
+# -----------------------------------------------------------------------------
+# Logging
+# -----------------------------------------------------------------------------
+logging:
+  level: INFO
+  log_dir: logs
+  log_file: training.log
+
+# -----------------------------------------------------------------------------
+# Options d'exécution
+# -----------------------------------------------------------------------------
+training:
+  verbose: true
+  continue_on_error: true        # Si un marché échoue, continuer les autres
+  random_seed: 42

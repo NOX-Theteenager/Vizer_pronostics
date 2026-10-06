@@ -1,0 +1,32 @@
+# =============================================================================
+# Vizer — Versions épinglées des bibliothèques qui traversent un pickle
+# =============================================================================
+# Les modèles sont entraînés sur Kaggle et chargés ailleurs (job GitHub Actions
+# de prédictions quotidiennes, PC en local). Un écart de version entre les deux
+# côtés produit au mieux un InconsistentVersionWarning, au pire des
+# probabilités silencieusement fausses — scikit-learn ne garantit aucune
+# compatibilité de sérialisation entre versions mineures.
+#
+# Ce fichier est LA source unique de ces versions. Il est installé :
+#   - sur Kaggle, à l'étape 2 de kaggle/vizer_training_notebook.py
+#   - dans .github/workflows/vizer_daily_predictions.yml
+#
+# scikit-learn est épinglé sur la version de l'image Kaggle (1.6.1) pour que
+# l'entraînement n'ait rien à réinstaller. Deux contraintes à connaître avant
+# de bouger ce pin :
+#   - < 1.6 : sklearn.frozen.FrozenEstimator n'existe pas (cf. win_predictor.py)
+#   - >= 1.8 : cv='prefit' a été supprimé de CalibratedClassifierCV
+# Monter de version = réentraîner les deux sports et redéployer, pas juste
+# changer la ligne.
+scikit-learn==1.6.1
+
+# Les boosters XGBoost/LightGBM sont stables en lecture entre versions mineures,
+# d'où un pin plus souple. Les deux côtés affichent leurs versions au démarrage :
+# si un écart apparaît dans les logs, c'est là qu'il faut regarder.
+xgboost~=3.0
+lightgbm~=4.0
+
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0
+joblib>=1.3.0

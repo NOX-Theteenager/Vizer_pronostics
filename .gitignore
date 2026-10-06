@@ -4,6 +4,7 @@ __pycache__/
 *.pyo
 *.egg-info/
 /venv
+.pytest_cache/
 
 # Projet
 /bootstrap_vizer.py

@@ -12,7 +12,7 @@
 #   2. Installe les dépendances manquantes sur Kaggle (lightgbm, nba_api, …)
 #   3. Charge les données depuis les datasets Kaggle (montage /kaggle/input, ou
 #      téléchargement CLI en repli) et crée les dossiers data/ absents
-#   4. Lance update_data.py + train.py (NHL) et/ou update_and_train.py (NBA)
+#   4. Lance update_data.py + train_full.py (NHL) et/ou update_and_train.py (NBA)
 #   5. Archive nhl/nba/models/ dans /kaggle/working/vizer_models.zip
 #      → téléchargeable via `kaggle kernels output`
 #   6. Reverse les données NHL fraîches dans le dataset Kaggle vizer-nhl-data
@@ -61,6 +61,9 @@ KAGGLE_INPUT = Path("/kaggle/input")  # datasets Kaggle montés ici si configur�
 # l'étape 3 : l'étape 4 écrase le fichier dans data/, et l'étape 6 a besoin de
 # l'ancienne version pour décider s'il y a du neuf à publier.
 NHL_SEED_AGREGE = Path("/tmp/vizer_nhl_seed_agrege.csv")
+# {sport: {noms de fichiers fournis par le dataset Kaggle}}, rempli à l'étape 3.
+# L'étape 6 s'en sert pour ne jamais republier un dataset amputé.
+DATASET_FILES: dict[str, set[str]] = {}
 
 START_TIME = time.time()
 
@@ -162,6 +165,10 @@ def seed_data_from_kaggle_dataset(sport: str, pkg_dir: Path,
             total_mb += src_file.stat().st_size / 1024 ** 2
             count += 1
 
+    # Snapshot AVANT l'étape 4 : elle ajoute les fichiers de la saison courante
+    # et écrase l'agrégat, ce qui rendrait la comparaison inutilisable ensuite.
+    DATASET_FILES[sport] = {f.name for f in dest.glob("*.csv")}
+
     print(f"  ✅ {count} fichier(s) disponibles dans {dest} "
           f"({total_mb:.1f} Mo)")
     return count > 0
@@ -188,7 +195,6 @@ banner("2/6  INSTALLATION DES DÉPENDANCES")
 # On installe uniquement ce qui manque.
 run(
     "pip install -q "
-    "lightgbm>=4.0.0 "
     "nba_api>=1.5.2 "
     "fuzzywuzzy "
     "python-Levenshtein "
@@ -196,9 +202,18 @@ run(
     "pyyaml>=6.0",
     cwd=CLONE_DIR,
 )
+# Versions épinglées des bibliothèques qui traversent un pickle. Doit être
+# identique au job de prédictions quotidiennes, sinon les modèles produits ici
+# se chargent là-bas avec un InconsistentVersionWarning (ou pire, en silence).
+run("pip install -q -r requirements-runtime.txt", cwd=CLONE_DIR)
 # Installe vizer_core en mode éditable (lit pyproject.toml à la racine du repo)
 run("pip install -q -e .", cwd=CLONE_DIR)
 print("  ✅ Dépendances installées")
+# Versions tracées : doivent correspondre à celles du job de prédictions.
+import sklearn, xgboost, lightgbm, numpy, pandas  # noqa: E402
+print(f"  sklearn={sklearn.__version__} xgboost={xgboost.__version__} "
+      f"lightgbm={lightgbm.__version__} numpy={numpy.__version__} "
+      f"pandas={pandas.__version__}")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 3. Données historiques (optionnel — depuis des datasets Kaggle)
@@ -240,7 +255,10 @@ if SPORT in ("nhl", "both"):
         # le downloader détectera les fichiers présents et ne re-téléchargera que
         # la saison courante (comportement natif de MoneypuckDownloader).
         run("python update_data.py --mode update", cwd=nhl_dir)
-        run("python train.py", cwd=nhl_dir)
+        # train_full.py : 100% des matchs, saison courante incluse. train.py
+        # réserve la dernière saison pour l'évaluation — un modèle déployé
+        # chaque lundi sans jamais voir la saison en cours n'a aucun intérêt.
+        run("python train_full.py --quiet", cwd=nhl_dir)
         print("  ✅ NHL — entraînement terminé")
     except RuntimeError as e:
         print(f"  ❌ NHL — ÉCHEC : {e}", file=sys.stderr)
@@ -317,8 +335,26 @@ with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as zf:
 # IP datacenter) : voir vizer_nba/scripts/push_dataset_to_kaggle.py.
 banner("6/6  MISE À JOUR DU DATASET KAGGLE NHL")
 
-# Fichiers historiques volumineux absents du dataset Kaggle — ne jamais uploader
+# Fichiers historiques volumineux (2,5 Go et 1,1 Go) qu'on n'envoie pas depuis
+# le kernel. `kaggle datasets version` remplace l'intégralité du jeu de
+# fichiers : exclure un fichier déjà publié l'effacerait du dataset. La règle
+# n'est donc appliquée qu'aux fichiers absents de la version montée
+# (cf. _effective_excludes).
 _NHL_DATASET_EXCLUDE = {"skaters_2008_2024.csv", "shots_2007-2024.csv"}
+
+
+def _effective_excludes(sport: str) -> set[str]:
+    """Retire de la liste d'exclusion ce que le dataset contient déjà.
+
+    Sans ça, le premier run suivant un enrichissement manuel du dataset
+    (push des historiques depuis le PC) les supprimerait silencieusement.
+    """
+    published = DATASET_FILES.get(sport) or set()
+    keep = _NHL_DATASET_EXCLUDE & published
+    if keep:
+        print(f"  [info] Déjà publié(s), donc ré-uploadé(s) pour ne pas les "
+              f"perdre : {sorted(keep)}")
+    return set(_NHL_DATASET_EXCLUDE) - published
 
 
 def _nhl_data_is_fresher(new_csv: Path, seed_csv: Path) -> bool:
@@ -364,9 +400,11 @@ def update_nhl_kaggle_dataset() -> None:
         shutil.rmtree(stage)
     stage.mkdir(parents=True)
 
+    excludes = _effective_excludes("nhl")
     total_mb = 0.0
     for f in sorted(data_dir.glob("*.csv")):
-        if f.name in _NHL_DATASET_EXCLUDE:
+        if f.name in excludes:
+            print(f"  ⊘ {f.name} exclu de l'upload (volumineux, absent du dataset)")
             continue
         shutil.copy2(f, stage / f.name)
         total_mb += f.stat().st_size / 1024 ** 2

@@ -6,6 +6,12 @@ import numpy as np
 from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, brier_score_loss
 from sklearn.calibration import CalibratedClassifierCV
+
+try:
+    # sklearn >= 1.6 : remplace cv='prefit', supprimé en 1.8.
+    from sklearn.frozen import FrozenEstimator
+except ImportError:  # sklearn < 1.6
+    FrozenEstimator = None
 from typing import Tuple, Dict
 
 from src.models.base import BaseNBAModel
@@ -99,9 +105,11 @@ class NBAMatchPredictor(BaseNBAModel):
 
         Si calibrate=True, applique une calibration isotonique sur un split
         chronologique de la fin du train (calib_fraction, défaut 15 %).
-        On utilise cv='prefit' (et non cv=5) pour respecter l'ordre temporel :
-        les folds aléatoires de cv=5 mélangeraient passé et futur sur des données
-        de séries temporelles.
+        Le modèle de base est gelé avant calibration (et non cv=5) pour
+        respecter l'ordre temporel : les folds aléatoires de cv=5 mélangeraient
+        passé et futur sur des données de séries temporelles. Le gel passe par
+        FrozenEstimator (sklearn >= 1.6), avec repli sur cv='prefit' pour les
+        versions antérieures — ce paramètre a été supprimé en sklearn 1.8.
         """
         calib_fraction = self.hyperparameters.get('calib_fraction', 0.15)
 
@@ -129,14 +137,21 @@ class NBAMatchPredictor(BaseNBAModel):
             # 1. XGBoost entraîné sur les matchs les plus anciens
             self.base_model.fit(X_fit, y_fit)
 
-            # 2. Calibration isotonique sur les matchs les plus récents (cv='prefit')
+            # 2. Calibration isotonique sur les matchs les plus récents,
+            #    base_model gelé pour ne pas le réentraîner en folds.
             if verbose:
-                print("🔧 Calibration isotonique (cv='prefit', split chrono)...")
-            self.model = CalibratedClassifierCV(
-                self.base_model,
-                method='isotonic',
-                cv='prefit',
-            )
+                print("🔧 Calibration isotonique (base gelée, split chrono)...")
+            if FrozenEstimator is not None:
+                self.model = CalibratedClassifierCV(
+                    FrozenEstimator(self.base_model),
+                    method='isotonic',
+                )
+            else:
+                self.model = CalibratedClassifierCV(
+                    self.base_model,
+                    method='isotonic',
+                    cv='prefit',
+                )
             self.model.fit(X_calib, y_calib)
 
             # Brier avant / après calibration sur le set de calibration
