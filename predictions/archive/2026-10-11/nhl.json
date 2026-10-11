@@ -1,0 +1,446 @@
+{
+  "generated_at": "2026-10-11T13:51:25+00:00",
+  "n_games": 3,
+  "games": [
+    {
+      "home": "WSH",
+      "away": "SEA",
+      "commence_time": "2026-10-11T21:10:00Z",
+      "predictions": {
+        "btts": {
+          "probabilities": {
+            "yes": 0.8867196961257422,
+            "no": 0.1132803038742578
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.3831474781036377,
+            "lambda_away": 2.4994850158691406,
+            "p_home_scores": 0.9660595404128904,
+            "p_away_scores": 0.9178727180177335,
+            "home_team": "WSH",
+            "away_team": "SEA"
+          }
+        },
+        "exact_score": {
+          "probabilities": {
+            "3-2": 0.1287342357281735,
+            "2-2": 0.1141548542249773,
+            "4-2": 0.10888172623734228,
+            "3-3": 0.10725643107731184,
+            "3-1": 0.10300860770186217,
+            "2-3": 0.09510944920801896,
+            "2-1": 0.09134269939624542,
+            "4-3": 0.09071608107740099,
+            "4-1": 0.08712332784238044,
+            "5-2": 0.07367258750628705
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.3831474781036377,
+            "lambda_away": 2.4994850158691406,
+            "top_score": "3-2",
+            "top_proba": 0.1287342357281735,
+            "top_n": 10,
+            "home_team": "WSH",
+            "away_team": "SEA"
+          }
+        },
+        "goal_intervals": {
+          "probabilities": {
+            "0-2": 0.06741505876493938,
+            "3-4": 0.2336585757844848,
+            "5-6": 0.3240738029313729,
+            "7-8": 0.23396909494591023,
+            "9+": 0.14088346757329276
+          },
+          "expected_value": 5.882632493972778,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.3831474781036377,
+            "lambda_away": 2.4994850158691406,
+            "lambda_total": 5.882632493972778,
+            "modal_bucket": "5-6",
+            "modal_proba": 0.3240738029313729,
+            "home_team": "WSH",
+            "away_team": "SEA"
+          }
+        },
+        "moneyline": {
+          "probabilities": {
+            "home": 0.5897727012634277,
+            "away": 0.41022729873657227
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "home_team": "WSH",
+            "away_team": "SEA",
+            "temperature": 1.023374876902403,
+            "best_model": "XGB",
+            "engine": "NHLMoneylineEngine"
+          }
+        },
+        "p1_btts": {
+          "probabilities": {
+            "yes": 0.33636062280183954,
+            "no": 0.6636393771981605
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "fallback",
+            "lambda_p1_home": 1.014944314956665,
+            "lambda_p1_away": 0.7498455047607422,
+            "p_p1_home_scores": 0.6375773892106162,
+            "p_p1_away_scores": 0.5275604632377054,
+            "home_team": "WSH",
+            "away_team": "SEA"
+          }
+        },
+        "p1_total": {
+          "probabilities": {
+            "over_1.5": 0.5266050276227823,
+            "under_1.5": 0.4733949723772177
+          },
+          "expected_value": 1.7647898197174072,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "fallback",
+            "lambda_p1_home": 1.014944314956665,
+            "lambda_p1_away": 0.7498455047607422,
+            "lambda_p1_total": 1.7647898197174072,
+            "line_used": 1.5,
+            "home_team": "WSH",
+            "away_team": "SEA"
+          }
+        },
+        "p1_winner": {
+          "probabilities": {
+            "home_lead": 0.4084922030409345,
+            "tied": 0.32852493657879345,
+            "away_lead": 0.26298286038027213
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "fallback",
+            "lambda_p1_home": 1.014944314956665,
+            "lambda_p1_away": 0.7498455047607422,
+            "home_team": "WSH",
+            "away_team": "SEA"
+          }
+        }
+      },
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.4102,
+          "bookmaker_odds": 2.83,
+          "edge": 0.0569,
+          "kelly_stake": 0.022,
+          "confidence": "medium"
+        }
+      ]
+    },
+    {
+      "home": "NYR",
+      "away": "VAN",
+      "commence_time": "2026-10-11T22:10:00Z",
+      "predictions": {
+        "btts": {
+          "probabilities": {
+            "yes": 0.882521182284639,
+            "no": 0.11747881771536095
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.274467706680298,
+            "lambda_away": 2.4916446208953857,
+            "p_home_scores": 0.9621629957454177,
+            "p_away_scores": 0.9172262768232137,
+            "home_team": "NYR",
+            "away_team": "VAN"
+          }
+        },
+        "exact_score": {
+          "probabilities": {
+            "3-2": 0.12885036892144575,
+            "2-2": 0.11805005924343905,
+            "3-3": 0.10701644287450213,
+            "4-2": 0.10547909300677916,
+            "3-1": 0.10342596038045158,
+            "2-3": 0.09804626503676551,
+            "2-1": 0.09475673878485698,
+            "4-3": 0.08760547156908846,
+            "4-1": 0.08466624182454612,
+            "1-2": 0.07210335835812527
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.274467706680298,
+            "lambda_away": 2.4916446208953857,
+            "top_score": "3-2",
+            "top_proba": 0.12885036892144575,
+            "top_n": 10,
+            "home_team": "NYR",
+            "away_team": "VAN"
+          }
+        },
+        "goal_intervals": {
+          "probabilities": {
+            "0-2": 0.07325580050695496,
+            "3-4": 0.24432561629980404,
+            "5-6": 0.3262309945971049,
+            "7-8": 0.22661137654279728,
+            "9+": 0.12957621205333886
+          },
+          "expected_value": 5.766112327575684,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.274467706680298,
+            "lambda_away": 2.4916446208953857,
+            "lambda_total": 5.766112327575684,
+            "modal_bucket": "5-6",
+            "modal_proba": 0.3262309945971049,
+            "home_team": "NYR",
+            "away_team": "VAN"
+          }
+        },
+        "moneyline": {
+          "probabilities": {
+            "home": 0.590111494064331,
+            "away": 0.40988850593566895
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "home_team": "NYR",
+            "away_team": "VAN",
+            "temperature": 1.023374876902403,
+            "best_model": "XGB",
+            "engine": "NHLMoneylineEngine"
+          }
+        },
+        "p1_btts": {
+          "probabilities": {
+            "yes": 0.3293280406087869,
+            "no": 0.6706719593912132
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "fallback",
+            "lambda_p1_home": 0.9823403358459473,
+            "lambda_p1_away": 0.7474933862686157,
+            "p_p1_home_scores": 0.6255662281462744,
+            "p_p1_away_scores": 0.5264479215648787,
+            "home_team": "NYR",
+            "away_team": "VAN"
+          }
+        },
+        "p1_total": {
+          "probabilities": {
+            "over_1.5": 0.5159625612282965,
+            "under_1.5": 0.48403743877170347
+          },
+          "expected_value": 1.729833722114563,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "fallback",
+            "lambda_p1_home": 0.9823403358459473,
+            "lambda_p1_away": 0.7474933862686157,
+            "lambda_p1_total": 1.729833722114563,
+            "line_used": 1.5,
+            "home_team": "NYR",
+            "away_team": "VAN"
+          }
+        },
+        "p1_winner": {
+          "probabilities": {
+            "home_lead": 0.3982834516811846,
+            "tied": 0.33345811572694956,
+            "away_lead": 0.2682584325918658
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "fallback",
+            "lambda_p1_home": 0.9823403358459473,
+            "lambda_p1_away": 0.7474933862686157,
+            "home_team": "NYR",
+            "away_team": "VAN"
+          }
+        }
+      },
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.4099,
+          "bookmaker_odds": 3.36,
+          "edge": 0.1123,
+          "kelly_stake": 0.04,
+          "confidence": "medium"
+        }
+      ]
+    },
+    {
+      "home": "PHI",
+      "away": "CAR",
+      "commence_time": "2026-10-11T23:10:00Z",
+      "predictions": {
+        "btts": {
+          "probabilities": {
+            "yes": 0.8908109897495864,
+            "no": 0.10918901025041361
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.631448984146118,
+            "lambda_away": 3.2163500785827637,
+            "p_home_scores": 0.9280259026804778,
+            "p_away_scores": 0.9598988424532104,
+            "home_team": "PHI",
+            "away_team": "CAR"
+          }
+        },
+        "exact_score": {
+          "probabilities": {
+            "2-3": 0.12824611876777137,
+            "2-2": 0.11961955225745924,
+            "3-3": 0.11249103965071147,
+            "3-2": 0.10492424975730155,
+            "2-4": 0.10312110354416394,
+            "1-3": 0.09747186401136795,
+            "1-2": 0.09091534966335267,
+            "3-4": 0.09045264105510564,
+            "1-4": 0.07837590936814294,
+            "2-1": 0.07438217192462322
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.631448984146118,
+            "lambda_away": 3.2163500785827637,
+            "top_score": "2-3",
+            "top_proba": 0.12824611876777137,
+            "top_n": 10,
+            "home_team": "PHI",
+            "away_team": "CAR"
+          }
+        },
+        "goal_intervals": {
+          "probabilities": {
+            "0-2": 0.06911452155641502,
+            "3-4": 0.23683091703472814,
+            "5-6": 0.32478841214710824,
+            "7-8": 0.23181442378190786,
+            "9+": 0.13745172547984078
+          },
+          "expected_value": 5.847799062728882,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.631448984146118,
+            "lambda_away": 3.2163500785827637,
+            "lambda_total": 5.847799062728882,
+            "modal_bucket": "5-6",
+            "modal_proba": 0.32478841214710824,
+            "home_team": "PHI",
+            "away_team": "CAR"
+          }
+        },
+        "moneyline": {
+          "probabilities": {
+            "home": 0.3762901723384857,
+            "away": 0.6237098276615143
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "home_team": "PHI",
+            "away_team": "CAR",
+            "temperature": 1.023374876902403,
+            "best_model": "XGB",
+            "engine": "NHLMoneylineEngine"
+          }
+        },
+        "p1_btts": {
+          "probabilities": {
+            "yes": 0.33790065552444143,
+            "no": 0.6620993444755585
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "fallback",
+            "lambda_p1_home": 0.7894347310066223,
+            "lambda_p1_away": 0.9649050831794739,
+            "p_p1_home_scores": 0.5458985878051064,
+            "p_p1_away_scores": 0.6189806368304378,
+            "home_team": "PHI",
+            "away_team": "CAR"
+          }
+        },
+        "p1_total": {
+          "probabilities": {
+            "over_1.5": 0.5234401841952624,
+            "under_1.5": 0.4765598158047376
+          },
+          "expected_value": 1.7543398141860962,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "fallback",
+            "lambda_p1_home": 0.7894347310066223,
+            "lambda_p1_away": 0.9649050831794739,
+            "lambda_p1_total": 1.7543398141860962,
+            "line_used": 1.5,
+            "home_team": "PHI",
+            "away_team": "CAR"
+          }
+        },
+        "p1_winner": {
+          "probabilities": {
+            "home_lead": 0.2855589449515374,
+            "tied": 0.3321439474649967,
+            "away_lead": 0.382297107583466
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "fallback",
+            "lambda_p1_home": 0.7894347310066223,
+            "lambda_p1_away": 0.9649050831794739,
+            "home_team": "PHI",
+            "away_team": "CAR"
+          }
+        }
+      },
+      "value_bets": []
+    }
+  ]
+}
