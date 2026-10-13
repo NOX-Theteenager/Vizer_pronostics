@@ -101,7 +101,7 @@ def run(cmd: str, cwd: Path | None = None) -> None:
         )
 
 
-def quality_gate_passes(sport: str, pkg_dir: Path) -> bool:
+def quality_gate_passes(sport: str, pkg_dir: Path) -> dict | None:
     """Évalue le sport en mode split et vérifie l'AUC contre le plancher.
 
     Deux entraînements par sport : un en mode split pour mesurer honnêtement,
@@ -113,28 +113,48 @@ def quality_gate_passes(sport: str, pkg_dir: Path) -> bool:
     erreur d'exécution), on ne déploie pas. Déployer un modèle non vérifié est
     exactement ce que cette barrière existe pour empêcher. Pour la contourner,
     quality_gate.enabled: false dans le config.yaml du sport.
+
+    Retourne None si le sport passe, sinon un dict décrivant **pourquoi** il
+    est refusé. Trois causes mènent ici — entraînement d'évaluation planté,
+    AUC sous le plancher, barrière inexploitable — et le workflow doit pouvoir
+    les distinguer au lieu d'annoncer la deuxième dans les trois cas.
     """
     eval_path = Path("/tmp") / f"{sport}_eval.pkl"
+    verdict_path = Path("/tmp") / f"{sport}_gate.json"
     print(f"\n  🔍 Évaluation hors échantillon ({sport.upper()})", flush=True)
     try:
         run(f"python train.py --output {eval_path}", cwd=pkg_dir)
     except RuntimeError as e:
         print(f"  ❌ Entraînement d'évaluation échoué : {e}", file=sys.stderr)
-        return False
+        return {"cause": "eval_training_failed",
+                "headline": f"l'entraînement d'évaluation a planté : {e}"}
 
     code = subprocess.run(
-        f"python -m vizer_core.quality_gate {eval_path}",
+        f"python -m vizer_core.quality_gate {eval_path} --json {verdict_path}",
         shell=True, cwd=str(pkg_dir),
     ).returncode
     if code == 0:
-        return True
-    if code == 1:
-        print(f"  ⛔ {sport.upper()} — AUC sous le plancher, déploiement refusé.",
-              file=sys.stderr)
-    else:
-        print(f"  ⛔ {sport.upper()} — barrière inexploitable (code {code}), "
-              f"déploiement refusé par prudence.", file=sys.stderr)
-    return False
+        return None
+
+    import json as _json
+    try:
+        verdict = _json.loads(verdict_path.read_text())
+    except (OSError, ValueError):
+        verdict = {}
+
+    headline = verdict.get("headline") or (
+        "AUC sous le plancher" if code == 1
+        else f"barrière inexploitable (code {code})"
+    )
+    print(f"  ⛔ {sport.upper()} — {headline}", file=sys.stderr)
+    return {
+        "cause": verdict.get("cause") or ("gate_refused" if code == 1
+                                          else "gate_unusable"),
+        "headline": headline,
+        "exit_code": code,
+        "checks": verdict.get("checks", []),
+        "n_test": verdict.get("n_test"),
+    }
 
 
 def seed_data_from_kaggle_dataset(sport: str, pkg_dir: Path,
@@ -296,7 +316,7 @@ nhl_ok = True
 nba_ok = True
 # Sports écartés par la barrière de qualité (distincts d'un échec technique :
 # l'entraînement a marché, c'est le résultat qui ne passe pas).
-blocked: list[str] = []
+blocked: dict[str, dict] = {}
 
 # ── 4a. NHL ───────────────────────────────────────────────────────────────────
 if SPORT in ("nhl", "both"):
@@ -325,8 +345,9 @@ if SPORT in ("nhl", "both"):
             print("  [info] Pas d'agrégat dans le dataset — reconstruction "
                   "depuis Moneypuck (all_teams.csv échouera si l'IP est bloquée).")
             run("python update_data.py --mode update", cwd=nhl_dir)
-        if not quality_gate_passes("nhl", nhl_dir):
-            blocked.append("NHL")
+        nhl_refusal = quality_gate_passes("nhl", nhl_dir)
+        if nhl_refusal is not None:
+            blocked["NHL"] = nhl_refusal
             nhl_ok = False
         else:
             # train_full.py : 100% des matchs, saison courante incluse. train.py
@@ -351,8 +372,9 @@ if SPORT in ("nba", "both"):
         else:
             print("  [info] Cache NBA détecté — données du dataset, pas de fetch.")
 
-        if not quality_gate_passes("nba", nba_dir):
-            blocked.append("NBA")
+        nba_refusal = quality_gate_passes("nba", nba_dir)
+        if nba_refusal is not None:
+            blocked["NBA"] = nba_refusal
             nba_ok = False
         else:
             # update_and_train.py --skip-fetch enchaîne sur train_full.py, qui
@@ -535,8 +557,10 @@ if errors:
 blocked_marker = OUT_DIR / "gate_blocked.json"
 if blocked:
     import json as _json
-    blocked_marker.write_text(_json.dumps({"blocked": blocked}))
-    print(f"  ⛔ Déploiement refusé par la barrière de qualité : {', '.join(blocked)}")
+    blocked_marker.write_text(_json.dumps({"blocked": blocked},
+                                          ensure_ascii=False, indent=2))
+    for _sport, _why in blocked.items():
+        print(f"  ⛔ {_sport} non déployé — {_why.get('headline', 'cause inconnue')}")
 elif blocked_marker.exists():
     # Sortie d'un run précédent : la supprimer, sinon le workflow croirait
     # qu'un sport est encore bloqué.

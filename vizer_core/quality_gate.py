@@ -69,10 +69,24 @@ class MarketCheck:
     auc: float | None
     floor: float
     reason: str
+    # Pourquoi, en un mot que la CI peut lire. Un refus a deux causes bien
+    # distinctes et le log ne doit pas les confondre : un marché sous son
+    # plancher n'a rien à voir avec un marché qui n'a pas pu s'entraîner.
+    cause: str = ""
 
     @property
     def symbol(self) -> str:
         return {"pass": "✓", "fail": "❌", "skip": "⊘"}[self.verdict]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "market": self.market,
+            "verdict": self.verdict,
+            "auc": self.auc,
+            "floor": self.floor,
+            "cause": self.cause,
+            "reason": self.reason,
+        }
 
 
 @dataclass
@@ -88,6 +102,34 @@ class GateResult:
     @property
     def passed(self) -> bool:
         return not self.failed
+
+    def headline(self) -> str:
+        """Une phrase qui nomme la vraie cause du refus, pour les logs de CI."""
+        if self.passed:
+            return "barrière franchie"
+        low = [c for c in self.failed if c.cause == "below_floor"]
+        missing = [c for c in self.failed if c.cause == "market_missing"]
+        parts = []
+        if low:
+            parts.append(
+                "AUC sous le plancher : "
+                + ", ".join(f"{c.market} {c.auc:.4f} < {c.floor:.4f}" for c in low)
+            )
+        if missing:
+            parts.append(
+                "marché(s) absent(s) du registre, entraînement échoué : "
+                + ", ".join(c.market for c in missing)
+            )
+        return " ; ".join(parts) or "refus sans cause identifiée"
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "passed": self.passed,
+            "enabled": self.enabled,
+            "n_test": self.n_test,
+            "headline": self.headline(),
+            "checks": [c.to_dict() for c in self.checks],
+        }
 
     def report(self) -> str:
         lines = ["─" * 62, "BARRIÈRE DE QUALITÉ", "─" * 62]
@@ -139,6 +181,7 @@ def check_registry(registry: ModelRegistry, gate_cfg: dict[str, Any]) -> GateRes
             result.checks.append(MarketCheck(
                 market, "fail", None, floor,
                 "marché absent du registre — entraînement échoué ou désactivé",
+                cause="market_missing",
             ))
             continue
 
@@ -149,20 +192,23 @@ def check_registry(registry: ModelRegistry, gate_cfg: dict[str, Any]) -> GateRes
                 market, "skip", auc, floor,
                 f"abstention : {n_test:,} matchs de test < {min_games:,} requis, "
                 f"mesure trop bruitée pour décider",
+                cause="too_few_test_games",
             ))
         elif auc is None:
             result.checks.append(MarketCheck(
                 market, "skip", None, floor,
                 "abstention : aucune AUC dans les métriques (jeu de test à une "
                 "seule classe ?)",
+                cause="no_auc",
             ))
         elif auc < floor:
             result.checks.append(MarketCheck(
                 market, "fail", auc, floor,
                 f"sous le plancher de {floor - auc:.4f}",
+                cause="below_floor",
             ))
         else:
-            result.checks.append(MarketCheck(market, "pass", auc, floor, ""))
+            result.checks.append(MarketCheck(market, "pass", auc, floor, "", cause="ok"))
 
     return result
 
@@ -173,7 +219,22 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("registry", help="Registre issu de train.py en mode split")
     parser.add_argument("-c", "--config", default="config.yaml")
+    parser.add_argument("--json", dest="json_out", default=None,
+                        help="Écrit le verdict détaillé en JSON à ce chemin")
     args = parser.parse_args(argv)
+
+    def dump(payload: dict[str, Any]) -> None:
+        """Le verdict machine, pour que la CI cite la cause et pas une
+        supposition. Un échec d'écriture ne doit pas masquer le verdict."""
+        if not args.json_out:
+            return
+        import json
+        try:
+            Path(args.json_out).write_text(
+                json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+        except OSError as exc:
+            print(f"⚠️  Verdict JSON non écrit : {exc}", file=sys.stderr)
 
     from .config_loader import load_config
 
@@ -182,11 +243,15 @@ def main(argv: list[str] | None = None) -> int:
     if not gate_cfg:
         print("⚠️  Aucune section quality_gate dans la config — rien à vérifier.",
               file=sys.stderr)
+        dump({"passed": True, "enabled": False,
+              "headline": "aucune section quality_gate dans la config"})
         return 0
 
     path = Path(args.registry)
     if not path.exists():
         print(f"❌ Registre introuvable : {path}", file=sys.stderr)
+        dump({"passed": False, "headline": f"registre introuvable : {path}",
+              "cause": "registry_missing"})
         return 2
 
     try:
@@ -194,15 +259,19 @@ def main(argv: list[str] | None = None) -> int:
     except Exception as e:
         print(f"❌ Lecture du registre impossible : {type(e).__name__}: {e}",
               file=sys.stderr)
+        dump({"passed": False, "cause": "registry_unreadable",
+              "headline": f"registre illisible : {type(e).__name__}: {e}"})
         return 2
 
     try:
         result = check_registry(registry, gate_cfg)
     except ValueError as e:
         print(f"❌ {e}", file=sys.stderr)
+        dump({"passed": False, "cause": "in_sample_registry", "headline": str(e)})
         return 2
 
     print(result.report())
+    dump(result.to_dict())
     return 0 if result.passed else 1
 
 

@@ -349,11 +349,32 @@ jobs:
             echo "✅ Barrière de qualité : aucun sport bloqué."
             exit 0
           fi
-          echo "⛔ Déploiement refusé par la barrière de qualité :"
-          cat "$MARKER"
+          echo "⛔ Déploiement refusé par la barrière de qualité."
           echo ""
-          echo "   L'AUC de test est passée sous le plancher défini dans le"
-          echo "   config.yaml du sport (quality_gate.markets.*.min_test_auc)."
+          # Le marqueur porte la cause réelle par sport. Trois causes très
+          # différentes mènent ici (AUC sous plancher, marché absent faute
+          # d'entraînement, barrière inexploitable) : les confondre envoie
+          # chercher une dérive de modèle là où c'est un plantage technique.
+          python - "$MARKER" <<'PYGATE'
+          import json, sys
+          data = json.load(open(sys.argv[1]))
+          blocked = data.get("blocked", {})
+          # Ancien format (liste de sports, sans cause) : on l'affiche tel quel.
+          if isinstance(blocked, list):
+              print("   Sports bloqués :", ", ".join(blocked))
+              print("   (marqueur sans cause — kernel antérieur au détail)")
+              raise SystemExit(0)
+          for sport, why in blocked.items():
+              print(f"   ── {sport} ──")
+              print(f"   Cause  : {why.get('cause', 'inconnue')}")
+              print(f"   Détail : {why.get('headline', 'non précisé')}")
+              for c in why.get("checks", []):
+                  auc = c.get("auc")
+                  auc = f"{auc:.4f}" if isinstance(auc, (int, float)) else "n/a"
+                  print(f"     {c.get('verdict'):5s} {c.get('market'):14s} "
+                        f"AUC={auc} plancher={c.get('floor')}  {c.get('reason', '')}")
+              print()
+          PYGATE
           echo "   Le modèle concerné n'a PAS été déployé ; les modèles des"
           echo "   autres sports, eux, l'ont été."
           echo ""
