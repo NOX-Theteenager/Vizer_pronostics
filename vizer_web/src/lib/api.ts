@@ -37,6 +37,15 @@ export const DATA_BASE: string = (
  */
 const FALLBACK_BASE = DATA_BASE.startsWith('/') ? DEFAULT_BASE : null;
 
+/**
+ * Le proxy a déjà échoué dans cette session : on cesse de l'interroger.
+ *
+ * Sans ce drapeau, chaque fetch paierait deux allers-retours tant que la
+ * fonction est absente. Il n'est pas persisté : un déploiement qui répare la
+ * fonction doit reprendre la main au rechargement suivant.
+ */
+let proxyDown = false;
+
 /** Traduit une URL du proxy vers la source directe. */
 function fallbackUrl(url: string): string | null {
   if (!FALLBACK_BASE || !url.startsWith(DATA_BASE)) return null;
@@ -106,15 +115,30 @@ async function fetchOnce(url: string, timeoutMs: number): Promise<unknown> {
   }
 }
 
+/**
+ * Lit un JSON, avec repli sur la source directe quand on passe par le proxy.
+ *
+ * Le repli couvre **aussi** le 404. À travers le proxy, un 404 est ambigu : il
+ * peut dire « ce fichier n'existe pas » comme « cette fonction n'est pas
+ * déployée ». Seule la source directe tranche — et c'est exactement ce qui est
+ * arrivé en production : la fonction Edge avait été écartée par une erreur de
+ * compilation, le proxy répondait 404 sur tout, et l'app restait vide alors que
+ * les prédictions étaient publiées.
+ */
 async function fetchJson(url: string, timeoutMs = 12_000): Promise<unknown> {
+  const direct = fallbackUrl(url);
+
+  if (direct && proxyDown) return await fetchOnce(direct, timeoutMs);
+
   try {
     return await fetchOnce(url, timeoutMs);
   } catch (err) {
-    // Un 404 est une réponse, pas une panne : le fichier n'existe pas non plus
-    // à la source, et réessayer ne ferait que doubler l'attente.
-    const direct = String(err).includes('HTTP 404') ? null : fallbackUrl(url);
     if (!direct) throw err;
-    return await fetchOnce(direct, timeoutMs);
+    const payload = await fetchOnce(direct, timeoutMs);
+    // La source directe répond là où le proxy a échoué : le proxy est en
+    // cause, pas la donnée.
+    proxyDown = true;
+    return payload;
   }
 }
 

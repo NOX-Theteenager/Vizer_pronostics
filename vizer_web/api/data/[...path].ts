@@ -21,6 +21,16 @@
  */
 export const config = { runtime: 'edge' };
 
+/**
+ * `process.env` existe dans le runtime Edge de Vercel, mais pas dans les types
+ * DOM de ce projet — et le build Vercel type-vérifie cette fonction avant de
+ * l'émettre. Sans cette déclaration, la compilation échoue, la fonction est
+ * écartée en silence et le build reste vert : /api/data répond 404 sans que
+ * rien ne le signale. Installer @types/node pour trois variables n'aurait pas
+ * plus de sens : le runtime Edge n'est pas Node.
+ */
+declare const process: { env: Record<string, string | undefined> };
+
 const REPO = process.env.VIZER_REPO || 'NOX-Theteenager/Vizer_pronostics';
 const BRANCH = process.env.VIZER_BRANCH || 'models-artifacts';
 const TOKEN = process.env.VIZER_GITHUB_TOKEN || '';
