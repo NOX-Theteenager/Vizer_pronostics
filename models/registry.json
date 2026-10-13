@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-13T22:28:07+00:00",
+  "generated_at": "2026-10-13T23:33:09+00:00",
   "models": {
     "nhl": {
       "sport": "nhl",
@@ -132,7 +132,7 @@
       "n_games_test": 0,
       "training_duration_sec": 9.340441703796387,
       "p1_mode": "dedicated",
-      "trained_at": "2026-10-13T22:27:17+00:00",
+      "trained_at": "2026-10-13T23:32:37+00:00",
       "trained_at_source": "file_mtime",
       "model_version": "v2026.10.13"
     },
@@ -226,7 +226,7 @@
         "away_team_total"
       ],
       "models_failed": [],
-      "trained_at": "2026-10-13T22:27:17+00:00",
+      "trained_at": "2026-10-13T23:32:37+00:00",
       "trained_at_source": "file_mtime",
       "model_version": "v2026.10.13"
     }
