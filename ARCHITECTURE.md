@@ -210,3 +210,68 @@ backtesting/ (futur)
 - Détection de gardiens partants (NHL only)
 - Conventions de saison (`SEASON_ID` NBA vs `season` NHL)
 - Le contenu des features (par contre les *types* de transformations comme rolling windows peuvent être génériques)
+
+## 13. La couche de consultation — `vizer_web/`
+
+La PWA est le seul consommateur des prédictions. Elle ne partage **aucun code**
+avec le backend : le contrat entre les deux est le JSON publié sur la branche
+`models-artifacts`, rien d'autre.
+
+```
+predict_all.py --json
+    ↓ (workflow Vizer Daily Predictions, 7h UTC)
+models-artifacts:predictions/latest/<sport>.json
+                 models/registry.json
+                 results/latest.json
+    ↓ (fetch HTTP statique, direct ou via le proxy Edge Vercel)
+vizer_web/src/types/normalize.ts
+    ↓
+écrans
+```
+
+### Ce qui casse la PWA
+
+Renommer un marché, une clé de probabilité ou un champ de value bet. Les formes
+attendues sont décrites dans `vizer_web/src/types/raw.ts`. `npm run test` dans
+`vizer_web/` vérifie la normalisation sur les échantillons et échoue si le
+contrat bouge. Un marché **ajouté** ne casse rien : il s'affiche en fin de liste
+avec un libellé dérivé de sa clé — lui en donner un vrai dans
+`vizer_web/src/data/markets.ts`.
+
+### Champs publiés pour la PWA
+
+| Champ | Produit par | Remarque |
+|---|---|---|
+| `form`, `h2h` | `vizer_<sport>/src/data/history.py` | NHL : `all_teams.csv` (`situation == 'all'`), **pas** le dataset de features qui est en 5-contre-5 |
+| `factors` | `vizer_core/explain.py` (SHAP XGBoost) | liste vide si le marché n'est pas un booster |
+| `books` | `vizer_<sport>/src/api/publication.py` | cotes par bookmaker, déjà récupérées par l'Odds API |
+| `models_trained_at`, `model_version` | `train.py` → métadonnées du registre | aussi exportés dans `models/registry.json` |
+| `results/latest.json` | `scripts/publish_results.py` (scoreboard ESPN) | scores finaux + détail par période ; la PWA s'en sert pour clôturer les paris |
+
+`scripts/export_model_registry.py` publie `models/registry.json` (+ une copie
+datée dans `models/history/`) : c'est la source de l'écran Admin.
+
+### Clôture des paris
+
+`scripts/publish_results.py` lit le scoreboard public d'ESPN — une seule API
+pour les deux sports, accessible depuis une IP de datacenter, contrairement à
+`cdn.nba.com` et `stats.nba.com`. Il publie le score final **et** le détail par
+période, ce qui permet de régler les marchés P1/Q1 autant que le moneyline.
+
+La décision se prend côté PWA (`vizer_web/src/lib/settle.ts`), sur un principe
+d'abstention : un pari qu'on ne sait pas trancher reste en attente. Trois cas
+d'abstention, tous volontaires — règle de règlement variable selon le
+bookmaker, ligne entière tombée pile (push), score exact ou intervalle de buts
+après prolongation.
+
+### Reste à faire
+
+- **Pas de pipeline candidat → promotion** : l'entraînement écrase directement
+  la production. La barrière de qualité empêche qu'un modèle dégradé parte,
+  mais il n'y a ni `candidates/`, ni rollback, ni validation manuelle avant
+  déploiement.
+- **Notifications hors application** : les alertes ne partent que si l'app est
+  ouverte. Un vrai push demande des clés VAPID et un service qui conserve les
+  abonnements.
+
+Détails d'implémentation : `vizer_web/README.md`.

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Vizer — Pronostics NHL &amp; NBA</title>
+    <meta
+      name="description"
+      content="Assistant personnel de pronostics sportifs : value bets NHL et NBA calculés par modèles ML."
+    />
+    <meta name="theme-color" content="#0b0d12" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Vizer" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <!-- Écran de démarrage : le fond est posé avant le premier paint pour
+         éviter le flash blanc en mode standalone. -->
+    <style>
+      html { background: #0b0d12; }
+      html[data-theme='light'] { background: #efede4; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>Vizer nécessite JavaScript pour afficher les prédictions.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

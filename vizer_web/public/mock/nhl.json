@@ -1,0 +1,353 @@
+{
+  "generated_at": "2026-10-13T07:00:00Z",
+  "n_games": 3,
+  "games": [
+    {
+      "home": "TOR",
+      "away": "MTL",
+      "commence_time": "2026-10-13T17:00:00Z",
+      "predictions": {
+        "moneyline": {
+          "probabilities": {
+            "home": 0.453,
+            "away": 0.547
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "home_team": "TOR",
+            "away_team": "MTL"
+          }
+        },
+        "total": {
+          "probabilities": {
+            "over_5.5": 0.496,
+            "under_5.5": 0.504
+          },
+          "expected_value": 5.87,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_independent",
+            "line_used": 5.5
+          }
+        },
+        "btts": {
+          "probabilities": {
+            "yes": 0.884,
+            "no": 0.116
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent"
+          }
+        },
+        "p1_winner": {
+          "probabilities": {
+            "home_lead": 0.322,
+            "tied": 0.341,
+            "away_lead": 0.337
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent"
+          }
+        },
+        "p1_total": {
+          "probabilities": {
+            "over_1.5": 0.505,
+            "under_1.5": 0.495
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "line_used": 1.5
+          }
+        },
+        "p1_btts": {
+          "probabilities": {
+            "yes": 0.326,
+            "no": 0.674
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_p1_independent"
+          }
+        },
+        "goal_intervals": {
+          "probabilities": {
+            "0-2": 0.08,
+            "3-4": 0.256,
+            "5-6": 0.328,
+            "7-8": 0.219,
+            "9+": 0.117
+          },
+          "expected_value": 5.87,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_independent"
+          }
+        },
+        "exact_score": {
+          "probabilities": {
+            "2-2": 0.127,
+            "2-3": 0.122,
+            "3-2": 0.118,
+            "3-3": 0.113,
+            "2-4": 0.069
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent"
+          }
+        }
+      },
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.547,
+          "bookmaker_odds": 2.15,
+          "edge": 0.0819,
+          "kelly_stake": 0.022,
+          "confidence": "medium",
+          "books": [
+            {
+              "name": "Pinnacle",
+              "odds": 2.15,
+              "best": true
+            },
+            {
+              "name": "Betclic",
+              "odds": 2.1,
+              "best": false
+            },
+            {
+              "name": "Unibet",
+              "odds": 2.07,
+              "best": false
+            }
+          ]
+        }
+      ],
+      "form": {
+        "home": {
+          "results": [
+            "W",
+            "L",
+            "W",
+            "D",
+            "W"
+          ],
+          "wins": 3,
+          "draws": 1,
+          "losses": 1,
+          "goals_for": 18,
+          "goals_against": 14
+        },
+        "away": {
+          "results": [
+            "W",
+            "L",
+            "L",
+            "L",
+            "D"
+          ],
+          "wins": 1,
+          "draws": 1,
+          "losses": 3,
+          "goals_for": 14,
+          "goals_against": 19
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-09-29",
+          "home": "TOR",
+          "away": "MTL",
+          "home_score": 2,
+          "away_score": 3,
+          "winner": "away"
+        },
+        {
+          "date": "2026-03-10",
+          "home": "MTL",
+          "away": "TOR",
+          "home_score": 3,
+          "away_score": 1,
+          "winner": "away"
+        },
+        {
+          "date": "2025-12-06",
+          "home": "TOR",
+          "away": "MTL",
+          "home_score": 1,
+          "away_score": 1,
+          "winner": null
+        },
+        {
+          "date": "2025-11-22",
+          "home": "MTL",
+          "away": "TOR",
+          "home_score": 5,
+          "away_score": 2,
+          "winner": "away"
+        },
+        {
+          "date": "2025-10-08",
+          "home": "TOR",
+          "away": "MTL",
+          "home_score": 5,
+          "away_score": 2,
+          "winner": "home"
+        }
+      ],
+      "factors": [
+        {
+          "feature": "diff_elo",
+          "label": "Écart Elo",
+          "value": -78.9978,
+          "contribution": -0.1261,
+          "direction": "away"
+        },
+        {
+          "feature": "diff_xGF_season",
+          "label": "Buts attendus — saison",
+          "value": -0.0253,
+          "contribution": -0.0787,
+          "direction": "away"
+        },
+        {
+          "feature": "diff_xGF_20",
+          "label": "Buts attendus — 20 derniers matchs",
+          "value": -0.0302,
+          "contribution": -0.0414,
+          "direction": "away"
+        }
+      ]
+    },
+    {
+      "home": "BOS",
+      "away": "NYR",
+      "commence_time": "2026-10-13T17:30:00Z",
+      "predictions": {
+        "moneyline": {
+          "probabilities": {
+            "home": 0.581,
+            "away": 0.419
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "home_team": "BOS",
+            "away_team": "NYR"
+          }
+        },
+        "total": {
+          "probabilities": {
+            "over_5.5": 0.452,
+            "under_5.5": 0.548
+          },
+          "expected_value": 5.42,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_independent",
+            "line_used": 5.5
+          }
+        },
+        "btts": {
+          "probabilities": {
+            "yes": 0.81,
+            "no": 0.19
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent"
+          }
+        }
+      },
+      "value_bets": [
+        {
+          "market": "btts",
+          "selection": "yes",
+          "predicted_proba": 0.81,
+          "bookmaker_odds": 1.7,
+          "edge": 0.1218,
+          "kelly_stake": 0.031,
+          "confidence": "high",
+          "books": [
+            {
+              "name": "Pinnacle",
+              "odds": 1.7,
+              "best": true
+            },
+            {
+              "name": "Winamax",
+              "odds": 1.66,
+              "best": false
+            }
+          ]
+        },
+        {
+          "market": "moneyline",
+          "selection": "home",
+          "predicted_proba": 0.581,
+          "bookmaker_odds": 1.95,
+          "edge": 0.0683,
+          "kelly_stake": 0.018,
+          "confidence": "medium"
+        }
+      ]
+    },
+    {
+      "home": "COL",
+      "away": "VGK",
+      "commence_time": "2026-10-13T19:00:00Z",
+      "predictions": {
+        "moneyline": {
+          "probabilities": {
+            "home": 0.51,
+            "away": 0.49
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "home_team": "COL",
+            "away_team": "VGK"
+          }
+        },
+        "total": {
+          "probabilities": {
+            "over_5.5": 0.573,
+            "under_5.5": 0.427
+          },
+          "expected_value": 6.1,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_independent",
+            "line_used": 5.5
+          }
+        },
+        "btts": {
+          "probabilities": {
+            "yes": 0.852,
+            "no": 0.148
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent"
+          }
+        }
+      },
+      "value_bets": []
+    }
+  ],
+  "models_trained_at": "2026-10-06T14:02:11+00:00",
+  "model_version": "v2026.10.06"
+}

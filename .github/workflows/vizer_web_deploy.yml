@@ -1,0 +1,84 @@
+# =============================================================================
+# Vizer Web — build et déploiement de la PWA sur GitHub Pages
+# =============================================================================
+#
+# La PWA consomme les JSON publiés par « Vizer Daily Predictions » sur la
+# branche models-artifacts : rien à redéployer quand les prédictions changent,
+# ce workflow ne tourne que sur les changements de code front.
+#
+# Le déploiement de référence est Vercel, branché sur ce dépôt : il construit
+# et publie tout seul à chaque push, avec un POP africain et un proxy Edge des
+# données (vizer_web/api/data). Ce workflow-ci reste comme solution de repli —
+# même build, hébergé par GitHub, sans dépendance à un tiers.
+#
+# Pour s'en servir : Settings > Pages > Source : GitHub Actions, puis lancer le
+# workflow à la main. Il ne se déclenche pas sur push, sinon chaque commit front
+# produirait un run rouge tant que Pages n'est pas activé.
+# =============================================================================
+
+name: Vizer Web Deploy (repli GitHub Pages)
+
+on:
+  workflow_dispatch:
+
+# Un seul déploiement à la fois ; les pushes rapprochés sont coalescés, mais on
+# ne coupe pas un déploiement en cours (Pages n'aime pas les artefacts partiels).
+concurrency:
+  group: vizer-web-pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: Construire la PWA
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: vizer_web
+
+    steps:
+      - name: Checkout du dépôt
+        uses: actions/checkout@v7
+
+      - name: Configurer Node 22
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vizer_web/package-lock.json
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Construire
+        env:
+          # Même dépôt, branche models-artifacts : la PWA lit ses propres
+          # prédictions. À surcharger ici si elles déménagent.
+          VITE_DATA_BASE: >-
+            https://raw.githubusercontent.com/${{ github.repository }}/models-artifacts/predictions
+        run: npm run build
+
+      - name: Configurer Pages
+        uses: actions/configure-pages@v5
+
+      - name: Téléverser l'artefact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: vizer_web/dist
+
+  deploy:
+    name: Déployer sur Pages
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Déployer
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,112 @@
+/**
+ * Proxy des données publiées, à l'Edge.
+ *
+ * Sans lui, la PWA tape directement `raw.githubusercontent.com`, avec trois
+ * conséquences : un cache CDN de 5 minutes qu'on ne contrôle pas, un quota
+ * par IP (partagé par tous les utilisateurs derrière un même opérateur
+ * mobile), et une origine tierce dans chaque requête.
+ *
+ * Ici, les JSON sont servis depuis la même origine que l'app, avec nos propres
+ * en-têtes de cache : le POP Vercel le plus proche de l'utilisateur répond, et
+ * ne redemande à GitHub qu'à l'expiration.
+ *
+ *   /api/data/predictions/latest/nhl.json
+ *   /api/data/models/registry.json
+ *   /api/data/results/latest.json
+ *
+ * Variables d'environnement (facultatives) :
+ *   VIZER_REPO    — dépôt source, défaut NOX-Theteenager/Vizer_pronostics
+ *   VIZER_BRANCH  — branche de données, défaut models-artifacts
+ *   VIZER_GITHUB_TOKEN — nécessaire seulement si le dépôt devient privé
+ */
+export const config = { runtime: 'edge' };
+
+const REPO = process.env.VIZER_REPO || 'NOX-Theteenager/Vizer_pronostics';
+const BRANCH = process.env.VIZER_BRANCH || 'models-artifacts';
+const TOKEN = process.env.VIZER_GITHUB_TOKEN || '';
+
+/**
+ * Durées de fraîcheur côté CDN. Les prédictions sont régénérées une fois par
+ * jour à 7h UTC : une minute de cache suffit à absorber une rafale sans jamais
+ * faire attendre une donnée fraîche, et `stale-while-revalidate` sert l'ancienne
+ * version pendant qu'on va chercher la nouvelle plutôt que de bloquer.
+ */
+const CACHE: Record<string, string> = {
+  predictions: 'public, s-maxage=60, stale-while-revalidate=600',
+  results: 'public, s-maxage=300, stale-while-revalidate=3600',
+  models: 'public, s-maxage=300, stale-while-revalidate=3600',
+};
+
+/**
+ * Le chemin vient de l'URL : il ne doit pas pouvoir sortir de la branche de
+ * données. On n'autorise que les trois racines publiées, et aucun segment
+ * `..` — un proxy qui relaie n'importe quel chemin relaie aussi `.git/`.
+ */
+function safePath(raw: string): string | null {
+  const clean = raw.replace(/^\/+/, '');
+  if (!clean || clean.includes('..') || clean.includes('//')) return null;
+  const root = clean.split('/')[0];
+  if (!(root in CACHE)) return null;
+  if (!/^[\w./-]+$/.test(clean)) return null;
+  return clean;
+}
+
+export default async function handler(req: Request): Promise<Response> {
+  const url = new URL(req.url);
+  const path = safePath(url.pathname.replace(/^\/api\/data/, ''));
+
+  if (!path) {
+    return new Response(
+      JSON.stringify({ error: 'Chemin non autorisé.' }),
+      { status: 400, headers: { 'content-type': 'application/json; charset=utf-8' } },
+    );
+  }
+
+  const upstream = TOKEN
+    ? `https://api.github.com/repos/${REPO}/contents/${path}?ref=${BRANCH}`
+    : `https://raw.githubusercontent.com/${REPO}/${BRANCH}/${path}`;
+
+  const headers: Record<string, string> = { 'user-agent': 'vizer-edge-proxy' };
+  if (TOKEN) {
+    headers.authorization = `Bearer ${TOKEN}`;
+    headers.accept = 'application/vnd.github.raw';
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(upstream, { headers });
+  } catch {
+    // GitHub injoignable : la PWA a un cache local, on le lui dit clairement
+    // plutôt que de laisser un timeout opaque.
+    return new Response(
+      JSON.stringify({ error: 'Source de données injoignable.' }),
+      { status: 502, headers: { 'content-type': 'application/json; charset=utf-8' } },
+    );
+  }
+
+  if (!res.ok) {
+    return new Response(
+      JSON.stringify({ error: `Fichier absent (${res.status}).`, path }),
+      {
+        status: res.status === 404 ? 404 : 502,
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+          // Un 404 se met en cache brièvement : un sport sans match du jour
+          // est une situation normale, pas la peine de la redemander sans arrêt.
+          'cache-control': 'public, s-maxage=60',
+        },
+      },
+    );
+  }
+
+  return new Response(res.body, {
+    status: 200,
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': CACHE[path.split('/')[0]],
+      // L'app et les données partagent l'origine ; on ouvre quand même en
+      // lecture pour qu'un aperçu de déploiement puisse lire la production.
+      'access-control-allow-origin': '*',
+    },
+  });
+}

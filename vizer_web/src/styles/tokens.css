@@ -1,0 +1,77 @@
+/* =========================================================================
+   Vizer — tokens, repris à l'identique de la maquette « Vizer v2.dc.html »
+   (objets DARK / LIGHT de la classe Component).
+   Le thème clair est la déclinaison chaude « Claude ».
+   ========================================================================= */
+:root,
+:root[data-theme='dark'] {
+  --bg: #0b0d12;
+  --surface: #14171f;
+  --surface-2: #1c212c;
+  --surface-3: #242b39;
+  --border: #28303f;
+  --text: #f3f5f9;
+  --text-muted: #8b93a4;
+  --text-dim: #5d6474;
+  --accent: #f0885e;
+  --accent-ink: #2a1108;
+  --value: #2ce08c;
+  --value-ink: #04160d;
+  --hot: #ffc24b;
+  --warning: #f5a623;
+  --danger: #ff5d5d;
+  --bar-track: #232a38;
+  --radius: 20px;
+  --shadow: 0 10px 28px rgba(0, 0, 0, 0.38);
+  --wash: 0.11;
+
+  /* Accents de sport — teintes propres au thème (sportColor() de la maquette) */
+  --hockey: #54c8f0;
+  --basket: #ff8a4c;
+}
+
+:root[data-theme='light'] {
+  --bg: #efede4;
+  --surface: #fbfaf6;
+  --surface-2: #f2f0e7;
+  --surface-3: #e9e6d9;
+  --border: #e0dbcc;
+  --text: #1f1e1c;
+  --text-muted: #6e6a61;
+  --text-dim: #9a958a;
+  --accent: #be5a38;
+  --accent-ink: #ffffff;
+  --value: #1c8a5a;
+  --value-ink: #ffffff;
+  --hot: #a9781f;
+  --warning: #a9781f;
+  --danger: #be4033;
+  --bar-track: #e5e1d4;
+  --radius: 20px;
+  --shadow: 0 8px 22px rgba(80, 68, 44, 0.1);
+  --wash: 0.14;
+
+  --hockey: #2c7a9e;
+  --basket: #c2521e;
+}
+
+:root {
+  /* --sport est réassigné à chaud selon l'onglet actif (cf. App.tsx) */
+  --sport: var(--hockey);
+
+  --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+
+  --maxw: 460px;
+  --nav-h: 76px;
+  --dur: 180ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+}
