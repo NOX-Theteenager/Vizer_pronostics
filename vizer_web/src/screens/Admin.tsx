@@ -32,14 +32,50 @@ import { SPORTS, type Sport } from '../types/model';
  * Rien n'est simulé : sans jeton, les actions sont désactivées et le disent.
  */
 
-/** Métriques mises en avant, par ordre de lecture. */
-const HEADLINE: { key: string; label: string; digits: number; higherIsBetter: boolean }[] = [
-  { key: 'accuracy_test', label: 'Précision (test)', digits: 3, higherIsBetter: true },
-  { key: 'auc_test', label: 'AUC (test)', digits: 4, higherIsBetter: true },
-  { key: 'brier_calibrated_test', label: 'Brier calibré', digits: 4, higherIsBetter: false },
-  { key: 'temperature', label: 'Température', digits: 3, higherIsBetter: true },
-  { key: 'n_features', label: 'Features', digits: 0, higherIsBetter: true },
+/**
+ * Métriques mises en avant, par ordre de lecture.
+ *
+ * Deux orthographes par métrique : la NHL suffixe (`auc_test`), la NBA préfixe
+ * (`test_auc`). Les deux registres existent tels quels — la barrière de qualité
+ * fait déjà le même compromis plutôt que d'imposer une convention à des
+ * fichiers qui ont la leur.
+ */
+const HEADLINE: { keys: string[]; label: string; digits: number; higherIsBetter: boolean }[] = [
+  { keys: ['accuracy_test', 'test_accuracy'], label: 'Précision', digits: 3, higherIsBetter: true },
+  { keys: ['auc_test', 'test_auc'], label: 'AUC', digits: 4, higherIsBetter: true },
+  {
+    keys: ['brier_calibrated_test', 'test_brier_score'],
+    label: 'Brier calibré',
+    digits: 4,
+    higherIsBetter: false,
+  },
+  { keys: ['temperature'], label: 'Température', digits: 3, higherIsBetter: true },
+  { keys: ['n_features'], label: 'Features', digits: 0, higherIsBetter: true },
 ];
+
+/**
+ * Lit une métrique quelle que soit son orthographe.
+ *
+ * Renvoie `null` si le modèle a été entraîné sur 100 % des données : ses
+ * champs `*_test` existent encore mais ne mesurent rien — ils valent 0 côté
+ * NHL, et recopient les valeurs d'entraînement côté NBA. Afficher
+ * « AUC 0,0000 » ou « AUC 0,9236 » laisserait croire à une mesure de
+ * généralisation dans les deux cas.
+ */
+function metricValue(
+  metrics: Record<string, number | string | boolean> | undefined,
+  entry: (typeof HEADLINE)[number],
+  inSample: boolean,
+): number | null {
+  if (!metrics) return null;
+  const isTestMetric = entry.keys.some((k) => k.includes('test'));
+  if (inSample && isTestMetric) return null;
+  for (const k of entry.keys) {
+    const v = Number(metrics[k]);
+    if (Number.isFinite(v)) return v;
+  }
+  return null;
+}
 
 const ACTIONS: { key: WorkflowKey; label: string; sub: string; inputs?: Record<string, string> }[] = [
   {
@@ -218,14 +254,22 @@ export function Admin() {
                 <span>{compareDay ?? 'Comparer'}</span>
               </div>
               {HEADLINE.map((m) => {
-                const cur = Number(model.metrics?.[headlineMarket]?.[m.key]);
-                const old = Number(previous?.metrics?.[headlineMarket]?.[m.key]);
-                const hasCur = Number.isFinite(cur);
-                const hasOld = Number.isFinite(old);
+                const cur = metricValue(
+                  model.metrics?.[headlineMarket],
+                  m,
+                  !!model.metrics_in_sample,
+                );
+                const old = metricValue(
+                  previous?.metrics?.[headlineMarket],
+                  m,
+                  !!previous?.metrics_in_sample,
+                );
+                const hasCur = cur !== null;
+                const hasOld = old !== null;
                 const delta = hasCur && hasOld ? cur - old : null;
                 const good = delta === null ? null : m.higherIsBetter ? delta > 0 : delta < 0;
                 return (
-                  <div className="vz-admin__grid vz-admin__row" key={m.key}>
+                  <div className="vz-admin__grid vz-admin__row" key={m.keys[0]}>
                     <span>{m.label}</span>
                     <strong className="vz-num">
                       {hasCur ? formatNumber(cur, m.digits) : '—'}
@@ -246,10 +290,16 @@ export function Admin() {
               <p className="vz-note">
                 Marché de référence : <strong>{headlineMarket ?? '—'}</strong> ·{' '}
                 {model.n_markets ?? 0} marché(s) entraîné(s)
-                {model.metrics_in_sample
-                  ? " · métriques in-sample (entraînement sur 100 % des données)"
-                  : ''}
               </p>
+              {model.metrics_in_sample && (
+                <p className="vz-note">
+                  Modèle de production : entraîné sur 100 % des matchs, donc sans jeu
+                  de test. Les métriques hors échantillon sont masquées plutôt que
+                  remplies avec les valeurs d’entraînement — c’est la barrière de
+                  qualité, elle, qui évalue un modèle entraîné en mode split avant
+                  d’autoriser le déploiement.
+                </p>
+              )}
             </>
           )}
         </div>

@@ -59,10 +59,19 @@ const TOKEN = process.env.VIZER_GITHUB_TOKEN || '';
  * faire attendre une donnée fraîche, et `stale-while-revalidate` sert l'ancienne
  * version pendant qu'on va chercher la nouvelle plutôt que de bloquer.
  */
-const CACHE: Record<string, string> = {
-  predictions: 'public, s-maxage=60, stale-while-revalidate=600',
-  results: 'public, s-maxage=300, stale-while-revalidate=3600',
-  models: 'public, s-maxage=300, stale-while-revalidate=3600',
+const CACHE: Record<string, { cdn: string; browser: string }> = {
+  predictions: {
+    cdn: 'max-age=60, stale-while-revalidate=600',
+    browser: 'public, max-age=0, must-revalidate',
+  },
+  results: {
+    cdn: 'max-age=300, stale-while-revalidate=3600',
+    browser: 'public, max-age=60',
+  },
+  models: {
+    cdn: 'max-age=300, stale-while-revalidate=3600',
+    browser: 'public, max-age=60',
+  },
 };
 
 /**
@@ -127,11 +136,18 @@ export async function GET(request: Request): Promise<Response> {
     );
   }
 
+  const cache = CACHE[path.split('/')[0]];
   return new Response(res.body, {
     status: 200,
     headers: {
       'content-type': 'application/json; charset=utf-8',
-      'cache-control': CACHE[path.split('/')[0]],
+      // Deux caches distincts, deux en-têtes. Un `s-maxage` posé sur
+      // Cache-Control est consommé par le CDN puis retiré de la réponse : le
+      // navigateur reçoit alors un simple `public` et remet en cache ce qu'on
+      // voulait voir expirer. `Vercel-CDN-Cache-Control` pilote l'edge sans
+      // toucher à ce que lit le navigateur.
+      'vercel-cdn-cache-control': cache.cdn,
+      'cache-control': cache.browser,
       // L'app et les données partagent l'origine ; on ouvre quand même en
       // lecture pour qu'un aperçu de déploiement puisse lire la production.
       'access-control-allow-origin': '*',
