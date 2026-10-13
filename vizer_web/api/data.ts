@@ -1,5 +1,5 @@
 /**
- * Proxy des données publiées, à l'Edge.
+ * Proxy des données publiées.
  *
  * Sans lui, la PWA tape directement `raw.githubusercontent.com`, avec trois
  * conséquences : un cache CDN de 5 minutes qu'on ne contrôle pas, un quota
@@ -20,16 +20,26 @@
  *   VIZER_GITHUB_TOKEN — nécessaire seulement si le dépôt devient privé
  */
 /**
- * Signature : `export function GET(request)`, la forme web documentée par
- * Vercel. L'export par défaut est traité comme `(req, res) => void` — un
- * `Response` retourné y est ignoré et la requête part en timeout, ce que le
- * runtime signale explicitement dans ses logs.
+ * Pourquoi une fonction unique plutôt qu'une route attrape-tout
+ * -------------------------------------------------------------
+ * `api/data/[...path].ts` ne s'enregistrait pas sur ce projet : 404 sur tout
+ * `/api/data`, pendant qu'une fonction voisine sans segment dynamique
+ * répondait 200. Plutôt que de dépendre d'une convention de nommage qui se
+ * comporte mal ici, le chemin arrive en paramètre de requête, posé par une
+ * réécriture déclarée dans `vercel.json` :
  *
- * Pas de `config = { runtime: 'edge' }` : avec cette déclaration la route ne
- * s'enregistrait pas du tout (404 sur tout `/api/data`), alors qu'une fonction
- * voisine sans elle s'exécutait. Le runtime Node par défaut répond déjà depuis
- * le POP le plus proche — les logs montrent `cpt1`, Le Cap — ce qui est le
- * gain de latence recherché.
+ *     /api/data/:path*  →  /api/data?path=:path*
+ *
+ * Les URL vues par l'application sont identiques, et la réécriture est du
+ * fichier de configuration, pas de la détection implicite.
+ *
+ * Signature : `export function GET(request)`, la forme web documentée. Un
+ * export par défaut est traité comme `(req, res) => void`, le `Response`
+ * retourné est ignoré et la requête part en timeout — le runtime le dit
+ * explicitement dans ses logs.
+ *
+ * Pas de `config = { runtime: 'edge' }` : le runtime Node par défaut répond
+ * déjà depuis le POP le plus proche (les logs montrent `cpt1`, Le Cap).
  */
 
 /**
@@ -71,7 +81,7 @@ function safePath(raw: string): string | null {
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
-  const path = safePath(url.pathname.replace(/^\/api\/data/, ''));
+  const path = safePath(url.searchParams.get('path') ?? '');
 
   if (!path) {
     return new Response(

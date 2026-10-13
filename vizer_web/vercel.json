@@ -9,6 +9,12 @@
       "VITE_GITHUB_REPO": "NOX-Theteenager/Vizer_pronostics"
     }
   },
+  "rewrites": [
+    {
+      "source": "/api/data/:path*",
+      "destination": "/api/data?path=:path*"
+    }
+  ],
   "headers": [
     {
       "source": "/sw.js",
