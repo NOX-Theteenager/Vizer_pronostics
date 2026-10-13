@@ -21,7 +21,11 @@ Usage :
     python scripts/push_dataset_to_kaggle.py --dry-run     # tout sauf l'upload
 
 Prérequis :
-  - ~/.kaggle/kaggle.json (ou KAGGLE_USERNAME/KAGGLE_KEY en env)
+  - ~/.kaggle/kaggle.json (pour le username)
+  - un jeton Kaggle KGAT_… dans ~/.kaggle/access_token ou $KAGGLE_API_TOKEN.
+    `kaggle datasets version` est une ÉCRITURE : depuis octobre 2026 Kaggle la
+    refuse en 403 si l'authentification passe par l'ancienne clé en Basic.
+    En cas de doute : python ../kaggle/diagnose_auth.py
   - pip install "kaggle~=2.2" (présent dans le venv du projet)
 
 Cron hebdomadaire (dimanche 21h, avant le training du lundi 4h UTC) :

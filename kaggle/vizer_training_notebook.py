@@ -24,8 +24,9 @@
 #   __VIZER_GH_REPO__          → owner/repo (ex: NOX-Theteenager/Vizer_pronostics)
 #   __VIZER_GH_REF__           → branche git (ex: main)
 #   __VIZER_KAGGLE_USERNAME__  → username Kaggle (auth des étapes 3 et 6)
-#   __VIZER_KAGGLE_KEY__       → clé API Kaggle (auth des étapes 3 et 6 ; le
-#                                kernel est privé, la clé n'est visible que de toi)
+#   __VIZER_KAGGLE_TOKEN__     → jeton Kaggle KGAT_… (auth des étapes 3 et 6 ;
+#                                le kernel est privé, le jeton n'est visible
+#                                que de toi)
 #
 # Pour un run Kaggle manuel (via l'UI), modifier les trois constantes ci-dessous
 # directement et lancer le script.
@@ -46,12 +47,23 @@ GH_REF   = "__VIZER_GH_REF__"     # main
 
 # Credentials Kaggle : servent à l'étape 3 (téléchargement des datasets quand
 # Kaggle ne les a pas montés) et à l'étape 6 (publication de vizer-nhl-data).
-KAGGLE_USER = "__VIZER_KAGGLE_USERNAME__"
-KAGGLE_KEY  = "__VIZER_KAGGLE_KEY__"
-HAS_CREDS   = not (KAGGLE_USER.startswith("__") or KAGGLE_KEY.startswith("__"))
+#
+# Le jeton est présenté en Bearer via KAGGLE_API_TOKEN. L'ancien couple
+# username/key en Basic ne permet plus les écritures depuis octobre 2026 :
+# `kaggle datasets version` de l'étape 6 renverrait un 403 opaque.
+KAGGLE_USER  = "__VIZER_KAGGLE_USERNAME__"
+KAGGLE_TOKEN = "__VIZER_KAGGLE_TOKEN__"
+HAS_CREDS    = not (KAGGLE_USER.startswith("__") or KAGGLE_TOKEN.startswith("__")
+                    or not KAGGLE_TOKEN)
 if HAS_CREDS:
     os.environ["KAGGLE_USERNAME"] = KAGGLE_USER
-    os.environ["KAGGLE_KEY"] = KAGGLE_KEY
+    os.environ["KAGGLE_API_TOKEN"] = KAGGLE_TOKEN
+    # La CLI lit aussi ce fichier ; l'écrire évite de dépendre de la façon dont
+    # les sous-processus héritent de l'environnement.
+    _cred_dir = Path.home() / ".kaggle"
+    _cred_dir.mkdir(parents=True, exist_ok=True)
+    (_cred_dir / "access_token").write_text(KAGGLE_TOKEN)
+    (_cred_dir / "access_token").chmod(0o600)
 
 # ─── Chemins Kaggle (fixes) ───────────────────────────────────────────────────
 CLONE_DIR    = Path("/kaggle/working/vizer")

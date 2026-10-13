@@ -11,7 +11,17 @@
 #
 # Secrets GitHub requis :
 #   KAGGLE_USERNAME     → nom d'utilisateur Kaggle (public, ex: nox-theteenager)
-#   KAGGLE_KEY          → clé API Kaggle (Kaggle > Account > API > Create New Token)
+#   KAGGLE_API_TOKEN    → jeton Kaggle « KGAT_… » (Kaggle > Settings > API >
+#                         Create New Token ; c'est le champ "key" du kaggle.json
+#                         téléchargé, ou le contenu de ~/.kaggle/access_token).
+#                         OBLIGATOIRE : depuis octobre 2026 Kaggle refuse les
+#                         ÉCRITURES (push de kernel, versionnage de dataset)
+#                         authentifiées par l'ancienne clé en Basic. Les
+#                         lectures passent encore, ce qui rend la panne
+#                         sournoise : le job de prédictions reste vert pendant
+#                         que l'entraînement échoue en 403.
+#   KAGGLE_KEY          → ancienne clé API. Conservée pour les lectures et la
+#                         compatibilité ; ne suffit plus seule.
 #
 # Secrets supplémentaires pour le déploiement Streamlit Cloud :
 #   (aucun secret requis, git push avec le GITHUB_TOKEN natif)
@@ -77,8 +87,9 @@ jobs:
       # Auth Kaggle CLI 2.x : env vars username+key au niveau du job (visibles de
       # tous les steps). Ne PAS utiliser KAGGLE_API_TOKEN avec ces secrets : il
       # attend un token brut généré via l'UI, pas un JSON username/key.
-      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-      KAGGLE_KEY:      ${{ secrets.KAGGLE_KEY }}
+      KAGGLE_USERNAME:  ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY:       ${{ secrets.KAGGLE_KEY }}
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
 
     steps:
       # ── 1. Checkout ─────────────────────────────────────────────────────────
@@ -100,13 +111,41 @@ jobs:
 
       - name: Configurer les credentials Kaggle
         run: |
-          # Fichier kaggle.json en secours des env vars du job (formats legacy
-          # toujours supportés par la CLI 2.x).
           mkdir -p ~/.kaggle
+
+          if [ -z "$KAGGLE_API_TOKEN" ]; then
+            echo "❌ Secret KAGGLE_API_TOKEN manquant."
+            echo ""
+            echo "   Depuis octobre 2026, Kaggle refuse les écritures d'API"
+            echo "   (push de kernel, versionnage de dataset) authentifiées par"
+            echo "   l'ancienne clé en Basic : le push renvoie un 403 opaque."
+            echo "   Les lectures continuent de passer, donc le job de"
+            echo "   prédictions quotidiennes reste vert — ne pas s'y fier."
+            echo ""
+            echo "   À faire : Kaggle > Settings > API > Create New Token,"
+            echo "   puis copier le champ \"key\" du kaggle.json téléchargé"
+            echo "   (il commence par KGAT_) dans le secret KAGGLE_API_TOKEN"
+            echo "   du dépôt (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+
+          case "$KAGGLE_API_TOKEN" in
+            KGAT_*) : ;;
+            *) echo "⚠️  KAGGLE_API_TOKEN ne commence pas par KGAT_ — ce n'est" \
+                    "probablement pas un jeton valide, l'écriture va échouer." ;;
+          esac
+
+          # Jeton en Bearer : c'est ce que lit la CLI (via ~/.kaggle/access_token
+          # ou la variable KAGGLE_API_TOKEN) et le seul mode accepté en écriture.
+          printf '%s' "$KAGGLE_API_TOKEN" > ~/.kaggle/access_token
+          chmod 600 ~/.kaggle/access_token
+
+          # kaggle.json conservé : certaines lectures et outils tiers s'appuient
+          # encore dessus, et il porte le username.
           printf '{"username":"%s","key":"%s"}' "$KAGGLE_USERNAME" "$KAGGLE_KEY" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
 
-          echo "✅ Credentials Kaggle configurés pour ${KAGGLE_USERNAME}"
+          echo "✅ Credentials Kaggle configurés pour ${KAGGLE_USERNAME} (jeton Bearer)"
 
       # ── 4. Préparer le notebook ───────────────────────────────────────────────
       # Les placeholders __VIZER_*__ dans le template sont remplacés par les
@@ -124,8 +163,8 @@ jobs:
           # Credentials pour les étapes 3 (téléchargement des datasets si Kaggle
           # ne les monte pas) et 6 (mise à jour du dataset NHL) du notebook.
           # Le kernel est privé : la clé n'est visible que du propriétaire.
-          sed -i "s|__VIZER_KAGGLE_USERNAME__|${KAGGLE_USERNAME}|g" /tmp/nb_run.py
-          sed -i "s|__VIZER_KAGGLE_KEY__|${KAGGLE_KEY}|g"           /tmp/nb_run.py
+          sed -i "s|__VIZER_KAGGLE_USERNAME__|${KAGGLE_USERNAME}|g"  /tmp/nb_run.py
+          sed -i "s|__VIZER_KAGGLE_TOKEN__|${KAGGLE_API_TOKEN}|g"    /tmp/nb_run.py
 
           # Injecter le username Kaggle dans le metadata (non-secret, c'est public)
           sed -i "s|__KAGGLE_USERNAME__|${KAGGLE_USERNAME}|g" /tmp/meta_run.json
@@ -145,6 +184,13 @@ jobs:
         run: |
           kaggle kernels push -p kaggle/
           echo "✅ Kernel poussé — exécution déclenchée sur Kaggle"
+
+      # Un 403 de la CLI ne dit pas s'il s'agit d'une clé invalide, d'une
+      # permission manquante ou du mode d'authentification. Ce diagnostic
+      # imprime le corps des réponses pour les deux modes.
+      - name: "Diagnostic d'authentification (si le push a échoué)"
+        if: failure()
+        run: python kaggle/diagnose_auth.py || true
 
       # ── 6. Attendre la fin ──────────────────────────────────────────────────
       - name: Attendre la fin de l'exécution Kaggle

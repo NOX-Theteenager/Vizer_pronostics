@@ -20,6 +20,12 @@
 #
 # Secrets GitHub requis :
 #   KAGGLE_USERNAME, KAGGLE_KEY  → déjà utilisés par le training pipeline
+#   KAGGLE_API_TOKEN             → jeton KGAT_… (cf. vizer_training_pipeline.yml).
+#                                  Ce job ne fait que LIRE les datasets, ce que
+#                                  l'ancienne clé permet encore — mais Kaggle a
+#                                  déjà coupé les écritures, donc on passe au
+#                                  jeton ici aussi plutôt que d'attendre la
+#                                  prochaine coupure.
 #   ODDS_API_KEY                 → clé The-Odds API (à ajouter dans
 #                                  Settings > Secrets and variables > Actions)
 # =============================================================================
@@ -59,9 +65,10 @@ jobs:
     env:
       SPORT_INPUT: ${{ github.event.inputs.sport || 'both' }}
       # Auth Kaggle CLI 2.x : env vars username+key (cf. vizer_training_pipeline.yml)
-      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-      KAGGLE_KEY:      ${{ secrets.KAGGLE_KEY }}
-      ODDS_API_KEY:    ${{ secrets.ODDS_API_KEY }}
+      KAGGLE_USERNAME:  ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY:       ${{ secrets.KAGGLE_KEY }}
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      ODDS_API_KEY:     ${{ secrets.ODDS_API_KEY }}
       PREDS_DIR: /tmp/preds
 
     steps:
@@ -77,7 +84,22 @@ jobs:
             echo "   → Settings > Secrets and variables > Actions"
             exit 1
           fi
-          echo "✅ Secrets présents"
+
+          # Ce job ne lit que des datasets, ce que l'ancienne clé permet encore :
+          # on avertit sans échouer, contrairement au workflow d'entraînement qui
+          # écrit et ne peut pas s'en passer.
+          mkdir -p ~/.kaggle
+          if [ -n "$KAGGLE_API_TOKEN" ]; then
+            printf '%s' "$KAGGLE_API_TOKEN" > ~/.kaggle/access_token
+            chmod 600 ~/.kaggle/access_token
+            echo "✅ Secrets présents — auth Kaggle par jeton Bearer"
+          else
+            echo "⚠️  KAGGLE_API_TOKEN absent : lectures encore acceptées avec"
+            echo "    l'ancienne clé, mais Kaggle a déjà coupé les écritures."
+            echo "    Ajouter le secret avant que les lectures suivent."
+          fi
+          printf '{"username":"%s","key":"%s"}' "$KAGGLE_USERNAME" "$KAGGLE_KEY" > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json
 
       # ── 1. Code ──────────────────────────────────────────────────────────────
       - name: Checkout du dépôt
