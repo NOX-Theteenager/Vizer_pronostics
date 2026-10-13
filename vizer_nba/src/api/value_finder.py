@@ -156,15 +156,24 @@ def format_value_bet_human(vb: ValueBet, home: str, away: str) -> str:
 
 
 def value_bet_to_dict(vb: ValueBet) -> dict[str, Any]:
-    """Sérialise un ValueBet pour JSON."""
+    """Sérialise un ValueBet pour JSON.
+
+    Les noms de clés sont ceux des attributs de `ValueBet` — donc les mêmes
+    que côté NHL. Ils ne l'ont pas toujours été : la NBA publiait
+    `predicted_probability` / `kelly_stake_fraction` / `implied_probability`
+    là où la NHL publiait `predicted_proba` / `kelly_stake` / `implied_proba`,
+    et la PWA devait lire les deux pour un même concept. Les archives déjà
+    publiées gardent l'ancienne forme, que le normaliseur de la PWA continue
+    d'accepter ; tout ce qui est publié à partir d'ici a une seule forme.
+    """
     return {
         'market': vb.market_name,
         'selection': vb.selection,
-        'predicted_probability': round(vb.predicted_proba, 4),
+        'predicted_proba': round(vb.predicted_proba, 4),
         'bookmaker_odds': round(vb.bookmaker_odds, 2),
-        'implied_probability': round(vb.implied_proba, 4),
+        'implied_proba': round(vb.implied_proba, 4),
         'edge': round(vb.edge, 4),
-        'kelly_stake_fraction': round(vb.kelly_stake, 4),
+        'kelly_stake': round(vb.kelly_stake, 4),
         'expected_value_per_unit': round(vb.expected_value_per_unit, 4),
         'confidence': vb.confidence,
     }
