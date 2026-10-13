@@ -266,8 +266,44 @@ jobs:
           cp /tmp/models/nba/*.pkl  vizer_nba/models/ 2>/dev/null \
             || echo "ℹ️  Aucun modèle NBA à copier"
 
+          # Verdict de la barrière, publié avec les modèles.
+          #
+          # Jusqu'ici il ne vivait que dans les logs du run : savoir pourquoi un
+          # sport n'avait pas été redéployé demandait d'aller lire Actions. La
+          # PWA le lit maintenant dans son écran Admin.
+          mkdir -p models
+          python - <<'PYGATE'
+          import json, os, pathlib
+          from datetime import datetime, timezone
+
+          marker = pathlib.Path("/tmp/kaggle_outputs/gate_blocked.json")
+          blocked = {}
+          if marker.exists():
+              try:
+                  raw = json.loads(marker.read_text()).get("blocked", {})
+                  # Ancien format : une simple liste de sports, sans cause.
+                  blocked = (
+                      {s: {"cause": "unknown", "headline": "cause non enregistrée"}
+                       for s in raw}
+                      if isinstance(raw, list) else raw
+                  )
+              except ValueError:
+                  blocked = {"_": {"cause": "marker_unreadable",
+                                   "headline": "marqueur illisible"}}
+
+          pathlib.Path("models/gate.json").write_text(json.dumps({
+              "checked_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+              "run_number": os.environ.get("GITHUB_RUN_NUMBER"),
+              "run_id": os.environ.get("GITHUB_RUN_ID"),
+              "sport": os.environ.get("SPORT_INPUT"),
+              "passed": not blocked,
+              "blocked": blocked,
+          }, ensure_ascii=False, indent=2), encoding="utf-8")
+          print(f"  ✓ models/gate.json — {'accepté' if not blocked else 'refusé: ' + ', '.join(blocked)}")
+          PYGATE
+
           # Commit horodaté
-          git add vizer_nhl/models/ vizer_nba/models/
+          git add vizer_nhl/models/ vizer_nba/models/ models/gate.json
           COMMIT_MSG="chore(models): $(date -u '+%Y-%m-%d %H:%M UTC') [sport: ${SPORT_INPUT}, run: #${{ github.run_number }}]"
           git diff --cached --quiet \
             && echo "ℹ️  Aucun changement de modèle à commiter" \

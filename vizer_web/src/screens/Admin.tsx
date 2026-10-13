@@ -2,7 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Chip, SectionLabel, SegButton, SegGroup } from '../components/Primitives';
 import { IconCheck, IconDownload, IconRefresh, IconWarning, IconX } from '../components/Icons';
 import { useToast } from '../context/ToastContext';
-import { fetchModelRegistry, type ModelInfo, type ModelRegistryFile } from '../lib/api';
+import {
+  fetchGateStatus,
+  fetchModelRegistry,
+  type GateStatus,
+  type ModelInfo,
+  type ModelRegistryFile,
+} from '../lib/api';
 import { formatNumber, formatShortDate, timeAgo } from '../lib/format';
 import {
   dispatchWorkflow,
@@ -55,6 +61,7 @@ export function Admin() {
   const [sport, setSport] = useState<Sport>('nhl');
   const [registry, setRegistry] = useState<ModelRegistryFile | null>(null);
   const [registryError, setRegistryError] = useState<string | null>(null);
+  const [gate, setGate] = useState<GateStatus | null>(null);
   const [runs, setRuns] = useState<WorkflowRun[]>([]);
   const [history, setHistory] = useState<string[]>([]);
   const [compareDay, setCompareDay] = useState<string | null>(null);
@@ -69,6 +76,13 @@ export function Admin() {
       setRegistryError(null);
     } catch (e) {
       setRegistryError(e instanceof Error ? e.message : 'Registre introuvable');
+    }
+    try {
+      setGate(await fetchGateStatus());
+    } catch {
+      // Publié par le workflow d'entraînement ; absent tant qu'il n'a pas
+      // tourné depuis la mise en place. Rien à signaler à l'utilisateur.
+      setGate(null);
     }
     try {
       setRuns(await listRuns(8, readToken() || undefined));
@@ -170,9 +184,15 @@ export function Admin() {
                 {model.name} <small>{model.model_version ?? '—'}</small>
               </strong>
               <small className="vz-note">
-                {model.trained_at
-                  ? `Entraîné ${timeAgo(model.trained_at)} · ${formatShortDate(model.trained_at)}`
-                  : 'Date d’entraînement inconnue'}
+                {/*
+                  `file_mtime` = le registre est antérieur à l'horodatage
+                  d'entraînement, et la date lue est celle du fichier — donc
+                  celle du dernier checkout, pas de l'entraînement. L'afficher
+                  telle quelle annoncerait « entraîné il y a 2 minutes ».
+                */}
+                {!model.trained_at || model.trained_at_source === 'file_mtime'
+                  ? 'Date d’entraînement inconnue — disponible au prochain entraînement'
+                  : `Entraîné ${timeAgo(model.trained_at)} · ${formatShortDate(model.trained_at)}`}
                 {model.n_games_train ? ` · ${model.n_games_train.toLocaleString('fr-FR')} matchs` : ''}
               </small>
             </div>
@@ -247,6 +267,41 @@ export function Admin() {
                 {d}
               </Chip>
             ))}
+          </div>
+        </>
+      )}
+
+      {gate && (
+        <>
+          <SectionLabel>Barrière de qualité</SectionLabel>
+          <div className="vz-card vz-card--rows">
+            <div className="vz-row">
+              <div className="vz-f1">
+                <strong className="vz-admin__name">
+                  {gate.passed ? 'Dernier entraînement accepté' : 'Déploiement refusé'}
+                </strong>
+                <small className="vz-note">
+                  Vérifié {timeAgo(gate.checked_at)}
+                  {gate.run_number ? ` · run #${gate.run_number}` : ''}
+                </small>
+              </div>
+              <span className={`vz-tx__ic ${gate.passed ? 'is-up' : 'is-down'}`}>
+                {gate.passed ? <IconCheck size={14} /> : <IconX size={13} />}
+              </span>
+            </div>
+            {Object.entries(gate.blocked).map(([blockedSport, why]) => (
+              <div className="vz-row" key={blockedSport}>
+                <div className="vz-f1">
+                  <strong>{blockedSport}</strong>
+                  <small className="vz-note">{why.headline ?? why.cause ?? 'cause inconnue'}</small>
+                </div>
+              </div>
+            ))}
+            <p className="vz-note">
+              {gate.passed
+                ? 'Aucun marché sous son plancher d’AUC : les modèles entraînés ont été déployés.'
+                : 'Les modèles concernés n’ont pas été déployés ; ceux des autres sports l’ont été.'}
+            </p>
           </div>
         </>
       )}

@@ -126,6 +126,9 @@ export function Today({
             <p className="vz-footmeta">
               Prédictions générées {timeAgo(generatedAt)}
               {feed?.detectionSource ? ` · source ${feed.detectionSource}` : ''}
+              {/* La version du modèle qui a produit ces prédictions : sans elle,
+                  impossible de rattacher un pronostic à un entraînement. */}
+              {feed?.modelVersion ? ` · modèle ${feed.modelVersion}` : ''}
             </p>
           )}
         </>

@@ -210,6 +210,36 @@ export async function fetchModelRegistry(day?: string): Promise<ModelRegistryFil
   return (await fetchJson(url)) as ModelRegistryFile;
 }
 
+/* ── Barrière de qualité ─────────────────────────────────────────────────── */
+
+/**
+ * Dernier verdict de la barrière de qualité, publié par le workflow
+ * d'entraînement (`models/gate.json`).
+ *
+ * Sans lui, savoir pourquoi un sport n'a pas été redéployé demandait d'aller
+ * lire les logs GitHub Actions.
+ */
+export interface GateRefusal {
+  cause?: string;
+  headline?: string;
+  n_test?: number;
+  checks?: { market?: string; verdict?: string; auc?: number; floor?: number; reason?: string }[];
+}
+
+export interface GateStatus {
+  checked_at: string;
+  run_number?: string;
+  run_id?: string;
+  sport?: string;
+  passed: boolean;
+  blocked: Record<string, GateRefusal>;
+}
+
+export async function fetchGateStatus(): Promise<GateStatus> {
+  const url = `${MODELS_BASE}/gate.json?cb=${Math.floor(Date.now() / 300_000)}`;
+  return (await fetchJson(url)) as GateStatus;
+}
+
 /** Archive d'un jour donné — utilisée par l'écran Historique. */
 export async function fetchArchive(sport: Sport, day: string): Promise<SportFeed | null> {
   try {
