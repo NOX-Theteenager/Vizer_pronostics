@@ -10,6 +10,7 @@ shots_*.csv
 
 # Fichiers agrégés
 dataset_agrege_vizer_nhl.csv
+csa_stats.csv
 period_stats.csv
 h2h_lookup.json
 goalies_rolling.csv

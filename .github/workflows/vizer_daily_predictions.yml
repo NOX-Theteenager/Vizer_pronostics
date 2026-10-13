@@ -9,6 +9,8 @@
 #   predictions/latest/nhl.json            ← toujours le dernier run
 #   predictions/latest/nba.json
 #   predictions/archive/YYYY-MM-DD/*.json  ← archives (écran Historique)
+#   results/latest.json                    ← scores finaux, 7 derniers jours
+#   results/YYYY-MM-DD.json                ← un fichier par jour (backtest)
 #
 # Sources au runtime :
 #   - Code       : branche main
@@ -205,16 +207,23 @@ jobs:
               print(f"  ✓ {f.name} — generated_at={now}")
           EOF
 
+      # ── 6 bis. Métadonnées des modèles ──────────────────────────────────────
+      # L'écran Admin de la PWA lit version, date d'entraînement et métriques
+      # par marché. Tout est déjà dans les registres .pkl : on ne fait que
+      # l'extraire. Un échec ici ne doit pas empêcher la publication des
+      # prédictions du jour.
+      - name: Exporter le registre des modèles
+        continue-on-error: true
+        run: |
+          python scripts/export_model_registry.py --out "$PREDS_DIR/registry.json" \
+            && echo "  ✅ registry.json exporté" \
+            || echo "  ⚠️  export du registre en échec — on publie sans"
+
       # ── 7. Publication sur models-artifacts ─────────────────────────────────
       # Clone séparé dans /tmp : évite tout conflit avec l'arbre de travail
       # (données téléchargées, modèles récupérés au step 3).
       - name: Publier sur la branche models-artifacts
         run: |
-          if ! ls "$PREDS_DIR"/*.json >/dev/null 2>&1; then
-            echo "ℹ️  Aucune prédiction à publier."
-            exit 0
-          fi
-
           REPO_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           if git clone --quiet --depth 1 --branch models-artifacts "$REPO_URL" /tmp/pub 2>/dev/null; then
             echo "  ✓ branche models-artifacts clonée"
@@ -230,24 +239,48 @@ jobs:
           git config user.name  "GitHub Actions [Vizer]"
 
           TODAY=$(date -u '+%Y-%m-%d')
-          mkdir -p predictions/latest "predictions/archive/${TODAY}"
-          cp "$PREDS_DIR"/*.json predictions/latest/
-          cp "$PREDS_DIR"/*.json "predictions/archive/${TODAY}/"
+          mkdir -p predictions/latest "predictions/archive/${TODAY}" models/history results
 
-          git add predictions/
+          # registry.json n'est pas une prédiction : il va dans models/.
+          if ls "$PREDS_DIR"/*.json >/dev/null 2>&1; then
+            for f in "$PREDS_DIR"/*.json; do
+              [ "$(basename "$f")" = "registry.json" ] && continue
+              cp "$f" predictions/latest/
+              cp "$f" "predictions/archive/${TODAY}/"
+            done
+          else
+            echo "ℹ️  Aucune prédiction à publier ce run."
+          fi
+
+          # Scores finaux des matchs déjà joués : c'est ce qui permet à la PWA
+          # de clôturer les paris toute seule. Le script lit les fichiers déjà
+          # présents dans results/ pour reconstituer sa fenêtre glissante, d'où
+          # son exécution ici, après le clone. Une panne d'ESPN ne doit pas
+          # faire perdre les prédictions du jour : on continue sans.
+          python "$GITHUB_WORKSPACE/scripts/publish_results.py" \
+            --out results --days 3 --window 7 \
+            || echo "⚠️  Résultats non mis à jour (source indisponible)"
+
+          if [ -f "$PREDS_DIR/registry.json" ]; then
+            cp "$PREDS_DIR/registry.json" models/registry.json
+            # Copie datée : l'Admin trace l'évolution des métriques par version.
+            cp "$PREDS_DIR/registry.json" "models/history/${TODAY}.json"
+          fi
+
+          git add predictions/ models/ results/
           if git diff --cached --quiet; then
             echo "ℹ️  Aucun changement de prédictions à commiter."
             exit 0
           fi
 
-          git commit --quiet -m "chore(predictions): ${TODAY} [sport: ${SPORT_INPUT}, run: #${{ github.run_number }}]"
+          git commit --quiet -m "chore(data): ${TODAY} [sport: ${SPORT_INPUT}, run: #${{ github.run_number }}]"
 
           # Le workflow de training pousse sur la même branche. En cas de
           # collision, le push est rejeté : on rejoue sur la nouvelle tête
           # plutôt que d'échouer et de perdre les prédictions du jour.
           for attempt in 1 2 3; do
             if git push --quiet origin models-artifacts; then
-              echo "✅ Prédictions publiées → predictions/latest/ + archive/${TODAY}/"
+              echo "✅ Publié → predictions/latest/, archive/${TODAY}/, results/"
               exit 0
             fi
             echo "  ⚠️  Push rejeté (tentative ${attempt}/3) — rebase sur origin/models-artifacts"
