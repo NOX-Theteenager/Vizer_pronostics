@@ -222,6 +222,10 @@ def main(config_path: str = 'config.yaml', full: bool = False,
     print("-" * 70)
     duration = time.time() - start_time
 
+    trained_at = datetime.now(timezone.utc)
+    # Horodatage et version lisible du modèle, consommés par la PWA et l'Admin.
+    registry.set_metadata('trained_at', trained_at.isoformat(timespec='seconds'))
+    registry.set_metadata('model_version', f"v{trained_at:%Y.%m.%d}")
     registry.set_metadata('training_duration_sec', duration)
     registry.set_metadata('n_games_train', len(train_df))
     registry.set_metadata('n_games_test', 0 if test_df is None else len(test_df))

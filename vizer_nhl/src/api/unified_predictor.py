@@ -14,8 +14,9 @@ from typing import Any, Dict, Optional
 
 import pandas as pd
 
-from vizer_core import ModelRegistry
+from vizer_core import ModelRegistry, top_contributions
 
+from ..data.history import NHLMatchHistory
 from ..data.loader import NHLDataLoader
 from ..features.engineer import NHLFeatureEngineer
 from .team_state import TeamStateBuilder
@@ -52,6 +53,10 @@ class NHLUnifiedPredictor:
 
         # Construire le snapshot état-équipe
         self.team_state = TeamStateBuilder().fit(df)
+
+        # Forme récente et confrontations directes. Source distincte du
+        # dataset de features, qui est en 5-contre-5 : il faut les scores finaux.
+        self.history = NHLMatchHistory.from_data_dir(data_dir)
 
     # ------------------------------------------------------------------
     def _prepare_features(self, home: str, away: str) -> Optional[pd.DataFrame]:
@@ -106,6 +111,38 @@ class NHLUnifiedPredictor:
         return results
 
     # ------------------------------------------------------------------
+    def explain(self, home: str, away: str, top_n: int = 3) -> list[dict[str, Any]]:
+        """
+        Facteurs qui pèsent le plus sur la probabilité moneyline de ce match.
+
+        Contributions SHAP exactes du booster XGBoost — pas une heuristique.
+        Retourne une liste vide si le marché n'est pas un modèle XGB.
+        """
+        features = self._prepare_features(home, away)
+        if features is None or not self.registry.has('moneyline'):
+            return []
+        engine = getattr(self.registry.get('moneyline'), '_engine', None)
+        model = getattr(engine, 'xgb_model', None)
+        if model is None or not getattr(engine, 'features_used', None):
+            return []
+
+        # Le booster a vu des features réindexées puis standardisées : on doit
+        # lui présenter exactement la même matrice (cf. predict_proba_home_wins).
+        aligned = features.reindex(columns=engine.features_used, fill_value=0)
+        try:
+            scaled = pd.DataFrame(
+                engine.scaler.transform(aligned),
+                columns=engine.features_used,
+                index=aligned.index,
+            )
+        except Exception:
+            return []
+
+        from ..publication_labels import FEATURE_LABELS
+        return top_contributions(
+            model, scaled, top_n=top_n, labels=FEATURE_LABELS, display_row=aligned,
+        )
+
     def predict_market(
         self,
         home: str,

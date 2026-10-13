@@ -25,6 +25,7 @@ import sys
 
 from src.api.unified_predictor import UnifiedPredictor
 from src.api.odds_client import OddsAPIClient, OddsAPIError, code_to_team_name, GameOdds
+from src.api.publication import books_for_bet, match_context
 from src.api.value_finder import find_value_bets, value_bet_to_dict
 
 try:
@@ -144,7 +145,15 @@ def main():
 
     print(f"\n  📍 Source de détection : {detection_source}\n", file=sys.stderr)
 
-    output = {'n_games': len(games), 'detection_source': detection_source, 'games': []}
+    meta = getattr(predictor.registry, '_metadata', {}) or {}
+    output = {
+        'n_games': len(games),
+        'detection_source': detection_source,
+        # Horodatage et version des modèles : affichés par la PWA et l'Admin.
+        'models_trained_at': meta.get('trained_at'),
+        'model_version': meta.get('model_version'),
+        'games': [],
+    }
     for go in games:
         if go.home == "???" or go.away == "???":
             continue
@@ -167,7 +176,16 @@ def main():
             'commence_time': getattr(go, 'commence_time', ''),
             'has_odds': bool(go.bookmakers),
             'predictions': all_pred,
-            'value_bets': [value_bet_to_dict(vb) for vb in value_bets],
+            'value_bets': [
+                # Comparatif entre bookmakers sur la même sélection.
+                {**value_bet_to_dict(vb),
+                 'books': books_for_bet(go, vb.market_name, vb.selection)}
+                for vb in value_bets
+            ],
+            # Forme récente et confrontations directes.
+            **match_context(predictor.history, go.home, go.away),
+            # Facteurs SHAP de la prédiction de victoire.
+            'factors': predictor.explain(go.home, go.away),
         })
 
     if args.json:

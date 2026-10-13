@@ -27,10 +27,12 @@ from .backtest import (
 )
 from .synthetic_odds_v2 import CalibratedSyntheticOddsProvider
 from .quality_gate import check_registry, GateResult, MarketCheck
+from .explain import top_contributions
 
 __version__ = "0.3.0"
 
 __all__ = [
+    "top_contributions",
     "BasePredictor",
     "MarketBase",
     "MarketPrediction",

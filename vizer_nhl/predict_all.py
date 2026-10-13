@@ -28,6 +28,7 @@ from vizer_core import load_config
 
 from src.api.odds_client import NHLOddsClient, OddsAPIError, code_to_team_name
 from src.api.unified_predictor import NHLUnifiedPredictor
+from src.api.publication import books_for_bet, match_context
 from src.api.value_finder import find_value_bets
 
 
@@ -95,7 +96,14 @@ def main():
     print(f"  ✓ {len(games)} matchs détectés\n", file=sys.stderr)
 
     # Prédire chaque match
-    output = {'n_games': len(games), 'games': []}
+    meta = getattr(predictor.registry, '_metadata', {}) or {}
+    output = {
+        'n_games': len(games),
+        # Horodatage et version des modèles : affichés par la PWA et l'Admin.
+        'models_trained_at': meta.get('trained_at'),
+        'model_version': meta.get('model_version'),
+        'games': [],
+    }
     for go in games:
         if go.home == "???" or go.away == "???":
             continue
@@ -122,9 +130,17 @@ def main():
                     'edge': round(vb.edge, 4),
                     'kelly_stake': round(vb.kelly_stake, 4),
                     'confidence': vb.confidence,
+                    # Comparatif entre bookmakers sur la même sélection.
+                    'books': books_for_bet(go, vb.market_name, vb.selection),
                 }
                 for vb in value_bets
             ],
+            # Forme récente et confrontations directes (absentes si l'équipe
+            # n'a pas d'historique dans le dataset).
+            **match_context(predictor.history, go.home, go.away),
+            # Facteurs SHAP de la prédiction moneyline — liste vide si le
+            # marché n'est pas un modèle XGBoost.
+            'factors': predictor.explain(go.home, go.away),
         }
         output['games'].append(game_entry)
 

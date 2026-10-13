@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 from vizer_core import (
@@ -227,8 +228,13 @@ def main(argv: list[str] | None = None):
     print(f"\n💾 Sauvegarde du registre")
     Path(models_dir).mkdir(parents=True, exist_ok=True)
     # Métadonnées
+    trained_at = datetime.now(timezone.utc)
     registry._metadata = {
         'sport': 'nhl',
+        # Horodatage et version lisible du modèle : la PWA les affiche
+        # (« modèles du lun. 6 juil. ») et l'écran Admin en fait l'historique.
+        'trained_at': trained_at.isoformat(timespec='seconds'),
+        'model_version': f"v{trained_at:%Y.%m.%d}",
         'features_used': features,
         'features_dead': engineer.features_dead,
         'team_elos': engineer.team_elos,

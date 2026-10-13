@@ -19,8 +19,9 @@ from typing import Any, Optional, List, Dict
 import numpy as np
 import pandas as pd
 
-from vizer_core import ModelRegistry
+from vizer_core import ModelRegistry, top_contributions
 
+from src.data.history import NBAMatchHistory
 from src.data.loader import NBADataLoader
 
 
@@ -142,6 +143,47 @@ class UnifiedPredictor:
         }
 
     # ============================================================= All
+    def explain(self, home_team: str, away_team: str, top_n: int = 3,
+                date: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        Facteurs qui pèsent le plus sur la probabilité de victoire.
+
+        Contributions SHAP du booster XGBoost sous-jacent. Liste vide si le
+        modèle du marché n'expose pas de booster.
+        """
+        try:
+            features = self._prepare_game_features(home_team, away_team, date, 1.0, 1.0)
+            market = self._get_moneyline_market()
+        except Exception:
+            return []
+
+        # Le modèle calibré enveloppe le XGBClassifier : on cherche le premier
+        # objet de la chaîne qui expose un booster.
+        candidates = [market]
+        for attr in ('_predictor', 'predictor', '_model', 'model', 'base_model', 'xgb_model'):
+            candidates.extend(
+                getattr(c, attr) for c in list(candidates) if getattr(c, attr, None) is not None
+            )
+        model = next((c for c in candidates if hasattr(c, 'get_booster')), None)
+        if model is None:
+            return []
+
+        from ..publication_labels import FEATURE_LABELS
+        return top_contributions(model, features, top_n=top_n, labels=FEATURE_LABELS)
+
+    @property
+    def history(self) -> NBAMatchHistory:
+        """
+        Forme récente et confrontations directes, dérivées de NBA_GAMES.csv.
+        Construite à la première demande et réutilisée ensuite — le dataset
+        fait plusieurs dizaines de milliers de lignes.
+        """
+        if getattr(self, '_history_cache', None) is None:
+            if self._games_cache is None:
+                self._games_cache = self.loader.load_games()
+            self._history_cache = NBAMatchHistory(self._games_cache)
+        return self._history_cache
+
     def predict_all(
         self,
         home_team: str,
