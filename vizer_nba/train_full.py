@@ -41,5 +41,6 @@ if __name__ == "__main__":
         description="Entraînement NBA de production (100% de la fenêtre récente)"
     )
     parser.add_argument('-c', '--config', default='config.yaml')
+    parser.add_argument('-o', '--output', default=None)
     args = parser.parse_args()
-    sys.exit(main(config_path=args.config, full=True))
+    sys.exit(main(config_path=args.config, full=True, output=args.output))

@@ -40,7 +40,8 @@ LEAKAGE_ALLOWLIST: list[str] = []
 LEAKAGE_THRESHOLD: float = 0.85
 
 
-def main(config_path: str = 'config.yaml', full: bool = False) -> int:
+def main(config_path: str = 'config.yaml', full: bool = False,
+         output: str | None = None) -> int:
     start_time = time.time()
 
     print("=" * 70)
@@ -280,7 +281,9 @@ def main(config_path: str = 'config.yaml', full: bool = False) -> int:
         print(f"  ⚠️ Metadata talent_ratio non enregistrées ({e}) — "
               f"talent_ratio sera 1.0 par défaut à l'inférence.")
 
-    output_path = config['models']['output_path']
+    # --output permet d'évaluer sans écraser le modèle de production : c'est ce
+    # dont la barrière de qualité a besoin pour mesurer avant de déployer.
+    output_path = output or config['models']['output_path']
     registry.save(output_path)
     print(f"  ✓ Registre sauvegardé : {output_path}")
 
@@ -308,5 +311,7 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--full', action='store_true',
                         help="Production : entraîne sur la fenêtre la plus "
                              "récente (saison courante incluse), sans test")
+    parser.add_argument('-o', '--output', default=None,
+                        help="Chemin de sortie du registre (défaut : depuis config)")
     args = parser.parse_args()
-    sys.exit(main(config_path=args.config, full=args.full))
+    sys.exit(main(config_path=args.config, full=args.full, output=args.output))

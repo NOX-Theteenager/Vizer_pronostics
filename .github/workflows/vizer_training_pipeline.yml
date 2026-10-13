@@ -211,6 +211,7 @@ jobs:
           ls -lah /tmp/kaggle_outputs/
 
       - name: Extraire l'archive des modèles
+        id: extract
         run: |
           mkdir -p /tmp/models/{nhl,nba}
           ARCHIVE=/tmp/kaggle_outputs/vizer_models.zip
@@ -336,7 +337,31 @@ jobs:
 
           echo "✅ Déploiement Raspberry Pi terminé"
 
-      # ── 9. Résumé du run ─────────────────────────────────────────────────────
+      # ── 9. Barrière de qualité ───────────────────────────────────────────────
+      # Placé APRÈS les déploiements : un sport bloqué ne doit pas empêcher le
+      # déploiement de l'autre, mais le run doit être rouge. Un refus silencieux
+      # serait pire que pas de barrière du tout.
+      - name: Vérifier la barrière de qualité
+        if: always() && steps.extract.outcome == 'success'
+        run: |
+          MARKER=/tmp/kaggle_outputs/gate_blocked.json
+          if [ ! -f "$MARKER" ]; then
+            echo "✅ Barrière de qualité : aucun sport bloqué."
+            exit 0
+          fi
+          echo "⛔ Déploiement refusé par la barrière de qualité :"
+          cat "$MARKER"
+          echo ""
+          echo "   L'AUC de test est passée sous le plancher défini dans le"
+          echo "   config.yaml du sport (quality_gate.markets.*.min_test_auc)."
+          echo "   Le modèle concerné n'a PAS été déployé ; les modèles des"
+          echo "   autres sports, eux, l'ont été."
+          echo ""
+          echo "   Voir le détail dans les logs du kernel :"
+          echo "   kaggle kernels logs ${KAGGLE_USERNAME}/${KAGGLE_SLUG}"
+          exit 1
+
+      # ── 10. Résumé du run ────────────────────────────────────────────────────
       - name: Résumé du pipeline
         if: always()
         run: |

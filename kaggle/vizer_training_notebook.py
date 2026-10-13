@@ -101,6 +101,42 @@ def run(cmd: str, cwd: Path | None = None) -> None:
         )
 
 
+def quality_gate_passes(sport: str, pkg_dir: Path) -> bool:
+    """Évalue le sport en mode split et vérifie l'AUC contre le plancher.
+
+    Deux entraînements par sport : un en mode split pour mesurer honnêtement,
+    un en mode production pour déployer. C'est le prix d'une mesure qui veut
+    dire quelque chose — le modèle de production n'a pas de jeu de test, ses
+    métriques sont in-sample et ne peuvent rien valider.
+
+    Échoue fermé : si la barrière ne peut pas conclure (registre illisible,
+    erreur d'exécution), on ne déploie pas. Déployer un modèle non vérifié est
+    exactement ce que cette barrière existe pour empêcher. Pour la contourner,
+    quality_gate.enabled: false dans le config.yaml du sport.
+    """
+    eval_path = Path("/tmp") / f"{sport}_eval.pkl"
+    print(f"\n  🔍 Évaluation hors échantillon ({sport.upper()})", flush=True)
+    try:
+        run(f"python train.py --output {eval_path}", cwd=pkg_dir)
+    except RuntimeError as e:
+        print(f"  ❌ Entraînement d'évaluation échoué : {e}", file=sys.stderr)
+        return False
+
+    code = subprocess.run(
+        f"python -m vizer_core.quality_gate {eval_path}",
+        shell=True, cwd=str(pkg_dir),
+    ).returncode
+    if code == 0:
+        return True
+    if code == 1:
+        print(f"  ⛔ {sport.upper()} — AUC sous le plancher, déploiement refusé.",
+              file=sys.stderr)
+    else:
+        print(f"  ⛔ {sport.upper()} — barrière inexploitable (code {code}), "
+              f"déploiement refusé par prudence.", file=sys.stderr)
+    return False
+
+
 def seed_data_from_kaggle_dataset(sport: str, pkg_dir: Path,
                                   cli_fallback: bool = False) -> bool:
     """
@@ -258,6 +294,9 @@ if SPORT in ("nba", "both"):
 banner("4/6  ENTRAÎNEMENT DES MODÈLES")
 nhl_ok = True
 nba_ok = True
+# Sports écartés par la barrière de qualité (distincts d'un échec technique :
+# l'entraînement a marché, c'est le résultat qui ne passe pas).
+blocked: list[str] = []
 
 # ── 4a. NHL ───────────────────────────────────────────────────────────────────
 if SPORT in ("nhl", "both"):
@@ -286,11 +325,15 @@ if SPORT in ("nhl", "both"):
             print("  [info] Pas d'agrégat dans le dataset — reconstruction "
                   "depuis Moneypuck (all_teams.csv échouera si l'IP est bloquée).")
             run("python update_data.py --mode update", cwd=nhl_dir)
-        # train_full.py : 100% des matchs, saison courante incluse. train.py
-        # réserve la dernière saison pour l'évaluation — un modèle déployé
-        # chaque lundi sans jamais voir la saison en cours n'a aucun intérêt.
-        run("python train_full.py --quiet", cwd=nhl_dir)
-        print("  ✅ NHL — entraînement terminé")
+        if not quality_gate_passes("nhl", nhl_dir):
+            blocked.append("NHL")
+            nhl_ok = False
+        else:
+            # train_full.py : 100% des matchs, saison courante incluse. train.py
+            # réserve la dernière saison pour l'évaluation — un modèle déployé
+            # chaque lundi sans jamais voir la saison en cours n'a aucun intérêt.
+            run("python train_full.py --quiet", cwd=nhl_dir)
+            print("  ✅ NHL — entraînement terminé")
     except RuntimeError as e:
         print(f"  ❌ NHL — ÉCHEC : {e}", file=sys.stderr)
         nhl_ok = False
@@ -301,16 +344,21 @@ if SPORT in ("nba", "both"):
     nba_dir = CLONE_DIR / "vizer_nba"
 
     try:
-        if nba_has_cache:
-            # Les CSVs historiques sont déjà là via le dataset Kaggle.
-            # --skip-fetch évite les centaines d'appels HTTP vers stats.nba.com
-            # et le rate limiting associé (~20-40 min économisées).
-            print("  [info] Cache NBA détecté — skip fetch, entraînement direct.")
-            run("python update_and_train.py --skip-fetch --skip-validation", cwd=nba_dir)
+        if not nba_has_cache:
+            # Téléchargement complet depuis stats.nba.com (lent, et l'IP Kaggle
+            # est généralement bloquée — d'où le dataset préparé sur le PC).
+            run("python update_and_train.py --fetch-only --skip-validation", cwd=nba_dir)
         else:
-            # Téléchargement complet depuis stats.nba.com (lent mais fonctionnel).
-            run("python update_and_train.py --skip-validation", cwd=nba_dir)
-        print("  ✅ NBA — entraînement terminé")
+            print("  [info] Cache NBA détecté — données du dataset, pas de fetch.")
+
+        if not quality_gate_passes("nba", nba_dir):
+            blocked.append("NBA")
+            nba_ok = False
+        else:
+            # update_and_train.py --skip-fetch enchaîne sur train_full.py, qui
+            # délègue à train.py --full (production, sans jeu de test).
+            run("python update_and_train.py --skip-fetch --skip-validation", cwd=nba_dir)
+            print("  ✅ NBA — entraînement terminé")
     except RuntimeError as e:
         print(f"  ❌ NBA — ÉCHEC : {e}", file=sys.stderr)
         nba_ok = False
@@ -479,5 +527,20 @@ print(f"  Taille   : {size_mb:.1f} MB")
 print(f"  Fichiers : {len(files_added)} ajoutés")
 if errors:
     print(f"  ⚠️  Sports échoués (absents de l'archive) : {', '.join(errors)}")
+
+# Marqueur lu par le workflow : un déploiement bloqué doit rendre le job rouge.
+# On ne fait pas échouer le kernel lui-même — les modèles du sport qui a passé
+# la barrière sont dans l'archive et doivent être déployés. Échouer ici
+# empêcherait le workflow de les télécharger.
+blocked_marker = OUT_DIR / "gate_blocked.json"
+if blocked:
+    import json as _json
+    blocked_marker.write_text(_json.dumps({"blocked": blocked}))
+    print(f"  ⛔ Déploiement refusé par la barrière de qualité : {', '.join(blocked)}")
+elif blocked_marker.exists():
+    # Sortie d'un run précédent : la supprimer, sinon le workflow croirait
+    # qu'un sport est encore bloqué.
+    blocked_marker.unlink()
+
 print(f"  Durée    : {elapsed:.0f}s ({elapsed/60:.1f} min)")
 print(f"\n✅ Pipeline Vizer terminé — artefacts disponibles dans {OUT_DIR}")

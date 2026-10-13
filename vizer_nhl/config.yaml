@@ -134,3 +134,23 @@ odds_api:
   key: ""   # laisser vide : lu depuis $ODDS_API_KEY (env var) ou --api-key
   sport_key: "icehockey_nhl"
   cache_ttl_minutes: 60
+
+# -----------------------------------------------------------------------------
+# Barrière de qualité — refuse le déploiement d'un modèle sous-performant
+# -----------------------------------------------------------------------------
+# Évaluée sur un entraînement en mode split (train.py sans --full), jamais sur
+# le modèle de production dont les métriques sont in-sample.
+#
+# Pourquoi l'AUC et pas l'accuracy : prédire toujours « domicile » donne déjà
+# 52,8 % sur le test 2026. L'AUC vaut 0,5 pour un modèle sans information.
+#
+# Plancher : mesure du 2026-10-13 sur le test 2026 (852 matchs) → AUC 0,608.
+# 0,55 laisse de la marge : le jeu de test NHL est petit en début de saison et
+# l'AUC y bouge de plusieurs centièmes d'une semaine à l'autre.
+# -----------------------------------------------------------------------------
+quality_gate:
+  enabled: true
+  min_test_games: 300        # en dessous, la mesure est trop bruitée → abstention
+  markets:
+    moneyline:
+      min_test_auc: 0.55

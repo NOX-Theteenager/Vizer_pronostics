@@ -233,3 +233,24 @@ training:
   verbose: true
   continue_on_error: true        # Si un marché échoue, continuer les autres
   random_seed: 42
+
+# -----------------------------------------------------------------------------
+# Barrière de qualité — refuse le déploiement d'un modèle sous-performant
+# -----------------------------------------------------------------------------
+# Évaluée sur un entraînement en mode split (train.py sans --full), jamais sur
+# le modèle de production dont les métriques sont in-sample.
+#
+# Pourquoi l'AUC et pas l'accuracy : prédire toujours « domicile » donne déjà
+# 54,7 % sur la saison 22025. L'AUC vaut 0,5 pour un modèle sans information,
+# quel que soit le déséquilibre des classes.
+#
+# Plancher : mesure du 2026-10-13 sur le test 22025 (3 880 matchs) → AUC 0,671.
+# 0,58 laisse de la marge à la variance saisonnière tout en restant nettement
+# au-dessus du hasard. Relever ce chiffre à mesure que le modèle s'améliore.
+# -----------------------------------------------------------------------------
+quality_gate:
+  enabled: true
+  min_test_games: 300        # en dessous, la mesure est trop bruitée → abstention
+  markets:
+    moneyline:
+      min_test_auc: 0.58

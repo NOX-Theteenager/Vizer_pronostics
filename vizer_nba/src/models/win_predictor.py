@@ -4,7 +4,8 @@ Modèle de prédiction de résultats de matchs NBA
 import pandas as pd
 import numpy as np
 from xgboost import XGBClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, brier_score_loss
+from sklearn.metrics import (accuracy_score, classification_report, confusion_matrix,
+                             brier_score_loss, roc_auc_score)
 from sklearn.calibration import CalibratedClassifierCV
 
 try:
@@ -15,6 +16,23 @@ except ImportError:  # sklearn < 1.6
 from typing import Tuple, Dict
 
 from src.models.base import BaseNBAModel
+
+
+def _safe_auc(y_true, y_proba) -> float | None:
+    """AUC, ou None si elle n'a pas de sens.
+
+    roc_auc_score lève si y_true ne contient qu'une seule classe — cas réel
+    sur un jeu de test minuscule ou en tout début de saison. Retourner None
+    plutôt que de laisser remonter l'exception : une métrique absente est
+    traitée par la barrière de qualité, un entraînement qui plante ne l'est pas.
+    """
+    try:
+        import numpy as _np
+        if len(_np.unique(y_true)) < 2:
+            return None
+        return float(roc_auc_score(y_true, y_proba))
+    except Exception:
+        return None
 
 
 class NBAMatchPredictor(BaseNBAModel):
@@ -186,10 +204,18 @@ class NBAMatchPredictor(BaseNBAModel):
         train_brier = brier_score_loss(y_train_full, y_proba_train)
         test_brier  = brier_score_loss(y_test,       y_proba_test)
 
+        # AUC : indépendante du seuil de décision et du déséquilibre des
+        # classes, contrairement à l'accuracy. C'est la métrique sur laquelle
+        # la barrière de qualité refuse un déploiement (cf. vizer_core.quality_gate).
+        train_auc = _safe_auc(y_train_full, y_proba_train)
+        test_auc  = _safe_auc(y_test,       y_proba_test)
+
         # Sauvegarder les métriques
         self.metrics = {
             'train_accuracy':   train_acc,
             'test_accuracy':    test_acc,
+            'train_auc':        train_auc,
+            'test_auc':         test_auc,
             'train_brier_score': train_brier,
             'test_brier_score':  test_brier,
             'n_train': len(X_train_full),
@@ -202,6 +228,8 @@ class NBAMatchPredictor(BaseNBAModel):
             print(f"\n✅ Entraînement terminé")
             print(f"Précision train: {train_acc:.1%}")
             print(f"Précision test:  {test_acc:.1%}")
+            print(f"AUC train: {train_auc:.4f}" if train_auc is not None else "AUC train: n/a")
+            print(f"AUC test:  {test_auc:.4f}" if test_auc is not None else "AUC test:  n/a")
             print(f"Brier score train: {train_brier:.4f} (plus bas = mieux calibré)")
             print(f"Brier score test:  {test_brier:.4f}")
             

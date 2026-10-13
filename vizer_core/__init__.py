@@ -9,6 +9,7 @@ Ce package contient UNIQUEMENT du code agnostique au sport :
 - ModelRegistry      : conteneur unifié de marchés
 - UnifiedPredictor   : façade haut niveau
 - load_config        : chargement et validation de config.yaml
+- check_registry     : barrière de qualité (refuse un modèle sous son plancher)
 
 Aucune logique métier (features, API, conventions de saison) ne doit
 être ajoutée ici. Voir ARCHITECTURE.md section 12.
@@ -25,6 +26,7 @@ from .backtest import (
     OddsProvider, NullOddsProvider, SyntheticOddsProvider, CSVOddsProvider,
 )
 from .synthetic_odds_v2 import CalibratedSyntheticOddsProvider
+from .quality_gate import check_registry, GateResult, MarketCheck
 
 __version__ = "0.3.0"
 
@@ -37,6 +39,9 @@ __all__ = [
     "UnifiedPredictor",
     "load_config",
     "ConfigError",
+    "check_registry",
+    "GateResult",
+    "MarketCheck",
     "detect_target_leakage",
     "assert_no_leakage",
     "LeakageError",
