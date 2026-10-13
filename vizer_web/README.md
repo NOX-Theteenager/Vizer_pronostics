@@ -218,12 +218,10 @@ Pages et hors-ligne, sans rewrite serveur.
 
 ### Vercel (référence)
 
-Projet lié à ce dépôt, **racine `vizer_web`**. Chaque push sur `main` construit
-et publie ; chaque branche a son aperçu.
-
-| Variable à définir dans le projet | Valeur |
-|---|---|
-| `VITE_DATA_BASE` | `/api/data/predictions` |
+Importer ce dépôt dans Vercel avec **Root Directory : `vizer_web`**. Il n'y a
+rien d'autre à régler : `vercel.json` porte le framework, la commande de build
+et les variables de build. Chaque push sur `main` publie en production, chaque
+branche a son aperçu.
 
 `api/data/[...path].ts` est une fonction Edge qui relaie les fichiers de la
 branche `models-artifacts` sur la même origine que l'app. Trois raisons :
@@ -234,6 +232,9 @@ branche `models-artifacts` sur la même origine que l'app. Trois raisons :
   opérateur mobile ; le proxy le transforme en un seul appel par POP ;
 - le chemin est filtré (`predictions/`, `results/`, `models/` uniquement), donc
   le proxy ne relaie pas n'importe quoi du dépôt.
+
+Si le proxy tombe, la PWA réessaie sur `raw.githubusercontent.com` : une
+fonction Edge en panne dégrade le cache, elle ne coupe pas l'application.
 
 Si le dépôt devenait privé, définir `VIZER_GITHUB_TOKEN` : le proxy bascule
 alors sur l'API contenus de GitHub. `VIZER_REPO` et `VIZER_BRANCH` permettent

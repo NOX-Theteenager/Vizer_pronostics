@@ -25,6 +25,24 @@ export const DATA_BASE: string = (
   import.meta.env.VITE_DATA_BASE || DEFAULT_BASE
 ).replace(/\/+$/, '');
 
+/**
+ * Source de secours quand la base configurée est relative.
+ *
+ * Sur Vercel, `VITE_DATA_BASE` vaut `/api/data/predictions` : les JSON passent
+ * par le proxy Edge du dépôt. Si cette fonction tombe — déploiement partiel,
+ * panne de la plateforme — l'app n'a plus aucune donnée alors que la source
+ * d'origine, elle, répond toujours. On garde donc le chemin direct comme
+ * second essai, jamais comme premier (le proxy existe pour de bonnes raisons :
+ * cache piloté, quota mutualisé, même origine).
+ */
+const FALLBACK_BASE = DATA_BASE.startsWith('/') ? DEFAULT_BASE : null;
+
+/** Traduit une URL du proxy vers la source directe. */
+function fallbackUrl(url: string): string | null {
+  if (!FALLBACK_BASE || !url.startsWith(DATA_BASE)) return null;
+  return FALLBACK_BASE + url.slice(DATA_BASE.length);
+}
+
 export const USE_MOCK = import.meta.env.VITE_USE_MOCK === '1';
 
 export const SPORTS: Sport[] = ['nhl', 'nba'];
@@ -76,7 +94,7 @@ function shiftMockDates(raw: unknown): unknown {
   };
 }
 
-async function fetchJson(url: string, timeoutMs = 12_000): Promise<unknown> {
+async function fetchOnce(url: string, timeoutMs: number): Promise<unknown> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -85,6 +103,18 @@ async function fetchJson(url: string, timeoutMs = 12_000): Promise<unknown> {
     return await res.json();
   } finally {
     clearTimeout(timer);
+  }
+}
+
+async function fetchJson(url: string, timeoutMs = 12_000): Promise<unknown> {
+  try {
+    return await fetchOnce(url, timeoutMs);
+  } catch (err) {
+    // Un 404 est une réponse, pas une panne : le fichier n'existe pas non plus
+    // à la source, et réessayer ne ferait que doubler l'attente.
+    const direct = String(err).includes('HTTP 404') ? null : fallbackUrl(url);
+    if (!direct) throw err;
+    return await fetchOnce(direct, timeoutMs);
   }
 }
 
