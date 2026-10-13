@@ -223,8 +223,8 @@ rien d'autre à régler : `vercel.json` porte le framework, la commande de build
 et les variables de build. Chaque push sur `main` publie en production, chaque
 branche a son aperçu.
 
-`api/data/[...path].ts` est une fonction Edge qui relaie les fichiers de la
-branche `models-artifacts` sur la même origine que l'app. Trois raisons :
+`api/data.ts` relaie les fichiers de la branche `models-artifacts` sur la même
+origine que l'app. Trois raisons :
 
 - `raw.githubusercontent.com` impose un cache CDN de 5 minutes qu'on ne pilote
   pas ; ici les prédictions ont `s-maxage=60` et `stale-while-revalidate` ;
@@ -234,7 +234,25 @@ branche `models-artifacts` sur la même origine que l'app. Trois raisons :
   le proxy ne relaie pas n'importe quoi du dépôt.
 
 Si le proxy tombe, la PWA réessaie sur `raw.githubusercontent.com` : une
-fonction Edge en panne dégrade le cache, elle ne coupe pas l'application.
+fonction en panne dégrade le cache, elle ne coupe pas l'application.
+
+### Trois pièges rencontrés en déployant
+
+Ils ont tous la même forme — le build reste vert et la fonction disparaît :
+
+1. **Vercel type-vérifie `api/` avant d'émettre.** `process` n'est pas dans les
+   types DOM du projet : la compilation échouait, la fonction était écartée, et
+   `/api/data` répondait 404 sans que le build le signale. `tsconfig.api.json`
+   est maintenant dans les références, donc `npm run build` reproduit l'erreur
+   localement.
+2. **`export default` est traité comme `(req, res) => void`.** Un `Response`
+   retourné y est ignoré et la requête part en timeout. La forme attendue est
+   `export function GET(request)`.
+3. **La route attrape-tout ne s'enregistrait pas.** `api/data/[...path].ts`
+   renvoyait 404 sur tout, pendant qu'une fonction voisine sans segment
+   dynamique répondait 200. D'où la réécriture de `vercel.json`, qui fait la
+   même chose en configuration explicite :
+   `/api/data/:path*` → `/api/data?path=:path*`.
 
 Si le dépôt devenait privé, définir `VIZER_GITHUB_TOKEN` : le proxy bascule
 alors sur l'API contenus de GitHub. `VIZER_REPO` et `VIZER_BRANCH` permettent
