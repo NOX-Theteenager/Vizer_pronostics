@@ -19,15 +19,23 @@
  *   VIZER_BRANCH  — branche de données, défaut models-artifacts
  *   VIZER_GITHUB_TOKEN — nécessaire seulement si le dépôt devient privé
  */
-export const config = { runtime: 'edge' };
+/**
+ * Signature : `export function GET(request)`, la forme web documentée par
+ * Vercel. L'export par défaut est traité comme `(req, res) => void` — un
+ * `Response` retourné y est ignoré et la requête part en timeout, ce que le
+ * runtime signale explicitement dans ses logs.
+ *
+ * Pas de `config = { runtime: 'edge' }` : avec cette déclaration la route ne
+ * s'enregistrait pas du tout (404 sur tout `/api/data`), alors qu'une fonction
+ * voisine sans elle s'exécutait. Le runtime Node par défaut répond déjà depuis
+ * le POP le plus proche — les logs montrent `cpt1`, Le Cap — ce qui est le
+ * gain de latence recherché.
+ */
 
 /**
- * `process.env` existe dans le runtime Edge de Vercel, mais pas dans les types
- * DOM de ce projet — et le build Vercel type-vérifie cette fonction avant de
- * l'émettre. Sans cette déclaration, la compilation échoue, la fonction est
- * écartée en silence et le build reste vert : /api/data répond 404 sans que
- * rien ne le signale. Installer @types/node pour trois variables n'aurait pas
- * plus de sens : le runtime Edge n'est pas Node.
+ * `process.env` n'est pas dans les types DOM de ce projet, et le build Vercel
+ * type-vérifie cette fonction avant de l'émettre : sans déclaration, la
+ * compilation échoue, la fonction est écartée et le build reste vert.
  */
 declare const process: { env: Record<string, string | undefined> };
 
@@ -61,8 +69,8 @@ function safePath(raw: string): string | null {
   return clean;
 }
 
-export default async function handler(req: Request): Promise<Response> {
-  const url = new URL(req.url);
+export async function GET(request: Request): Promise<Response> {
+  const url = new URL(request.url);
   const path = safePath(url.pathname.replace(/^\/api\/data/, ''));
 
   if (!path) {

@@ -1,10 +1,9 @@
 /**
- * Sonde de diagnostic — vérifie que les fonctions de `api/` sont bien émises.
- *
- * Temporaire : à supprimer une fois le proxy confirmé.
+ * Sonde de diagnostic — vérifie que les fonctions de `api/` sont bien émises
+ * et routées. Temporaire.
  */
-export default function handler(): Response {
-  return new Response(JSON.stringify({ ok: true, runtime: 'node' }), {
+export function GET(): Response {
+  return new Response(JSON.stringify({ ok: true }), {
     headers: { 'content-type': 'application/json; charset=utf-8' },
   });
 }
