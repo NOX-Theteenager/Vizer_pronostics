@@ -12,7 +12,9 @@
 #   2. Installe les dépendances manquantes sur Kaggle (lightgbm, nba_api, …)
 #   3. Charge les données depuis les datasets Kaggle (montage /kaggle/input, ou
 #      téléchargement CLI en repli) et crée les dossiers data/ absents
-#   4. Lance update_data.py + train_full.py (NHL) et/ou update_and_train.py (NBA)
+#   4. Entraîne : train_full.py (NHL) et/ou update_and_train.py (NBA). Les
+#      données viennent des datasets Kaggle, préparées depuis le PC — Moneypuck
+#      et stats.nba.com bloquent tous deux les IP de datacenter.
 #   5. Archive nhl/nba/models/ dans /kaggle/working/vizer_models.zip
 #      → téléchargeable via `kaggle kernels output`
 #   6. Reverse les données NHL fraîches dans le dataset Kaggle vizer-nhl-data
@@ -263,11 +265,27 @@ if SPORT in ("nhl", "both"):
     nhl_dir = CLONE_DIR / "vizer_nhl"
 
     try:
-        # update_data.py télécharge la saison courante depuis Moneypuck et agrège.
-        # Si les données historiques sont déjà seedées via Kaggle dataset (step 3),
-        # le downloader détectera les fichiers présents et ne re-téléchargera que
-        # la saison courante (comportement natif de MoneypuckDownloader).
-        run("python update_data.py --mode update", cwd=nhl_dir)
+        # Préparation des données : au PC, pas au kernel.
+        #
+        # Moneypuck refuse all_teams.csv — la table des matchs — depuis les IP
+        # de datacenter. Le kernel peut encore récupérer les archives de saison
+        # (skaters/lines/goalies), mais pas les matchs : ré-agréger ici produit
+        # donc un dataset figé à la date du dernier all_teams.csv disponible,
+        # et écrase au passage l'agrégat du dataset, construit lui sur
+        # l'historique complet présent sur le PC.
+        #
+        # Quand le dataset monté fournit déjà l'agrégat, on l'utilise tel quel.
+        # C'est vizer_nhl/scripts/push_dataset_to_kaggle.py, lancé en cron
+        # depuis le PC, qui le tient à jour.
+        agrege = nhl_dir / "data" / "dataset_agrege_vizer_nhl.csv"
+        if nhl_has_cache and agrege.exists():
+            print(f"  [info] Agrégat fourni par le dataset "
+                  f"({agrege.stat().st_size / 1024 ** 2:.0f} Mo) — pas de "
+                  f"ré-agrégation, entraînement direct.")
+        else:
+            print("  [info] Pas d'agrégat dans le dataset — reconstruction "
+                  "depuis Moneypuck (all_teams.csv échouera si l'IP est bloquée).")
+            run("python update_data.py --mode update", cwd=nhl_dir)
         # train_full.py : 100% des matchs, saison courante incluse. train.py
         # réserve la dernière saison pour l'évaluation — un modèle déployé
         # chaque lundi sans jamais voir la saison en cours n'a aucun intérêt.
@@ -347,6 +365,10 @@ with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as zf:
 # Le dataset NBA, lui, est mis à jour depuis le PC (stats.nba.com bloque les
 # IP datacenter) : voir vizer_nba/scripts/push_dataset_to_kaggle.py.
 banner("6/6  MISE À JOUR DU DATASET KAGGLE NHL")
+# Depuis que le kernel ne ré-agrège plus (cf. étape 4a), il n'a rien de neuf à
+# publier : le dataset est tenu à jour depuis le PC. Le garde-fou de fraîcheur
+# ci-dessous le constate de lui-même et saute l'upload — on le laisse en place
+# pour le cas où le dataset serait vide et le kernel aurait reconstruit.
 
 # Fichiers historiques volumineux (2,5 Go et 1,1 Go) qu'on n'envoie pas depuis
 # le kernel. `kaggle datasets version` remplace l'intégralité du jeu de

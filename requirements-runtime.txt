@@ -31,7 +31,10 @@ lightgbm==4.6.0
 numpy==2.4.6
 pandas==2.3.3
 
-# Moins sensibles (pas d'objet sérialisé), mais tracés dans les logs des deux
-# côtés pour qu'un écart soit visible.
-scipy>=1.11.0
-joblib>=1.3.0
+# Alignés eux aussi sur l'image Kaggle (run #26) : le traçage ajouté au commit
+# précédent a révélé scipy 1.16.3 / joblib 1.5.3 côté entraînement contre
+# 1.17.1 / 1.6.0 côté prédictions. Aucun objet sérialisé ne les traverse, donc
+# le risque était faible, mais laisser deux environnements diverger est
+# exactement ce que ce fichier doit empêcher.
+scipy==1.16.3
+joblib==1.5.3
