@@ -11,6 +11,7 @@ reconstituer le match complet.
 """
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Any, Optional
 
@@ -52,6 +53,11 @@ class NHLMatchHistory:
         """
         path = Path(data_dir) / filename
         if not path.exists():
+            # Silencieux côté PWA (les cartes disparaissent), mais pas côté
+            # logs : c'est exactement comme ça que forme et confrontations
+            # sont parties vides en production sans que rien ne le signale.
+            print(f"⚠️  Historique indisponible : {path} absent — forme et "
+                  f"confrontations directes seront vides.", file=sys.stderr)
             return cls()
         try:
             raw = pd.read_csv(path, usecols=USECOLS)

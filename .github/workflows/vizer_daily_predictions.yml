@@ -152,9 +152,16 @@ jobs:
       - name: Télécharger les données NHL
         if: env.SPORT_INPUT == 'nhl' || env.SPORT_INPUT == 'both'
         run: |
-          kaggle datasets download "$KAGGLE_USERNAME/vizer-nhl-data" \
-            -f dataset_agrege_vizer_nhl.csv -p vizer_nhl/data --unzip --quiet
-          ls -lah vizer_nhl/data/dataset_agrege_vizer_nhl.csv
+          # L'agrégat porte les features ; all_teams.csv porte les scores
+          # finaux. Les deux sont nécessaires : l'agrégat est en 5-contre-5,
+          # donc inutilisable pour la forme récente et les confrontations
+          # directes (un 3-2 réel y apparaît 0-0). Sans all_teams.csv, ces
+          # deux blocs sont publiés vides, en silence.
+          for f in dataset_agrege_vizer_nhl.csv all_teams.csv; do
+            kaggle datasets download "$KAGGLE_USERNAME/vizer-nhl-data" \
+              -f "$f" -p vizer_nhl/data --unzip --quiet
+          done
+          ls -lah vizer_nhl/data/
 
       - name: Télécharger les données NBA
         if: env.SPORT_INPUT == 'nba' || env.SPORT_INPUT == 'both'
