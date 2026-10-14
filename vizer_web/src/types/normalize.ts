@@ -5,8 +5,6 @@
  * marché manquant, en erreur ou inconnu n'empêche jamais l'affichage du reste.
  */
 import {
-  INDICATIVE_NOTE,
-  isIndicativeOnly,
   marketLabel,
   marketRank,
   marketShortLabel,
@@ -212,7 +210,9 @@ function nhlMarket(key: string, raw: RawNhlMarket, home: string, away: string): 
     };
   }
 
-  if (isIndicativeOnly(sport, key)) view.note = INDICATIVE_NOTE;
+  // La mention « non pariable » n'est plus posée ici : c'est une décision
+  // révisable depuis l'Admin, pas une propriété de la prédiction. Elle est
+  // appliquée à l'affichage, avec la politique en vigueur.
 
   return view;
 }

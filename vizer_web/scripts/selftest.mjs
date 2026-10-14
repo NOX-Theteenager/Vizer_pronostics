@@ -33,6 +33,7 @@ export { normalizeResults } from './src/types/results.ts';
 export { normalizeLive } from './src/types/live.ts';
 export { parseBackup, summarize, BACKUP_FORMAT, BACKUP_VERSION } from './src/lib/backup.ts';
 export { isValidKey } from './src/lib/sync.ts';
+export { isBettable, defaultBettable, policyKey } from './src/lib/marketPolicy.ts';
 export { settleSelection, settleBet, resultIndex, matchKey, findResult } from './src/lib/settle.ts';
 `;
 
@@ -60,9 +61,12 @@ const torMtl = nhl.games.find((g) => g.home === 'TOR');
 check('8 marchés sur TOR–MTL', torMtl.markets.length === 8, `reçu ${torMtl.markets.length}`);
 check('ordre canonique : moneyline en tête', torMtl.markets[0].key === 'moneyline');
 check('P(home) = 45,3 %', Math.abs(torMtl.homeWinProba - 0.453) < 1e-9);
+// La mention « non pariable » n'est plus posée à la normalisation : c'est une
+// décision révisable depuis l'Admin, appliquée à l'affichage. Le normaliseur
+// ne doit donc plus en mettre.
 check(
-  'total NHL marqué non pariable',
-  torMtl.markets.find((m) => m.key === 'total').note?.includes('non pariable'),
+  'la normalisation ne décide plus de la pariabilité',
+  torMtl.markets.find((m) => m.key === 'total').note === undefined,
 );
 check(
   'ligne O/U dans le libellé du total',
@@ -234,6 +238,17 @@ check('entrée nulle refusée', 'error' in mod.parseBackup(null));
 check('clé de 43 caractères acceptée', mod.isValidKey('a'.repeat(43)));
 check('clé courte refusée', !mod.isValidKey('abc'));
 check('clé avec caractères interdits refusée', !mod.isValidKey('a'.repeat(40) + '!!'));
+
+console.log('\n── Marchés pariables ──');
+check('clé de politique', mod.policyKey('nhl', 'total') === 'nhl:total');
+check('pariable par défaut', mod.defaultBettable('nhl', 'moneyline') === true);
+check('politique vide → défaut', mod.isBettable({}, 'nhl', 'total') === true);
+check('surcharge négative appliquée', mod.isBettable({ 'nhl:total': false }, 'nhl', 'total') === false);
+check('surcharge positive appliquée', mod.isBettable({ 'nhl:total': true }, 'nhl', 'total') === true);
+check(
+  'surcharge d’un sport n’affecte pas l’autre',
+  mod.isBettable({ 'nhl:total': false }, 'nba', 'total') === true,
+);
 
 console.log('\n── Direct ──');
 // Le relais peut renvoyer n'importe quoi : le normaliseur est la frontière.

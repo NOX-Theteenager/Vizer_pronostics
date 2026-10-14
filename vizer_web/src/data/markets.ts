@@ -58,12 +58,19 @@ export const MARKET_ORDER: Record<Sport, string[]> = {
 };
 
 /**
- * Marchés prédits mais **non pariables**.
- * NHL `total` : `enabled: false` dans vizer_nhl/config.yaml (ROI backtest −11 %).
+ * Marchés écartés des paris **par défaut**.
+ *
+ * Ce n'est plus qu'une valeur de départ : l'écran Admin surcharge la liste
+ * par marché, surcharge qui vit côté serveur et vaut sur tous les appareils
+ * (cf. `src/lib/marketPolicy.ts`).
+ *
+ * Vide aujourd'hui : le total NHL était ici sur un backtest à −11 %, mais la
+ * mesure sur paris réels lui donne +11,6 %, et il a été réactivé.
  */
-export const INDICATIVE_ONLY: Record<Sport, string[]> = { nhl: ['total'], nba: [] };
+export const INDICATIVE_ONLY: Record<Sport, string[]> = { nhl: [], nba: [] };
 
-export const INDICATIVE_NOTE = 'Indicatif — non pariable (ROI historique négatif)';
+export const INDICATIVE_NOTE =
+  'Indicatif — écarté des paris proposés. La prédiction continue, et la mesure aussi.';
 
 /** Familles de marchés pour les filtres de l'écran Value bets. */
 export const MARKET_FAMILIES: { key: string; label: string; match: (m: string) => boolean }[] = [

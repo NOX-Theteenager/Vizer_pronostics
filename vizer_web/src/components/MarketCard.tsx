@@ -1,4 +1,7 @@
+import { useData } from '../context/DataContext';
 import { useSettings } from '../context/SettingsContext';
+import { INDICATIVE_NOTE } from '../data/markets';
+import { isBettable } from '../lib/marketPolicy';
 import { formatNumber, formatProbaBare } from '../lib/format';
 import type { MarketView } from '../types/model';
 import { ConfidenceChip, MiniBar, ProbBars } from './Primitives';
@@ -10,6 +13,10 @@ import type { Sport } from '../types/model';
  * barres, grand chiffre, totaux par équipe, talent effectif.
  */
 export function MarketCard({ market, sport }: { market: MarketView; sport: Sport }) {
+  const { policy } = useData();
+  // Décision révisable depuis l'Admin, pas propriété de la prédiction : le
+  // marché reste affiché et mesuré, on signale seulement qu'on ne le parie pas.
+  const bettable = isBettable(policy, sport, market.key);
   const { settings } = useSettings();
 
   if (market.error) {
@@ -95,6 +102,7 @@ export function MarketCard({ market, sport }: { market: MarketView; sport: Sport
         </div>
       )}
 
+      {!bettable && <p className="vz-mk__note">{INDICATIVE_NOTE}</p>}
       {market.note && <p className="vz-mk__note">{market.note}</p>}
     </section>
   );

@@ -3,6 +3,8 @@ import { Chip, SectionLabel, SegButton, SegGroup } from '../components/Primitive
 import { IconCheck, IconDownload, IconRefresh, IconWarning, IconX } from '../components/Icons';
 import { useToast } from '../context/ToastContext';
 import { Performance } from '../components/Performance';
+import { useData } from '../context/DataContext';
+import { policyKey, savePolicy } from '../lib/marketPolicy';
 import type { PerformanceFile } from '../types/performance';
 import {
   fetchGateStatus,
@@ -97,11 +99,13 @@ const ACTIONS: { key: WorkflowKey; label: string; sub: string; inputs?: Record<s
 
 export function Admin() {
   const { showToast } = useToast();
+  const { policy, reloadPolicy } = useData();
   const [sport, setSport] = useState<Sport>('nhl');
   const [registry, setRegistry] = useState<ModelRegistryFile | null>(null);
   const [registryError, setRegistryError] = useState<string | null>(null);
   const [gate, setGate] = useState<GateStatus | null>(null);
   const [perf, setPerf] = useState<PerformanceFile | null>(null);
+  const [policyBusy, setPolicyBusy] = useState(false);
   /** Deux lectures du même modèle : sa fiche, et ce qu'il vaut en vrai. */
   const [tab, setTab] = useState<'modele' | 'performance'>('modele');
   const [runs, setRuns] = useState<WorkflowRun[]>([]);
@@ -177,6 +181,28 @@ export function Admin() {
     return metrics.moneyline ? 'moneyline' : Object.keys(metrics)[0];
   }, [model]);
 
+  /**
+   * Bascule un marché, puis renvoie la politique complète au serveur.
+   *
+   * On applique localement d'abord : l'interrupteur doit répondre tout de
+   * suite. En cas d'échec, on recharge depuis le serveur plutôt que de laisser
+   * l'écran afficher un état qui n'existe nulle part.
+   */
+  const toggleMarket = useCallback(
+    (market: string, bettable: boolean) => {
+      if (!adminKey) return;
+      const next = { ...policy, [policyKey(sport, market)]: bettable };
+      setPolicyBusy(true);
+      void savePolicy(adminKey, next).then(async (error) => {
+        if (error) showToast(error);
+        else showToast(bettable ? 'Marché proposé à nouveau' : 'Marché écarté des paris');
+        await reloadPolicy();
+        setPolicyBusy(false);
+      });
+    },
+    [adminKey, policy, sport, showToast, reloadPolicy],
+  );
+
   const run = useCallback(
     async (key: WorkflowKey, inputs?: Record<string, string>) => {
       if (!adminKey) {
@@ -227,7 +253,13 @@ export function Admin() {
 
       {tab === 'performance' ? (
         perf?.sports?.[sport] ? (
-          <Performance data={perf.sports[sport]!} />
+          <Performance
+            sport={sport}
+            data={perf.sports[sport]!}
+            policy={policy}
+            busy={policyBusy}
+            onToggle={adminKey ? toggleMarket : null}
+          />
         ) : (
           <div className="vz-card">
             <p className="vz-note">

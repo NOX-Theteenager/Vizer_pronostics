@@ -1,5 +1,8 @@
 import { marketShortLabel } from '../data/markets';
+import { isBettable, type MarketPolicy } from '../lib/marketPolicy';
+import { Switch } from './Primitives';
 import { formatNumber } from '../lib/format';
+import type { Sport } from '../types/model';
 import type {
   BetPerformance,
   CalibrationBucket,
@@ -68,33 +71,65 @@ function Calibration({ buckets }: { buckets: CalibrationBucket[] }) {
   );
 }
 
-function BetRow({ label, bets }: { label: string; bets: BetPerformance }) {
-  if (bets.insufficient || bets.roi_flat === undefined) {
-    return (
-      <div className="vz-perf__row">
-        <span className="vz-f1">{label}</span>
-        <small className="vz-note">{bets.n} pari(s) — pas assez pour conclure</small>
-      </div>
-    );
-  }
+/**
+ * Une ligne de marché : son rendement, et l'interrupteur juste à côté.
+ *
+ * Les deux sont volontairement collés. Décider d'écarter un marché sans voir
+ * son chiffre, ou lire son chiffre sans pouvoir agir, c'est la même perte de
+ * temps — le but de cet écran est que la décision suive la mesure.
+ */
+function BetRow({
+  label,
+  bets,
+  toggle,
+}: {
+  label: string;
+  bets: BetPerformance;
+  toggle?: { on: boolean; busy: boolean; onChange: (v: boolean) => void; label: string };
+}) {
+  const insufficient = bets.insufficient || bets.roi_flat === undefined;
   return (
     <div className="vz-perf__row">
       <span className="vz-f1">
         <strong>{label}</strong>
         <small className="vz-note">
-          {bets.won}/{bets.n} gagnés · edge moyen{' '}
-          {formatNumber((bets.avg_edge ?? 0) * 100, 1)} %
+          {insufficient
+            ? `${bets.n} pari(s) — pas assez pour conclure`
+            : `${bets.won}/${bets.n} gagnés · edge moyen ${formatNumber((bets.avg_edge ?? 0) * 100, 1)} %`}
         </small>
       </span>
-      <span className="vz-perf__roi">
-        <Signed value={bets.roi_flat} />
-        <small>mise plate</small>
-      </span>
+      {!insufficient && (
+        <span className="vz-perf__roi">
+          <Signed value={bets.roi_flat!} />
+          <small>mise plate</small>
+        </span>
+      )}
+      {toggle && (
+        <Switch
+          checked={toggle.on}
+          disabled={toggle.busy}
+          onChange={toggle.onChange}
+          label={toggle.label}
+        />
+      )}
     </div>
   );
 }
 
-export function Performance({ data }: { data: SportPerformance }) {
+export function Performance({
+  sport,
+  data,
+  policy,
+  onToggle,
+  busy,
+}: {
+  sport: Sport;
+  data: SportPerformance;
+  policy: MarketPolicy;
+  /** `null` quand l'utilisateur n'a pas de clé d'administration. */
+  onToggle: ((market: string, bettable: boolean) => void) | null;
+  busy: boolean;
+}) {
   const markets = Object.entries(data.markets).sort(
     (a, b) => (b[1].n ?? 0) - (a[1].n ?? 0),
   );
@@ -180,8 +215,30 @@ export function Performance({ data }: { data: SportPerformance }) {
       <div className="vz-card vz-card--rows">
         <BetRow label="Tous marchés" bets={data.value_bets} />
         {Object.entries(data.value_bets_by_market).map(([key, bets]) => (
-          <BetRow key={key} label={marketShortLabel(key)} bets={bets} />
+          <BetRow
+            key={key}
+            label={marketShortLabel(key)}
+            bets={bets}
+            toggle={
+              onToggle
+                ? {
+                    on: isBettable(policy, sport, key),
+                    busy,
+                    label: `Proposer les paris ${marketShortLabel(key)}`,
+                    onChange: (v) => onToggle(key, v),
+                  }
+                : undefined
+            }
+          />
         ))}
+        {onToggle && (
+          <p className="vz-note">
+            L’interrupteur ne coupe que ce qui vous est <em>proposé</em>. Le modèle
+            continue de prédire et la mesure de tourner — sinon vous deviendriez
+            aveugle sur le marché que vous surveillez justement pour savoir quand
+            le rouvrir.
+          </p>
+        )}
         <p className="vz-note">
           Rendement si chaque value bet publié avait été joué d’une unité, aux cotes
           réelles enregistrées au moment de la publication. C’est la mesure qui décide

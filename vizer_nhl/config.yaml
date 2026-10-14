@@ -70,10 +70,28 @@ markets:
         random_state: 42
 
   total:
-    enabled: false   # ROI -11 % en backtest — désactivé jusqu'à recalibration
+    # Réactivé le 14/10/2026. Il était coupé sur un backtest à −11 %, mais un
+    # défaut de `value_bet()` ignorait `enabled` : le marché a continué de
+    # publier des paris pendant des mois. La mesure sur ces paris réels donne
+    # **+11,6 % sur 28 paris** (cf. performance/), positive dans toutes les
+    # tranches d'edge — à l'inverse du moneyline, qui se dégrade quand le
+    # désaccord grandit. Le couper maintenant reviendrait à supprimer le seul
+    # marché dont on ait une trace favorable.
+    #
+    # ⚠ À surveiller : **les 28 paris sont des `under`, aucun `over`.** Le
+    # modèle prédit systématiquement moins de buts que le marché. Soit il
+    # exploite un biais connu — les books remontent les totaux parce que le
+    # public aime l'over — soit il sous-estime les buts et a eu de la chance.
+    # 28 paris ne tranchent pas. C'est par là que ce marché cassera, si il
+    # casse.
+    enabled: true
     edge_threshold: 0.05
     kelly_factor: 0.25
     default_ou_line: 5.5
+    # Prudence sur la mise, comme ailleurs. Pas de plafond de désaccord ici :
+    # la dégradation avec l'edge qui le justifie sur le moneyline est absente
+    # de ce marché, et plafonner à 0.12 retirerait 7 paris rentables.
+    market_blend: 0.5
     # hyperparams partagés via service 'poisson' (cf. ci-dessous)
 
   btts:
