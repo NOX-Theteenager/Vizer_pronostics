@@ -95,7 +95,7 @@ marché n'est pas un modèle XGBoost.
 | Variable | Défaut | Rôle |
 |---|---|---|
 | `VITE_DATA_BASE` | branche `models-artifacts` de ce dépôt | racine des prédictions ; `results/` et `models/` en sont déduits |
-| `VITE_GITHUB_REPO` | `NOX-Theteenager/Vizer_pronostics` | dépôt interrogé par l'écran Admin |
+| `VITE_GITHUB_REPO` | `NOX-Theteenager/Vizer_pronostics` | dépôt affiché par l'écran Admin |
 | `VITE_USE_MOCK` | `0` | `1` pour lire `public/mock/` |
 
 Sur Vercel, `VITE_DATA_BASE` vaut `/api/data/predictions` : les JSON passent
@@ -257,6 +257,31 @@ Ils ont tous la même forme — le build reste vert et la fonction disparaît :
 Si le dépôt devenait privé, définir `VIZER_GITHUB_TOKEN` : le proxy bascule
 alors sur l'API contenus de GitHub. `VIZER_REPO` et `VIZER_BRANCH` permettent
 de déplacer la source sans rebuild.
+
+### L'écran Admin et GitHub
+
+Le jeton GitHub **ne passe plus par le navigateur**. Il était collé dans
+l'écran Admin et conservé en `localStorage` : un jeton capable d'écrire sur le
+dépôt, exposé à toute extension installée et à quiconque a accès à l'appareil.
+
+| Route | Rôle | Autorisation |
+|---|---|---|
+| `GET /api/gh/runs` | journal des exécutions + dates de `models/history/` | aucune — données publiques |
+| `POST /api/gh/dispatch` | déclenche un des trois workflows | en-tête `x-vizer-admin` |
+
+Deux variables d'environnement :
+
+- **`VIZER_GITHUB_TOKEN`** — fine-grained PAT, permission *Actions : read and
+  write* sur le dépôt. En lecture il ne sert qu'à lever le quota de 60
+  requêtes/h par IP ; en écriture il est indispensable.
+- **`VIZER_ADMIN_SECRET`** — ce qu'on colle dans l'écran Admin. Il vaut mieux
+  qu'un jeton GitHub dans le navigateur pour trois raisons : il n'a aucune
+  valeur hors de ce déploiement, il n'autorise que les trois workflows de la
+  liste fermée côté serveur, et il se change sans toucher à GitHub.
+
+Déplacer le jeton ne supprimait pas le besoin d'autoriser : sans secret,
+l'endpoint de déclenchement serait un bouton « lance mon entraînement »
+public pour qui trouve l'URL.
 
 ### Notifications hors application
 

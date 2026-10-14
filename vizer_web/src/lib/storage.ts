@@ -15,8 +15,14 @@ export const KEYS = {
   seenAlerts: `${PREFIX}alerts:seen:v1`,
   recentSearches: `${PREFIX}search:recent:v1`,
   dismissedReminders: `${PREFIX}reminders:dismissed:v1`,
-  /** Jeton GitHub de l'écran Admin — local, jamais synchronisé. */
-  githubToken: `${PREFIX}github:token:v1`,
+  /**
+   * Clé d'administration de l'écran Admin — local, jamais synchronisée.
+   *
+   * Remplace l'ancien jeton GitHub, qui donnait un accès en écriture au dépôt
+   * depuis le navigateur. Cette clé n'autorise que les workflows listés côté
+   * serveur et n'a aucune valeur ailleurs.
+   */
+  adminKey: `${PREFIX}admin:key:v1`,
   /** Clé secrète de synchronisation : qui l'a, a la sauvegarde distante. */
   syncKey: `${PREFIX}sync:key:v1`,
   /** Dernier changement d'état local, pour arbitrer avec le distant. */

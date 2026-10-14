@@ -15,11 +15,11 @@ import {
 import { formatNumber, formatShortDate, timeAgo } from '../lib/format';
 import {
   dispatchWorkflow,
-  listModelHistory,
-  listRuns,
-  readToken,
+  fetchRuns,
+  GH_AVAILABLE,
+  readAdminKey,
   REPO,
-  writeToken,
+  writeAdminKey,
   type WorkflowKey,
   type WorkflowRun,
 } from '../lib/github';
@@ -108,8 +108,11 @@ export function Admin() {
   const [history, setHistory] = useState<string[]>([]);
   const [compareDay, setCompareDay] = useState<string | null>(null);
   const [comparison, setComparison] = useState<ModelRegistryFile | null>(null);
-  const [token, setToken] = useState(() => readToken());
-  const [tokenDraft, setTokenDraft] = useState('');
+  const [adminKey, setAdminKey] = useState(() => readAdminKey());
+  const [keyDraft, setKeyDraft] = useState('');
+  /** Le serveur a-t-il un jeton GitHub ? Décide du message sur le quota. */
+  const [ghAuthenticated, setGhAuthenticated] = useState(true);
+  const [runsError, setRunsError] = useState<string | null>(null);
   const [busy, setBusy] = useState<WorkflowKey | null>(null);
 
   const load = useCallback(async () => {
@@ -132,15 +135,18 @@ export function Admin() {
       // tourné depuis la mise en place. Rien à signaler à l'utilisateur.
       setGate(null);
     }
+    // Un seul appel : le serveur fait les deux lectures en parallèle et rend
+    // ce qu'il a pu obtenir.
     try {
-      setRuns(await listRuns(8, readToken() || undefined));
-    } catch {
+      const payload = await fetchRuns(8);
+      setRuns(payload.runs);
+      setHistory(payload.history);
+      setGhAuthenticated(payload.authenticated);
+      setRunsError(payload.error);
+    } catch (e) {
       setRuns([]);
-    }
-    try {
-      setHistory(await listModelHistory(readToken() || undefined));
-    } catch {
       setHistory([]);
+      setRunsError(e instanceof Error ? e.message : 'GitHub injoignable');
     }
   }, []);
 
@@ -173,13 +179,13 @@ export function Admin() {
 
   const run = useCallback(
     async (key: WorkflowKey, inputs?: Record<string, string>) => {
-      if (!token) {
-        showToast('Ajoute un jeton GitHub pour déclencher les workflows');
+      if (!adminKey) {
+        showToast('Ajoute la clé d’administration pour déclencher les workflows');
         return;
       }
       setBusy(key);
       try {
-        await dispatchWorkflow(key, token, 'main', inputs);
+        await dispatchWorkflow(key, adminKey, 'main', inputs);
         showToast('Workflow déclenché');
         // GitHub met quelques secondes à faire apparaître le run.
         window.setTimeout(() => void load(), 4000);
@@ -189,7 +195,7 @@ export function Admin() {
         setBusy(null);
       }
     },
-    [token, showToast, load],
+    [adminKey, showToast, load],
   );
 
   return (
@@ -390,67 +396,81 @@ export function Admin() {
       )}
 
       <SectionLabel>Actions</SectionLabel>
-      {!token && (
-        <div className="vz-card vz-card--rows">
+      {!GH_AVAILABLE ? (
+        <div className="vz-card">
           <p className="vz-note">
-            Les actions déclenchent des workflows GitHub Actions. Colle un
-            <strong> fine-grained token</strong> avec la permission <em>Actions :
-            read & write</em> sur <code>{REPO}</code>. Il reste sur cet appareil.
+            Les actions passent par les fonctions du déploiement, absentes ici
+            (développement local ou GitHub Pages).
           </p>
-          <div className="vz-row vz-gap">
-            <input
-              className="vz-input vz-f1"
-              type="password"
-              placeholder="github_pat_…"
-              value={tokenDraft}
-              onChange={(e) => setTokenDraft(e.target.value)}
-              aria-label="Jeton GitHub"
-            />
+        </div>
+      ) : (
+        <>
+          {!adminKey && (
+            <div className="vz-card vz-card--rows">
+              <p className="vz-note">
+                Les actions déclenchent des workflows GitHub Actions. Le jeton GitHub
+                ne passe plus par le navigateur : il vit dans les variables
+                d’environnement du déploiement. Ce qu’on colle ici est la{' '}
+                <strong>clé d’administration</strong> (<code>VIZER_ADMIN_SECRET</code>),
+                qui n’autorise que les trois workflows ci-dessous et n’a aucune valeur
+                ailleurs.
+              </p>
+              <div className="vz-row vz-gap">
+                <input
+                  className="vz-input vz-f1"
+                  type="password"
+                  placeholder="Clé d’administration"
+                  value={keyDraft}
+                  onChange={(e) => setKeyDraft(e.target.value)}
+                  aria-label="Clé d’administration"
+                  autoComplete="off"
+                />
+                <button
+                  type="button"
+                  className="vz-btn vz-btn--primary"
+                  disabled={!keyDraft.trim()}
+                  onClick={() => {
+                    writeAdminKey(keyDraft);
+                    setAdminKey(keyDraft.trim());
+                    setKeyDraft('');
+                    showToast('Clé enregistrée sur cet appareil');
+                  }}
+                >
+                  Enregistrer
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="vz-admin__actions">
+            {ACTIONS.map((a) => (
+              <button
+                key={a.key}
+                type="button"
+                className="vz-admin__action"
+                disabled={!adminKey || busy !== null}
+                onClick={() => void run(a.key, a.inputs)}
+              >
+                <strong>{busy === a.key ? 'Déclenchement…' : a.label}</strong>
+                <small>{a.sub}</small>
+              </button>
+            ))}
+          </div>
+
+          {adminKey && (
             <button
               type="button"
-              className="vz-btn vz-btn--primary"
-              disabled={!tokenDraft.trim()}
+              className="vz-btn vz-btn--sm vz-btn--ghost vz-btn--block"
               onClick={() => {
-                writeToken(tokenDraft);
-                setToken(tokenDraft.trim());
-                setTokenDraft('');
-                showToast('Jeton enregistré localement');
-                void load();
+                writeAdminKey('');
+                setAdminKey('');
+                showToast('Clé supprimée de cet appareil');
               }}
             >
-              Enregistrer
+              Oublier la clé d’administration
             </button>
-          </div>
-        </div>
-      )}
-
-      <div className="vz-admin__actions">
-        {ACTIONS.map((a) => (
-          <button
-            key={a.key}
-            type="button"
-            className="vz-admin__action"
-            disabled={!token || busy !== null}
-            onClick={() => void run(a.key, a.inputs)}
-          >
-            <strong>{busy === a.key ? 'Déclenchement…' : a.label}</strong>
-            <small>{a.sub}</small>
-          </button>
-        ))}
-      </div>
-
-      {token && (
-        <button
-          type="button"
-          className="vz-btn vz-btn--sm vz-btn--ghost vz-btn--block"
-          onClick={() => {
-            writeToken('');
-            setToken('');
-            showToast('Jeton supprimé de cet appareil');
-          }}
-        >
-          Oublier le jeton GitHub
-        </button>
+          )}
+        </>
       )}
 
       </>
@@ -459,7 +479,10 @@ export function Admin() {
       <SectionLabel>Journal des exécutions</SectionLabel>
       {runs.length === 0 ? (
         <p className="vz-note vz-note--center">
-          Aucun run lisible. L'API GitHub limite à 60 requêtes/h sans jeton.
+          {runsError ??
+            (ghAuthenticated
+              ? 'Aucun run récent.'
+              : 'Aucun run lisible. Sans VIZER_GITHUB_TOKEN sur le déploiement, l’API GitHub limite à 60 requêtes/h par IP.')}
         </p>
       ) : (
         <div className="vz-stack">

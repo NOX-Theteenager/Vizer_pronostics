@@ -1,20 +1,27 @@
 /**
- * Accès GitHub pour l'écran Admin.
+ * Accès GitHub pour l'écran Admin — par le serveur.
  *
- * Lecture (runs de workflow, historique des modèles) : l'API publique suffit
- * sur un dépôt public, sans jeton — avec un quota de 60 requêtes/h par IP.
- * Écriture (déclencher un workflow) : impossible sans jeton, donc l'utilisateur
- * colle un **fine-grained PAT** (scope Actions: read & write) stocké en local,
- * jamais envoyé ailleurs qu'à api.github.com.
+ * Le jeton GitHub ne passe plus par le navigateur. Il était auparavant collé
+ * dans cet écran et conservé dans `localStorage` : un jeton capable d'écrire
+ * sur le dépôt, exposé à toute extension installée et à quiconque a accès à
+ * l'appareil. Il vit maintenant dans les variables d'environnement du
+ * déploiement, et l'app passe par `/api/gh/*`.
+ *
+ * Ce qui reste côté navigateur est la **clé d'administration** : un secret
+ * propre à ce déploiement, qui n'autorise que les trois workflows listés
+ * côté serveur et ne donne accès à rien d'autre. Le compromettre ne compromet
+ * pas le dépôt, et il se change sans toucher à GitHub.
  */
 import { KEYS, readJson, writeJson } from './storage';
 
 const DEFAULT_REPO = 'NOX-Theteenager/Vizer_pronostics';
 
 export const REPO: string = import.meta.env.VITE_GITHUB_REPO || DEFAULT_REPO;
-export const API = `https://api.github.com/repos/${REPO}`;
 
-/** Workflows pilotables depuis l'app. */
+/** Les routes serveur n'existent que derrière nos fonctions. */
+export const GH_AVAILABLE = (import.meta.env.VITE_DATA_BASE ?? '').startsWith('/');
+
+/** Workflows pilotables depuis l'app. La liste fermée vit côté serveur. */
 export const WORKFLOWS = {
   training: 'vizer_training_pipeline.yml',
   predictions: 'vizer_daily_predictions.yml',
@@ -23,19 +30,17 @@ export const WORKFLOWS = {
 
 export type WorkflowKey = keyof typeof WORKFLOWS;
 
-export function readToken(): string {
-  return readJson<string>(KEYS.githubToken, '');
+/* ── Clé d'administration ─────────────────────────────────────────────── */
+
+export function readAdminKey(): string {
+  return readJson<string>(KEYS.adminKey, '');
 }
 
-export function writeToken(token: string): void {
-  writeJson(KEYS.githubToken, token.trim());
+export function writeAdminKey(key: string): void {
+  writeJson(KEYS.adminKey, key.trim());
 }
 
-function headers(token?: string): HeadersInit {
-  const h: Record<string, string> = { Accept: 'application/vnd.github+json' };
-  if (token) h.Authorization = `Bearer ${token}`;
-  return h;
-}
+/* ── Lecture ──────────────────────────────────────────────────────────── */
 
 export interface WorkflowRun {
   id: number;
@@ -47,70 +52,55 @@ export interface WorkflowRun {
   workflow: string;
 }
 
-/** Derniers runs, tous workflows confondus. */
-export async function listRuns(limit = 10, token?: string): Promise<WorkflowRun[]> {
-  const res = await fetch(`${API}/actions/runs?per_page=${limit}`, {
-    headers: headers(token),
-  });
-  if (!res.ok) throw new Error(`GitHub ${res.status}`);
-  const data = (await res.json()) as {
-    workflow_runs?: {
-      id: number;
-      name: string;
-      status: string;
-      conclusion: string | null;
-      created_at: string;
-      html_url: string;
-      path: string;
-    }[];
-  };
-  return (data.workflow_runs ?? []).map((r) => ({
-    id: r.id,
-    name: r.name,
-    status: r.status,
-    conclusion: r.conclusion,
-    createdAt: r.created_at,
-    url: r.html_url,
-    workflow: r.path.split('/').pop() ?? r.path,
-  }));
+export interface RunsPayload {
+  runs: WorkflowRun[];
+  /** Dates publiées dans `models/history/`. */
+  history: string[];
+  /** Le serveur dispose d'un jeton : le quota de 60 req/h ne s'applique pas. */
+  authenticated: boolean;
+  error: string | null;
 }
 
 /**
- * Déclenche un workflow (`workflow_dispatch`). Nécessite un jeton.
- * GitHub répond 204 sans corps en cas de succès.
+ * Journal des exécutions et historique des modèles, en un appel.
+ *
+ * Les deux lectures étaient séparées et échouaient séparément ; le serveur
+ * les fait en parallèle et renvoie ce qu'il a pu obtenir, parce qu'un
+ * historique indisponible ne doit pas priver l'écran de son journal.
  */
+export async function fetchRuns(limit = 10): Promise<RunsPayload> {
+  if (!GH_AVAILABLE) {
+    return { runs: [], history: [], authenticated: false, error: 'Indisponible ici.' };
+  }
+  const res = await fetch(`/api/gh/runs?limit=${limit}`, { cache: 'no-store' });
+  const body = (await res.json()) as Partial<RunsPayload>;
+  return {
+    runs: body.runs ?? [],
+    history: body.history ?? [],
+    authenticated: !!body.authenticated,
+    error: body.error ?? (res.ok ? null : `HTTP ${res.status}`),
+  };
+}
+
+/* ── Écriture ─────────────────────────────────────────────────────────── */
+
+/** Déclenche un workflow. Lève avec un message affichable en cas de refus. */
 export async function dispatchWorkflow(
   key: WorkflowKey,
-  token: string,
+  adminKey: string,
   ref = 'main',
   inputs: Record<string, string> = {},
 ): Promise<void> {
-  if (!token) throw new Error('Jeton GitHub absent');
-  const res = await fetch(`${API}/actions/workflows/${WORKFLOWS[key]}/dispatches`, {
-    method: 'POST',
-    headers: { ...headers(token), 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ref, inputs }),
-  });
-  if (!res.ok) {
-    const detail = await res.text().catch(() => '');
-    throw new Error(
-      res.status === 404
-        ? "Workflow introuvable, ou le jeton n'a pas le droit Actions sur ce dépôt."
-        : `GitHub ${res.status}${detail ? ` — ${detail.slice(0, 120)}` : ''}`,
-    );
-  }
-}
+  if (!GH_AVAILABLE) throw new Error('Actions indisponibles sur ce déploiement.');
+  if (!adminKey) throw new Error('Clé d’administration absente.');
 
-/** Historique des exports de registre publiés (models/history/*.json). */
-export async function listModelHistory(token?: string): Promise<string[]> {
-  const res = await fetch(`${API}/contents/models/history?ref=models-artifacts`, {
-    headers: headers(token),
+  const res = await fetch('/api/gh/dispatch', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-vizer-admin': adminKey },
+    body: JSON.stringify({ workflow: key, ref, inputs }),
   });
-  if (!res.ok) return [];
-  const data = (await res.json()) as { name: string; type: string }[];
-  return data
-    .filter((f) => f.type === 'file' && f.name.endsWith('.json'))
-    .map((f) => f.name.replace(/\.json$/, ''))
-    .sort()
-    .reverse();
+  if (res.status === 204 || res.ok) return;
+
+  const body = (await res.json().catch(() => ({}))) as { error?: string };
+  throw new Error(body.error ?? `Échec (HTTP ${res.status})`);
 }

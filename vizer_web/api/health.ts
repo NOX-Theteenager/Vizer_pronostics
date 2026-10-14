@@ -29,7 +29,12 @@ export function GET(): Response {
       // ne servent qu'à déplacer la source sans rebuild.
       repo_override: set('VIZER_REPO'),
       branch_override: set('VIZER_BRANCH'),
+    },
+    admin: {
+      // Lecture des runs : le jeton lève seulement le quota, la route marche
+      // sans lui. Écriture : les deux sont nécessaires.
       github_token: set('VIZER_GITHUB_TOKEN'),
+      admin_secret: set('VIZER_ADMIN_SECRET'),
     },
     push: {
       // Notifications hors application : il faut les deux clés VAPID.
