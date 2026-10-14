@@ -3406,3 +3406,52 @@ code {
   align-items: center;
   flex: none;
 }
+
+/* ── Sauvegarde ──────────────────────────────────────────────────────────
+   Un `<input type=file>` ne se met pas en forme : on l'enveloppe dans un
+   label stylé comme un bouton et on le rend invisible mais toujours
+   accessible au clavier et aux lecteurs d'écran. */
+.vz-btn--file {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.vz-btn--file input[type='file'] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* La clé fait 43 caractères sans espace : sans cette règle elle déborde. */
+.vz-break {
+  word-break: break-all;
+  user-select: all;
+}
+
+/* ── Champ de saisie ─────────────────────────────────────────────────────
+   La classe était déjà posée sur le champ « jeton GitHub » de l'écran Admin
+   sans qu'aucune règle n'existe : le champ héritait du style par défaut du
+   navigateur, blanc sur fond sombre. Cette règle vaut pour les deux. */
+.vz-input {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 13px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+}
+
+.vz-input::placeholder {
+  color: var(--text-dim);
+}
+
+.vz-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: transparent;
+}

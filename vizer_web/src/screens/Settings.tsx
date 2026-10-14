@@ -1,14 +1,24 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  IconArrowDown,
-  IconArrowUp,
-  IconCheck,
-  IconChevronRight,
-  IconDownload,
-  IconX,
-} from '../components/Icons';
+import { IconArrowDown, IconArrowUp, IconCheck, IconChevronRight, IconDownload, IconWarning, IconX } from '../components/Icons';
 import { SegButton, SegGroup, SectionLabel, Switch } from '../components/Primitives';
+import {
+  applyBackup,
+  backupFilename,
+  collectBackup,
+  parseBackup,
+  summarize,
+  type BackupSummary,
+} from '../lib/backup';
 import { pushStatus, subscribePush, unsubscribePush, type PushStatus } from '../lib/push';
+import {
+  ensureSyncKey,
+  isValidKey,
+  pullState,
+  pushState,
+  readSyncKey,
+  SYNC_AVAILABLE,
+  writeSyncKey,
+} from '../lib/sync';
 import { useToast } from '../context/ToastContext';
 import { AmountSheet } from '../components/overlays/AmountSheet';
 import { useBankroll } from '../context/BankrollContext';
@@ -20,7 +30,7 @@ import { CURRENCIES, CURRENCY_CODES, formatMoney, formatPnl, type CurrencyCode }
 import { KELLY_CAP, KELLY_FRACTIONS, KELLY_HINT, KELLY_LABEL } from '../lib/kelly';
 import { formatShortDate, timeAgo } from '../lib/format';
 import type { ProbFormat, ThemeMode } from '../lib/settings';
-import { clearDataCache } from '../lib/storage';
+import { clearDataCache, downloadText } from '../lib/storage';
 import { SPORTS, type Sport } from '../types/model';
 import { Link } from 'react-router-dom';
 
@@ -80,6 +90,92 @@ export function Settings({
     },
     [settings.alertThreshold, showToast],
   );
+
+  /* ── Sauvegarde et synchronisation ─────────────────────────────────── */
+
+  const [syncKey, setSyncKey] = useState<string | null>(() => readSyncKey());
+  const [keyDraft, setKeyDraft] = useState('');
+  const [keyVisible, setKeyVisible] = useState(false);
+  const [syncBusy, setSyncBusy] = useState(false);
+  /** Sauvegarde distante trouvée, en attente d'une décision explicite. */
+  const [incoming, setIncoming] = useState<
+    { summary: BackupSummary; apply: () => void } | null
+  >(null);
+
+  const exportBackup = useCallback(() => {
+    const payload = JSON.stringify(collectBackup(), null, 2);
+    showToast(
+      downloadText(backupFilename(), payload, 'application/json')
+        ? 'Sauvegarde téléchargée'
+        : 'Téléchargement indisponible',
+    );
+  }, [showToast]);
+
+  const importBackup = useCallback(
+    async (file: File) => {
+      let parsed;
+      try {
+        parsed = parseBackup(JSON.parse(await file.text()));
+      } catch {
+        showToast('Fichier illisible');
+        return;
+      }
+      if ('error' in parsed) {
+        showToast(parsed.error);
+        return;
+      }
+      const backup = parsed.backup;
+      // Une restauration écrase tout : elle se confirme, elle ne se devine pas.
+      setIncoming({
+        summary: summarize(backup),
+        apply: () => {
+          applyBackup(backup);
+          // Les contextes lisent le stockage au montage : plutôt que de
+          // réconcilier des états React déjà montés, on repart proprement.
+          window.location.reload();
+        },
+      });
+    },
+    [showToast],
+  );
+
+  const syncNow = useCallback(async () => {
+    setSyncBusy(true);
+    const key = ensureSyncKey();
+    setSyncKey(key);
+    const res = await pushState(key);
+    showToast(res.ok ? `Sauvegarde envoyée (${Math.round(res.bytes / 1024)} ko)` : res.error);
+    setSyncBusy(false);
+  }, [showToast]);
+
+  const restoreFromKey = useCallback(async () => {
+    const key = keyDraft.trim() || syncKey;
+    if (!key || !isValidKey(key)) {
+      showToast('Clé absente ou mal formée');
+      return;
+    }
+    setSyncBusy(true);
+    const res = await pullState(key);
+    setSyncBusy(false);
+
+    if (res.status === 'error') {
+      showToast(res.error);
+      return;
+    }
+    if (res.status === 'empty') {
+      showToast('Aucune sauvegarde pour cette clé');
+      return;
+    }
+    setIncoming({
+      summary: summarize(res.backup),
+      apply: () => {
+        writeSyncKey(key);
+        applyBackup(res.backup);
+        window.location.reload();
+      },
+    });
+  }, [keyDraft, syncKey, showToast]);
+
 
   return (
     <div className="vz-screen vz-up">
@@ -308,6 +404,137 @@ export function Settings({
             ))}
           </SegGroup>
         </div>
+      </div>
+
+      <SectionLabel>Sauvegarde</SectionLabel>
+      <div className="vz-card vz-card--rows">
+        <p className="vz-note">
+          Bankroll, paris suivis et mouvements vivent sur cet appareil seulement.
+          Un « effacer les données du site », et tout disparaît : gardez une
+          sauvegarde. Le jeton GitHub de l’écran Admin n’y figure jamais.
+        </p>
+        <div className="vz-row vz-gap vz-wrap">
+          <button type="button" className="vz-btn vz-btn--sm vz-f1" onClick={exportBackup}>
+            <IconArrowDown size={14} /> Exporter
+          </button>
+          <label className="vz-btn vz-btn--sm vz-f1 vz-btn--file">
+            <IconArrowUp size={14} /> Importer
+            <input
+              type="file"
+              accept="application/json,.json"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                // On vide le champ : réimporter le même fichier doit marcher.
+                e.target.value = '';
+                if (file) void importBackup(file);
+              }}
+            />
+          </label>
+        </div>
+
+        {incoming && (
+          <div className="vz-stopalert">
+            <IconWarning size={18} />
+            <div className="vz-f1">
+              <strong>Restaurer cette sauvegarde ?</strong>
+              <small>
+                {incoming.summary.bets} pari(s), {incoming.summary.transactions} mouvement(s),
+                bankroll {formatMoney(incoming.summary.bankroll, settings.currency)}
+                {incoming.summary.exportedAt
+                  ? ` · du ${formatShortDate(incoming.summary.exportedAt)}`
+                  : ''}
+                . Vos données actuelles seront remplacées.
+              </small>
+              <div className="vz-row vz-gap vz-wrap">
+                <button
+                  type="button"
+                  className="vz-btn vz-btn--sm vz-btn--danger"
+                  onClick={incoming.apply}
+                >
+                  Remplacer
+                </button>
+                <button
+                  type="button"
+                  className="vz-btn vz-btn--sm"
+                  onClick={() => setIncoming(null)}
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {SYNC_AVAILABLE && (
+          <>
+            <div className="vz-field vz-field--col">
+              <div className="vz-field__head">
+                <span>Clé de synchronisation</span>
+                {syncKey && (
+                  <button
+                    type="button"
+                    className="vz-link"
+                    onClick={() => setKeyVisible((v) => !v)}
+                  >
+                    {keyVisible ? 'Masquer' : 'Afficher'}
+                  </button>
+                )}
+              </div>
+              <p className="vz-note">
+                Qui a cette clé a la sauvegarde. Collez-la sur un autre appareil pour
+                y retrouver votre bankroll — il n’y a pas de mot de passe à retenir,
+                mais pas de récupération possible non plus : gardez aussi le fichier.
+              </p>
+              {syncKey && keyVisible && <p className="vz-src vz-break">{syncKey}</p>}
+              <div className="vz-row vz-gap vz-wrap">
+                <button
+                  type="button"
+                  className="vz-btn vz-btn--sm vz-f1"
+                  disabled={syncBusy}
+                  onClick={() => void syncNow()}
+                >
+                  {syncKey ? 'Sauvegarder en ligne' : 'Activer la synchronisation'}
+                </button>
+                {syncKey && (
+                  <button
+                    type="button"
+                    className="vz-btn vz-btn--sm vz-f1"
+                    disabled={syncBusy}
+                    onClick={() => void navigator.clipboard
+                      ?.writeText(syncKey)
+                      .then(() => showToast('Clé copiée'))
+                      .catch(() => showToast('Copie impossible'))}
+                  >
+                    Copier la clé
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="vz-field vz-field--col">
+              <div className="vz-field__head">
+                <span>Récupérer depuis une clé</span>
+              </div>
+              <input
+                type="text"
+                className="vz-input"
+                placeholder="Coller la clé d’un autre appareil"
+                value={keyDraft}
+                onChange={(e) => setKeyDraft(e.target.value)}
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <button
+                type="button"
+                className="vz-btn vz-btn--sm vz-btn--block"
+                disabled={syncBusy || !keyDraft.trim()}
+                onClick={() => void restoreFromKey()}
+              >
+                Récupérer
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       <SectionLabel>À propos / données</SectionLabel>

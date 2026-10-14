@@ -17,6 +17,10 @@ export const KEYS = {
   dismissedReminders: `${PREFIX}reminders:dismissed:v1`,
   /** Jeton GitHub de l'écran Admin — local, jamais synchronisé. */
   githubToken: `${PREFIX}github:token:v1`,
+  /** Clé secrète de synchronisation : qui l'a, a la sauvegarde distante. */
+  syncKey: `${PREFIX}sync:key:v1`,
+  /** Dernier changement d'état local, pour arbitrer avec le distant. */
+  syncUpdatedAt: `${PREFIX}sync:updatedAt:v1`,
 } as const;
 
 export function readJson<T>(key: string, fallback: T): T {

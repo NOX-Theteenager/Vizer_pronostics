@@ -19,6 +19,7 @@ import { useBankroll } from './context/BankrollContext';
 import { useData } from './context/DataContext';
 import { useSettings } from './context/SettingsContext';
 import { useAlerts } from './hooks/useAlerts';
+import { useAutoPush } from './hooks/useAutoPush';
 import { useAutoSettle } from './hooks/useAutoSettle';
 import { usePullToRefresh } from './hooks/usePullToRefresh';
 import { Admin } from './screens/Admin';
@@ -107,6 +108,9 @@ export function App() {
 
   /* Les scores finaux sont publiés : ce qui est tranchable se clôture seul. */
   useAutoSettle(generatedAt, online);
+
+  /* Copie distante de l'état, envoyée une fois les changements calmés. */
+  useAutoPush();
 
   /* ── Suivi de pari ─────────────────────────────────────────────────── */
 

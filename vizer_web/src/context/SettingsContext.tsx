@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import { DEFAULT_SETTINGS, loadSettings, saveSettings, type Settings } from '../lib/settings';
+import { markChanged } from '../lib/sync';
 
 interface SettingsCtx {
   settings: Settings;
@@ -32,6 +33,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     saveSettings(settings);
     applyTheme(settings.theme);
+    markChanged();
   }, [settings]);
 
   const update = useCallback((patch: Partial<Settings>) => {

@@ -48,6 +48,12 @@ async function command<T>(args: (string | number)[]): Promise<T> {
   return payload.result as T;
 }
 
+export const get = (key: string) => command<string | null>(['GET', key]);
+
+/** `SET key value` sans expiration : l'état utilisateur n'a pas à expirer. */
+export const set = (key: string, value: string) =>
+  command<string>(['SET', key, value]);
+
 export const sadd = (key: string, member: string) =>
   command<number>(['SADD', key, member]);
 

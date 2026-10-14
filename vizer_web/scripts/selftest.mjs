@@ -31,6 +31,8 @@ export { marketFamily } from './src/data/markets.ts';
 export { kellyStake, KELLY_CAP } from './src/lib/kelly.ts';
 export { normalizeResults } from './src/types/results.ts';
 export { normalizeLive } from './src/types/live.ts';
+export { parseBackup, summarize, BACKUP_FORMAT, BACKUP_VERSION } from './src/lib/backup.ts';
+export { isValidKey } from './src/lib/sync.ts';
 export { settleSelection, settleBet, resultIndex, matchKey, findResult } from './src/lib/settle.ts';
 `;
 
@@ -198,6 +200,40 @@ check(
   'cote juste = 1 ÷ proba',
   Math.abs(ml.options.find((o) => o.selection === 'home').odds - 2.21) < 0.02,
 );
+
+console.log('\n── Sauvegarde ──');
+const goodBackup = {
+  format: mod.BACKUP_FORMAT,
+  version: mod.BACKUP_VERSION,
+  exportedAt: '2026-10-14T10:00:00.000Z',
+  updatedAt: 1791970000000,
+  settings: { currency: 'EUR' },
+  bankroll: {
+    bankroll: 250000, goal: 400000, stopLoss: 100000,
+    transactions: [{ id: 't1', kind: 'deposit', amount: 250000, label: 'Dépôt', ts: 1 }],
+    followed: [{ id: 'b1', selection: 'home' }, { id: 'b2', selection: 'away' }],
+  },
+};
+const ok = mod.parseBackup(goodBackup);
+check('sauvegarde valide acceptée', !('error' in ok));
+check('réglages complétés par les défauts', ok.backup.settings.kellyFraction === 0.25);
+check('devise du fichier conservée', ok.backup.settings.currency === 'EUR');
+check('ticket en cours jamais restauré', ok.backup.bankroll.slip.length === 0);
+const sum = mod.summarize(ok.backup);
+check('résumé compté juste', sum.bets === 2 && sum.transactions === 1 && sum.bankroll === 250000);
+
+check('fichier étranger refusé', 'error' in mod.parseBackup({ format: 'autre', version: 1 }));
+check('version future refusée', 'error' in mod.parseBackup({ ...goodBackup, version: 99 }));
+check('bankroll absente refusée', 'error' in mod.parseBackup({ ...goodBackup, bankroll: undefined }));
+check(
+  'paris non tabulaires refusés',
+  'error' in mod.parseBackup({ ...goodBackup, bankroll: { ...goodBackup.bankroll, followed: 'x' } }),
+);
+check('entrée nulle refusée', 'error' in mod.parseBackup(null));
+
+check('clé de 43 caractères acceptée', mod.isValidKey('a'.repeat(43)));
+check('clé courte refusée', !mod.isValidKey('abc'));
+check('clé avec caractères interdits refusée', !mod.isValidKey('a'.repeat(40) + '!!'));
 
 console.log('\n── Direct ──');
 // Le relais peut renvoyer n'importe quoi : le normaliseur est la frontière.

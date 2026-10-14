@@ -10,6 +10,7 @@ import {
 import { CURRENCIES } from '../lib/currency';
 import { resultIndex, settleBet } from '../lib/settle';
 import { downloadText, KEYS, readJson, writeJson } from '../lib/storage';
+import { markChanged } from '../lib/sync';
 import type { GameResult } from '../types/results';
 import type {
   BankrollState,
@@ -86,6 +87,9 @@ export function BankrollProvider({ children }: { children: ReactNode }) {
     // des cotes du jour qui peuvent déjà être périmées.
     const { slip: _slip, ...persisted } = state;
     writeJson(KEYS.bankroll, persisted);
+    // Horodate pour la synchronisation : c'est ce qui permet d'arbitrer entre
+    // deux appareils sans écraser le plus récent.
+    markChanged();
   }, [state]);
 
   const snapshot = useCallback(() => state, [state]);
