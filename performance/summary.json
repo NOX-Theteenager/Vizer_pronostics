@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-14T19:44:25+00:00",
+  "generated_at": "2026-10-14T20:45:14+00:00",
   "min_sample": 20,
   "sports": {
     "nhl": {
@@ -133,6 +133,28 @@
           ]
         }
       },
+      "levels": {
+        "p1_total": {
+          "n": 105,
+          "mean_predicted": 1.712,
+          "mean_actual": 1.8,
+          "bias": -0.088,
+          "mae": 0.915,
+          "sd": 1.101,
+          "stderr": 0.107,
+          "z": -0.82
+        },
+        "total": {
+          "n": 43,
+          "mean_predicted": 5.734,
+          "mean_actual": 6.047,
+          "bias": -0.312,
+          "mae": 1.886,
+          "sd": 2.683,
+          "stderr": 0.409,
+          "z": -0.76
+        }
+      },
       "value_bets": {
         "n": 79,
         "won": 36,
@@ -164,11 +186,12 @@
       }
     },
     "nba": {
-      "n_games_predicted": 0,
+      "n_games_predicted": 7,
       "n_games_settled": 0,
       "from": null,
       "to": null,
       "markets": {},
+      "levels": {},
       "value_bets": {
         "n": 0,
         "insufficient": true
