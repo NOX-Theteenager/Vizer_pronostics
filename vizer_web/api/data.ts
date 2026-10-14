@@ -13,6 +13,7 @@
  *   /api/data/predictions/latest/nhl.json
  *   /api/data/models/registry.json
  *   /api/data/results/latest.json
+ *   /api/data/performance/summary.json
  *
  * Variables d'environnement (facultatives) :
  *   VIZER_REPO    — dépôt source, défaut NOX-Theteenager/Vizer_pronostics
@@ -69,6 +70,12 @@ const CACHE: Record<string, { cdn: string; browser: string }> = {
     browser: 'public, max-age=60',
   },
   models: {
+    cdn: 'max-age=300, stale-while-revalidate=3600',
+    browser: 'public, max-age=60',
+  },
+  // Recalculée une fois par jour avec les résultats : elle ne bouge pas plus
+  // vite que ça.
+  performance: {
     cdn: 'max-age=300, stale-while-revalidate=3600',
     browser: 'public, max-age=60',
   },
