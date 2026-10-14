@@ -57,7 +57,12 @@ SPORT_PATHS = {"nhl": "hockey/nhl", "nba": "basketball/nba"}
 # (cf. TEAM_REMAP dans vizer_nhl/src/utils.py). Publier UTA ici casserait
 # l'appariement avec les prédictions.
 ALIASES: dict[str, dict[str, str]] = {
-    "nhl": {"LA": "LAK", "NJ": "NJD", "SJ": "SJS", "TB": "TBL", "UTAH": "ARI"},
+    # `UTA` **et** `UTAH` : ESPN n'abrège pas l'Utah pareil selon l'endpoint —
+    # `UTAH` sur la liste des équipes, `UTA` sur le scoreboard. Sans les deux,
+    # un match de l'Utah est publié sous un code que les prédictions
+    # n'emploient jamais, et le pari correspondant ne se clôture pas.
+    "nhl": {"LA": "LAK", "NJ": "NJD", "SJ": "SJS", "TB": "TBL",
+            "UTAH": "ARI", "UTA": "ARI"},
     "nba": {"GS": "GSW", "NO": "NOP", "NY": "NYK", "SA": "SAS",
             "UTAH": "UTA", "WSH": "WAS"},
 }

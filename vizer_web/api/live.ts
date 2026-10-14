@@ -32,7 +32,11 @@ type Sport = keyof typeof SPORTS;
  * prolonge celle de l'Arizona.
  */
 const ALIASES: Record<Sport, Record<string, string>> = {
-  nhl: { LA: 'LAK', NJ: 'NJD', SJ: 'SJS', TB: 'TBL', UTAH: 'ARI' },
+  // `UTA` **et** `UTAH` : ESPN n'abrège pas l'Utah pareil selon l'endpoint —
+  // `UTAH` sur la liste des équipes, `UTA` sur le scoreboard. Sans les deux,
+  // le match sort sous un code que les prédictions n'emploient jamais et
+  // aucun direct ne s'affiche.
+  nhl: { LA: 'LAK', NJ: 'NJD', SJ: 'SJS', TB: 'TBL', UTAH: 'ARI', UTA: 'ARI' },
   nba: { GS: 'GSW', NO: 'NOP', NY: 'NYK', SA: 'SAS', UTAH: 'UTA', WSH: 'WAS' },
 };
 

@@ -46,7 +46,8 @@ LEAGUES = {'nhl': 'hockey/nhl', 'nba': 'basketball/nba'}
 # prédictions publient donc ARI. Le fichier porte le logo actuel de la
 # franchise, sous le code que l'app recevra.
 ALIASES = {
-    'nhl': {'LA': 'LAK', 'NJ': 'NJD', 'SJ': 'SJS', 'TB': 'TBL', 'UTAH': 'ARI'},
+    'nhl': {'LA': 'LAK', 'NJ': 'NJD', 'SJ': 'SJS', 'TB': 'TBL',
+            'UTAH': 'ARI', 'UTA': 'ARI'},
     'nba': {'GS': 'GSW', 'NO': 'NOP', 'NY': 'NYK', 'SA': 'SAS',
             'UTAH': 'UTA', 'WSH': 'WAS'},
 }
