@@ -174,6 +174,21 @@ jobs:
           done
           ls -lah vizer_nba/data/
 
+      # ── 4 bis. Le modèle servi reçoit-il ses features ? ─────────────────────
+      # La barrière de qualité évalue le modèle tel qu'entraîné, jamais tel que
+      # servi. Les deux chemins avaient divergé : sept différentiels n'étaient
+      # déclarés nulle part pour la prédiction, `reindex(fill_value=0)` les
+      # inventait à zéro, et le modèle décidait sur huit features sur seize —
+      # 38 % de son pouvoir explicatif perdu sans qu'aucun test ne rougisse.
+      #
+      # Le contrôle ne bloque pas la publication : des prédictions dégradées
+      # valent mieux qu'une app vide. Mais il rend le run rouge (step 8), et
+      # l'écran Admin affiche l'état des runs.
+      - name: Vérifier les features servies
+        run: |
+          python scripts/check_serving_features.py --sport nhl --verbose \
+            || echo "SERVING_SKEW=nhl" >> "$GITHUB_ENV"
+
       # ── 5. Prédictions ───────────────────────────────────────────────────────
       # Un échec sur un sport ne bloque pas l'autre : on publie ce qui a réussi,
       # et le job est marqué en échec à la fin (step 8) si un sport a échoué.
@@ -332,8 +347,16 @@ jobs:
           echo "  Vizer Daily Predictions — Bilan"
           echo "  Sport demandé : ${SPORT_INPUT}"
           echo "  Publiés       : $(ls /tmp/preds 2>/dev/null || echo aucun)"
+          if [ -n "${SERVING_SKEW}" ]; then
+            echo "  ⚠️  Features manquantes au service : ${SERVING_SKEW}"
+            echo "     Les prédictions publiées sont dégradées — voir le log"
+            echo "     de l'étape « Vérifier les features servies »."
+          fi
           if [ -n "${FAILED_SPORTS}" ]; then
             echo "  ❌ Échec sur :${FAILED_SPORTS}"
+            exit 1
+          fi
+          if [ -n "${SERVING_SKEW}" ]; then
             exit 1
           fi
           echo "  ✅ Tout est passé"

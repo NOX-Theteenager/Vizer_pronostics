@@ -164,9 +164,42 @@ def compute_team_elos(
 # Reprend exactement la configuration du notebook 03 (CANDIDATE_FEATURES).
 
 # Features récupérées depuis les colonnes _home/_away post-agrégation
+#
+# ⚠ Cette table n'est pas qu'une commodité d'entraînement : c'est elle qui
+# permet de **reconstruire une feature au moment de servir**.
+#
+# Les huit diffs ci-dessous arrivent déjà calculés dans
+# `dataset_agrege_vizer_nhl.csv`, produit par la préparation sur le PC. À
+# l'entraînement, `fit_transform` les trouve et passe son chemin. En
+# prédiction, il n'y a pas de CSV : `TeamStateBuilder` reconstitue les
+# colonnes `_home`/`_away` d'un matchup à venir, et seule cette table dit
+# comment en retirer le différentiel.
+#
+# Cinq d'entre eux y manquaient, plus `diff_goalie_impact` dont dépendent les
+# deux interactions. Les features correspondantes n'étaient donc
+# jamais calculées en production, et `reindex(fill_value=0)` les remplissait
+# de zéros en silence — 38 % du pouvoir explicatif du modèle (mesuré sur les
+# gains du booster) perdus entre l'entraînement et la prédiction, sans que
+# rien ne le signale.
+#
+# Les formules ont été retrouvées en comparant chaque diff du CSV à toutes
+# les paires `_home`/`_away` disponibles, pas devinées d'après les noms.
+#
+# **Règle : toute feature du modèle doit figurer ici ou dans
+# MULTI_WINDOW_DIFFS, sans quoi elle vaudra zéro en production.** Le contrôle
+# `scripts/check_serving_features.py` le vérifie.
 RECOVERED_DIFFS: List[Tuple[str, str, str]] = [
     ('avg_HDcf_10_home', 'avg_HDcf_10_away', 'diff_HDcf'),
     ('avg_panic_score_10_home', 'avg_panic_score_10_away', 'diff_panic_score'),
+    # ── Ajoutés le 14/10/2026 : absents, donc nuls en production ──────────
+    ('avg_xGF_pct_10_home', 'avg_xGF_pct_10_away', 'diff_xGF_pct'),
+    ('avg_top_line_xGF_10_home', 'avg_top_line_xGF_10_away', 'diff_top_line_xGF'),
+    ('avg_pp_10_home', 'avg_pp_10_away', 'diff_pp'),
+    ('Forme_5_matchs_home', 'Forme_5_matchs_away', 'diff_forme'),
+    ('is_back_to_back_home', 'is_back_to_back_away', 'diff_b2b'),
+    # Ne fait pas partie des features du modèle, mais les deux interactions
+    # en dépendent : sans lui, `interaction_goalie_xgf` reste nulle.
+    ('impact_goalie_home', 'impact_goalie_away', 'diff_goalie_impact'),
 ]
 
 # Differentiels multi-fenêtres
