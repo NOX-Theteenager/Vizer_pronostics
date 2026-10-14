@@ -50,7 +50,7 @@ import argparse
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Optional
 
 from .model_registry import ModelRegistry
 
@@ -58,6 +58,50 @@ from .model_registry import ModelRegistry
 # (`test_auc`). Plutôt que d'imposer une convention à des fichiers qui ont déjà
 # la leur, on accepte les deux.
 _AUC_KEYS = ("auc_test", "test_auc")
+
+# Les marchés non binaires sont des régresseurs : leur qualité ne se lit pas
+# en AUC mais en erreur moyenne et en R². La barrière ne gardait donc qu'un
+# marché sur huit — les sept autres pouvaient se dégrader sans que rien ne
+# l'arrête.
+_MAE_KEYS = ("mae_total_test", "mae_p1_total_test", "test_mae", "mae_test")
+_R2_KEYS = ("r2_total_test", "test_r2", "r2_test")
+
+
+@dataclass
+class Rule:
+    """Un critère et son sens : plancher ou plafond."""
+    label: str
+    keys: tuple[str, ...]
+    bound: float
+    higher_is_better: bool
+
+    def verdict(self, metrics: dict[str, Any]) -> tuple[Optional[float], bool]:
+        """Valeur mesurée et conformité. `None` = métrique absente."""
+        value = _first_number(metrics, self.keys)
+        if value is None:
+            return None, True
+        ok = value >= self.bound if self.higher_is_better else value <= self.bound
+        return value, ok
+
+
+def _first_number(metrics: dict[str, Any], keys: tuple[str, ...]) -> Optional[float]:
+    for key in keys:
+        value = metrics.get(key)
+        if isinstance(value, (int, float)) and value == value:  # écarte NaN
+            return float(value)
+    return None
+
+
+def _rules_for(config: dict[str, Any]) -> list[Rule]:
+    """Critères déclarés pour un marché, dans l'ordre de lecture."""
+    rules: list[Rule] = []
+    if "min_test_auc" in config:
+        rules.append(Rule("AUC", _AUC_KEYS, float(config["min_test_auc"]), True))
+    if "max_test_mae" in config:
+        rules.append(Rule("MAE", _MAE_KEYS, float(config["max_test_mae"]), False))
+    if "min_test_r2" in config:
+        rules.append(Rule("R²", _R2_KEYS, float(config["min_test_r2"]), True))
+    return rules
 
 Verdict = Literal["pass", "fail", "skip"]
 
@@ -139,10 +183,11 @@ class GateResult:
             return "\n".join(lines)
         lines.append(f"  Matchs de test : {self.n_test:,}")
         for c in self.checks:
-            auc = f"{c.auc:.4f}" if c.auc is not None else "n/a"
-            lines.append(f"  {c.symbol} {c.market:14s} AUC={auc:>6s}  plancher={c.floor:.4f}")
-            if c.reason:
-                lines.append(f"      {c.reason}")
+            # Le critère varie selon le marché — AUC pour un classifieur,
+            # erreur moyenne pour un régresseur. On affiche ce qui a été
+            # mesuré plutôt qu'une colonne AUC vide pour six marchés sur sept.
+            detail = c.reason or (f"AUC={c.auc:.4f}" if c.auc is not None else "—")
+            lines.append(f"  {c.symbol} {c.market:16s} {detail}")
         lines.append("─" * 62)
         lines.append("  ✅ ACCEPTÉ" if self.passed else "  ❌ REFUSÉ — déploiement bloqué")
         lines.append("─" * 62)
@@ -174,8 +219,11 @@ def check_registry(registry: ModelRegistry, gate_cfg: dict[str, Any]) -> GateRes
     min_games = int(gate_cfg.get("min_test_games", 0))
     result = GateResult(n_test=n_test)
 
-    for market, rules in (gate_cfg.get("markets") or {}).items():
-        floor = float(rules.get("min_test_auc", 0.0))
+    for market, rules_cfg in (gate_cfg.get("markets") or {}).items():
+        rules = _rules_for(rules_cfg)
+        # Compatibilité : un marché sans critère déclaré garde l'ancien
+        # comportement, un plancher d'AUC implicite.
+        floor = float(rules_cfg.get("min_test_auc", 0.0))
 
         if not registry.has(market):
             result.checks.append(MarketCheck(
@@ -185,7 +233,8 @@ def check_registry(registry: ModelRegistry, gate_cfg: dict[str, Any]) -> GateRes
             ))
             continue
 
-        auc = _extract_auc(registry.get_metrics(market))
+        metrics = registry.get_metrics(market)
+        auc = _extract_auc(metrics)
 
         if n_test < min_games:
             result.checks.append(MarketCheck(
@@ -194,21 +243,45 @@ def check_registry(registry: ModelRegistry, gate_cfg: dict[str, Any]) -> GateRes
                 f"mesure trop bruitée pour décider",
                 cause="too_few_test_games",
             ))
-        elif auc is None:
+            continue
+
+        if not rules:
             result.checks.append(MarketCheck(
-                market, "skip", None, floor,
-                "abstention : aucune AUC dans les métriques (jeu de test à une "
-                "seule classe ?)",
-                cause="no_auc",
+                market, "skip", auc, floor,
+                "abstention : aucun critère déclaré pour ce marché",
+                cause="no_rule",
             ))
-        elif auc < floor:
+            continue
+
+        measured: list[str] = []
+        breaches: list[str] = []
+        missing = 0
+        for rule in rules:
+            value, ok = rule.verdict(metrics)
+            if value is None:
+                missing += 1
+                continue
+            measured.append(f"{rule.label}={value:.4f}")
+            if not ok:
+                sense = "sous" if rule.higher_is_better else "au-dessus de"
+                breaches.append(f"{rule.label} {value:.4f} {sense} {rule.bound:.4f}")
+
+        if missing == len(rules):
+            result.checks.append(MarketCheck(
+                market, "skip", auc, floor,
+                "abstention : aucune des métriques attendues n'est présente "
+                "(jeu de test à une seule classe ?)",
+                cause="no_metric",
+            ))
+        elif breaches:
             result.checks.append(MarketCheck(
                 market, "fail", auc, floor,
-                f"sous le plancher de {floor - auc:.4f}",
+                "; ".join(breaches),
                 cause="below_floor",
             ))
         else:
-            result.checks.append(MarketCheck(market, "pass", auc, floor, "", cause="ok"))
+            result.checks.append(MarketCheck(
+                market, "pass", auc, floor, " · ".join(measured), cause="ok"))
 
     return result
 

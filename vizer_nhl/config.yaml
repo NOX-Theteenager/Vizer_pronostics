@@ -190,3 +190,33 @@ quality_gate:
   markets:
     moneyline:
       min_test_auc: 0.55
+
+    # ── Marchés de régression, gardés depuis le 14/10/2026 ───────────────
+    #
+    # La barrière ne surveillait que le moneyline : les sept autres marchés
+    # pouvaient se dégrader indéfiniment sans que rien ne l'arrête. Ils sont
+    # des régresseurs Poisson, donc jugés sur l'erreur moyenne, pas sur l'AUC.
+    #
+    # Ces seuils sont des **détecteurs de décrochage, pas des objectifs de
+    # qualité** : ils sont posés ~20 % au-dessus de la mesure du jour, de quoi
+    # laisser respirer une variation saisonnière tout en attrapant un modèle
+    # qui part en vrille. Mesures du 14/10/2026, sur 852 matchs de test.
+    total:
+      max_test_mae: 2.25       # mesuré 1.870 buts
+      # R² négatif : sur le total de buts, le modèle fait légèrement moins
+      # bien que la simple moyenne. Ce n'est pas aberrant — le total de buts
+      # en hockey est proche du bruit irréductible — mais ça mérite d'être
+      # su, et surtout de ne pas empirer.
+      min_test_r2: -0.15       # mesuré −0.052
+
+    p1_total:
+      max_test_mae: 1.20       # mesuré 0.997 but sur la 1ʳᵉ période
+
+    btts:
+      max_test_mae: 2.25       # partage le moteur Poisson du total
+
+    goal_intervals:
+      max_test_mae: 2.25
+
+    exact_score:
+      max_test_mae: 2.25
