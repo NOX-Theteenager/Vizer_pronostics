@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false --noEmit",
     "icons": "python3 scripts/gen_icons.py",
-    "test": "node scripts/selftest.mjs"
+    "test": "node scripts/selftest.mjs",
+    "logos": "python3 scripts/fetch_team_logos.py"
   },
   "dependencies": {
     "react": "^19.1.0",

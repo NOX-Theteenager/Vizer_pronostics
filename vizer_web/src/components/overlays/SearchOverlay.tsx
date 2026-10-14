@@ -5,7 +5,7 @@ import { dayPhrase, formatTime } from '../../lib/format';
 import { KEYS, readJson, writeJson } from '../../lib/storage';
 import { SPORTS, type Game } from '../../types/model';
 import { IconChevronLeft, IconChevronRight, IconClock, IconMic, IconSearch, IconX } from '../Icons';
-import { LeagueTag } from '../Primitives';
+import { TeamLogo } from '../TeamLogo';
 
 /** Minimum nécessaire de l'API Web Speech (non typée par TS). */
 interface SpeechRecognitionLike {
@@ -151,7 +151,10 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
               <div className="vz-stack">
                 {results.map((g) => (
                   <button key={g.id} type="button" className="vz-sres" onClick={() => openGame(g)}>
-                    <LeagueTag sport={g.sport} />
+                    <span className="vz-sres__logos">
+                      <TeamLogo sport={g.sport} code={g.home} size={24} />
+                      <TeamLogo sport={g.sport} code={g.away} size={24} />
+                    </span>
                     <span className="vz-f1">
                       <strong className="vz-ellipsis">
                         {g.homeName} — {g.awayName}

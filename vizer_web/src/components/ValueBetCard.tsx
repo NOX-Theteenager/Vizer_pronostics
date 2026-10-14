@@ -13,6 +13,7 @@ import {
   formatTime,
 } from '../lib/format';
 import type { ValueBet } from '../types/model';
+import { TeamLogo } from './TeamLogo';
 import { IconBolt, IconCheck, IconInfo, IconPlus, IconTicket } from './Icons';
 import { ConfidenceChip, LeagueTag } from './Primitives';
 
@@ -90,8 +91,9 @@ export function ValueBetCard({
           </div>
           <div className="vz-vb__match">
             <LeagueTag sport={bet.sport} />
-            {bet.away}–{bet.home} · {dayPhrase(bet.commenceTime)}{' '}
-            {formatTime(bet.commenceTime)}
+            <TeamLogo sport={bet.sport} code={bet.away} size={18} />
+            <TeamLogo sport={bet.sport} code={bet.home} size={18} />
+            {dayPhrase(bet.commenceTime)} {formatTime(bet.commenceTime)}
           </div>
         </div>
       </button>

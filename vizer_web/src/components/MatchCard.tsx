@@ -4,6 +4,7 @@ import { useSettings } from '../context/SettingsContext';
 import { dayPhrase, formatOdds, formatProbaBare, formatTime, isPast, probaToOdds } from '../lib/format';
 import type { Game } from '../types/model';
 import { LeagueTag } from './Primitives';
+import { TeamLogo } from './TeamLogo';
 
 /**
  * Carte match — « arène » aux couleurs des deux équipes, avec la courbe de
@@ -39,11 +40,11 @@ export function MatchCard({ game, index = 0 }: { game: Game; index?: number }) {
         <span className="vz-arena__vs">VS</span>
 
         <div className="vz-arena__team vz-arena__team--left">
-          <strong>{game.home}</strong>
+          <TeamLogo sport={game.sport} code={game.home} size={38} />
           <span>{game.homeName}</span>
         </div>
         <div className="vz-arena__team vz-arena__team--right">
-          <strong>{game.away}</strong>
+          <TeamLogo sport={game.sport} code={game.away} size={38} />
           <span>{game.awayName}</span>
         </div>
 

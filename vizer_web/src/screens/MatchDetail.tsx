@@ -1,5 +1,6 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArenaCurve } from '../components/MatchCard';
+import { TeamLogo } from '../components/TeamLogo';
 import { FactorsCard, HeadToHeadCard, RecentForm } from '../components/MatchContext';
 import { MarketCard } from '../components/MarketCard';
 import { IconBolt, IconPlus } from '../components/Icons';
@@ -81,12 +82,12 @@ export function MatchDetail({
         <span className="vz-arena__vs vz-arena__vs--xl">VS</span>
 
         <div className="vz-arena__team vz-arena__team--left vz-arena__team--xl">
-          <strong>{game.home}</strong>
+          <TeamLogo sport={game.sport} code={game.home} size={52} />
           <span>{game.homeName}</span>
           <small>DOMICILE</small>
         </div>
         <div className="vz-arena__team vz-arena__team--right vz-arena__team--xl">
-          <strong>{game.away}</strong>
+          <TeamLogo sport={game.sport} code={game.away} size={52} />
           <span>{game.awayName}</span>
           <small>EXTÉRIEUR</small>
         </div>

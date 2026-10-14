@@ -5,6 +5,7 @@ import { formatShortDate } from '../lib/format';
 import { useSettings } from '../context/SettingsContext';
 import { teamColor, teamName } from '../data/teams';
 import type { Factor, Game, HeadToHead, TeamForm } from '../types/model';
+import { TeamLogo } from './TeamLogo';
 
 /**
  * Forme récente · confrontations directes · facteurs du modèle.
@@ -134,7 +135,7 @@ export function FactorsCard({ game }: { game: Game }) {
             <div className="vz-factor" key={f.feature}>
               <div className="vz-factor__head">
                 <span className="vz-factor__team" style={{ background: color }}>
-                  {code}
+                  <TeamLogo sport={game.sport} code={code} size={22} />
                 </span>
                 <div className="vz-f1">
                   <strong>{f.label}</strong>

@@ -281,7 +281,27 @@ store : un second appel du cron ne renotifie personne, ce qui protège aussi
 une URL publiquement joignable. Les abonnements expirés (404/410) sont retirés
 au lieu d'être réessayés indéfiniment.
 
-### Le logo
+### Les logos d'équipes
+
+`npm run logos` récupère les 62 logos NHL et NBA et les range dans
+`public/logos/<sport>/<CODE>.png`, réduits à 80 px — environ 480 ko au total,
+chargés à la demande et mis en cache par le service worker.
+
+**Ils sont hébergés, pas pointés.** Les référencer sur le CDN d'ESPN ajouterait
+une origine tierce à chaque écran : requêtes non maîtrisées, rien hors-ligne,
+et un tiers qui voit passer la navigation de chaque utilisateur. Toute
+l'architecture consiste à l'éviter.
+
+Ce sont des marques déposées des franchises : les héberger dans une
+application publique est une décision du propriétaire du projet. Le repli
+monogramme (`TeamLogo` → pastille colorée) reste en place, donc retirer le
+dossier `public/logos/` ramène l'app à son état précédent sans rien casser.
+
+Les logos sont posés sur un disque clair dans les cartes : ils sont dessinés
+pour un fond blanc, et plusieurs disparaissent sur le dégradé de leur propre
+équipe — l'aigle sombre des Capitals sur rouge, l'étoile des Stars sur vert.
+
+### Le logo de l'app
 
 `assets/VizerLogo.png` est la source unique. `npm run icons` en tire la marque
 de l'app (`src/assets/vizer-logo.png`) et les cinq icônes PWA : **remplacer ce

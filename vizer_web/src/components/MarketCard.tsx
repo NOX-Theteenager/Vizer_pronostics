@@ -1,7 +1,8 @@
 import { useSettings } from '../context/SettingsContext';
 import { formatNumber, formatProbaBare } from '../lib/format';
 import type { MarketView } from '../types/model';
-import { ConfidenceChip, MiniBar, Pastille, ProbBars } from './Primitives';
+import { ConfidenceChip, MiniBar, ProbBars } from './Primitives';
+import { TeamLogo } from './TeamLogo';
 import type { Sport } from '../types/model';
 
 /**
@@ -55,7 +56,7 @@ export function MarketCard({ market, sport }: { market: MarketView; sport: Sport
         <div className="vz-mk__rows">
           {(market.teamTotals ?? []).map((t) => (
             <div className="vz-mk__row" key={t.team}>
-              <Pastille sport={sport} code={t.team} size={32} />
+              <TeamLogo sport={sport} code={t.team} size={32} />
               <div className="vz-f1">
                 <div className="vz-mk__rowHead">
                   <span>
@@ -78,7 +79,7 @@ export function MarketCard({ market, sport }: { market: MarketView; sport: Sport
         <div className="vz-mk__rows">
           {(market.talent ?? []).map((t) => (
             <div className="vz-mk__row" key={t.team}>
-              <Pastille sport={sport} code={t.team} size={32} />
+              <TeamLogo sport={sport} code={t.team} size={32} />
               <div className="vz-f1">
                 <div className="vz-mk__rowHead">
                   <strong>{t.teamName}</strong>

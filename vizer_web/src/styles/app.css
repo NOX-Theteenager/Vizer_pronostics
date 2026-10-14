@@ -3331,3 +3331,78 @@ code {
 }
 
 .vz-arena__live--xl strong { font-size: 19px; }
+
+/* ── Logo d'équipe ───────────────────────────────────────────────────────
+   Taille imposée par l'appelant : les logos officiels ont des proportions
+   très variables (un écusson vertical, une typo horizontale), `contain` les
+   fait tenir dans le même carré sans jamais les déformer. L'ombre portée les
+   détache des fonds colorés des cartes, où certains logos sombres se
+   perdraient. */
+.vz-teamlogo {
+  display: block;
+  flex: none;
+  object-fit: contain;
+  user-select: none;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+}
+
+/* ── Logos dans l'arène ──────────────────────────────────────────────────
+   Le logo remplace le code d'équipe en tête de bloc. Côté droit, le bloc est
+   aligné à droite : l'image, qui est `display: block`, doit suivre sinon elle
+   reste collée à gauche de son conteneur.
+
+   La pastille claire n'est pas une coquetterie : les logos sont dessinés pour
+   un fond blanc, et plusieurs disparaissent sur le dégradé de leur propre
+   équipe — l'aigle sombre des Capitals sur rouge, l'étoile blanche des Stars
+   sur vert. Un disque neutre leur rend à tous le même contraste. */
+.vz-arena__team .vz-teamlogo {
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.93);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  filter: none;
+}
+
+.vz-arena__team .vz-teamlogo,
+.vz-arena__team .vz-pastille {
+  margin-bottom: 3px;
+}
+
+.vz-arena__team--right .vz-teamlogo,
+.vz-arena__team--right .vz-pastille {
+  margin-left: auto;
+}
+
+/* Le pavé coloré du facteur devient un porte-logo : il garde la couleur de
+   l'équipe comme repère, le logo s'y pose au centre. */
+.vz-factor__team {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Deux logos côte à côte, légèrement chevauchants : la paire se lit comme
+   une rencontre, pas comme deux icônes alignées. */
+.vz-vb__match .vz-teamlogo + .vz-teamlogo,
+.vz-sres__logos .vz-teamlogo + .vz-teamlogo {
+  margin-left: -6px;
+}
+
+/* Même disque clair que dans l'arène, et pour la même raison : sur une carte
+   sombre, un logo sombre — l'étoile des Stars, les Spurs — devient une tache
+   illisible. Le disque garantit le contraste quel que soit le logo. */
+.vz-vb__match .vz-teamlogo,
+.vz-sres__logos .vz-teamlogo {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.93);
+  border-radius: 50%;
+  filter: none;
+}
+
+.vz-sres__logos {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+}
