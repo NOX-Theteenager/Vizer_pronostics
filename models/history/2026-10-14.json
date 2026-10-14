@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-14T10:27:13+00:00",
+  "generated_at": "2026-10-14T19:44:24+00:00",
   "models": {
     "nhl": {
       "sport": "nhl",
@@ -12,9 +12,10 @@
         "moneyline",
         "p1_btts",
         "p1_total",
-        "p1_winner"
+        "p1_winner",
+        "total"
       ],
-      "n_markets": 7,
+      "n_markets": 8,
       "metrics": {
         "moneyline": {
           "n_train": 18050.0,
@@ -29,6 +30,22 @@
           "brier_calibrated_test": 0.0,
           "temperature": 1.132893,
           "n_features": 16.0
+        },
+        "total": {
+          "n_train": 18050.0,
+          "n_val": 3185.0,
+          "n_test": 0.0,
+          "mae_home_test": 0.0,
+          "mae_away_test": 0.0,
+          "mae_total_test": 0.0,
+          "rmse_total_test": 0.0,
+          "r2_total_test": 0.0,
+          "lambda_home_mean": 0.0,
+          "lambda_away_mean": 0.0,
+          "n_features": 16.0,
+          "best_iter_home": 363.0,
+          "best_iter_away": 405.0,
+          "model_type": "poisson_xgb_independent"
         },
         "btts": {
           "n_train": 18050.0,
@@ -124,7 +141,7 @@
           "model_type": "poisson_xgb_independent"
         }
       },
-      "trained_at": "2026-10-14T07:45:29+00:00",
+      "trained_at": "2026-10-14T19:36:22+00:00",
       "model_version": "v2026.10.14",
       "training_mode": "full",
       "metrics_in_sample": true,
@@ -132,7 +149,7 @@
       "test_year": null,
       "n_games_train": 21235,
       "n_games_test": 0,
-      "training_duration_sec": 8.390977144241333,
+      "training_duration_sec": 9.048079490661621,
       "p1_mode": "dedicated"
     },
     "nba": {
@@ -210,7 +227,7 @@
           "feature_importance": "                    feature  importance\n8           AWAY_PTS_AVG_5G    0.055812\n38         AWAY_PTS_AVG_10G    0.042238\n68         AWAY_PTS_AVG_20G    0.034682\n95  HOME_DEF_RATING_AVG_20G    0.028740\n35   HOME_DEF_RATING_AVG_5G    0.025444\n..                      ...         ...\n9        HOME_FG_PCT_AVG_5G    0.004653\n17          HOME_AST_AVG_5G    0.004305\n3            HOME_REST_DAYS    0.002912\n5                  HOME_B2B    0.000000\n6                  AWAY_B2B    0.000000\n\n[97 rows x 2 columns]"
         }
       },
-      "trained_at": "2026-10-14T07:47:37+00:00",
+      "trained_at": "2026-10-14T19:38:44+00:00",
       "model_version": "v2026.10.14",
       "training_mode": "full",
       "metrics_in_sample": true,
@@ -218,7 +235,7 @@
       "test_season": "None",
       "n_games_train": 8795,
       "n_games_test": 0,
-      "training_duration_sec": 60.93120336532593,
+      "training_duration_sec": 66.00704956054688,
       "models_trained": [
         "win",
         "total",

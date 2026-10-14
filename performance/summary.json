@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-10-14T11:23:49+00:00",
+  "generated_at": "2026-10-14T19:44:25+00:00",
   "min_sample": 20,
   "sports": {
     "nhl": {
-      "n_games_predicted": 107,
+      "n_games_predicted": 118,
       "n_games_settled": 105,
       "from": "2026-09-29",
       "to": "2026-10-14",
@@ -139,7 +139,8 @@
         "hit_rate": 0.4557,
         "avg_edge": 0.0962,
         "roi_flat": -0.0549,
-        "roi_kelly": -0.066
+        "roi_kelly": -0.066,
+        "avg_disagreement": null
       },
       "value_bets_by_market": {
         "moneyline": {
@@ -148,7 +149,8 @@
           "hit_rate": 0.3922,
           "avg_edge": 0.0909,
           "roi_flat": -0.149,
-          "roi_kelly": -0.186
+          "roi_kelly": -0.186,
+          "avg_disagreement": null
         },
         "total": {
           "n": 28,
@@ -156,7 +158,8 @@
           "hit_rate": 0.5714,
           "avg_edge": 0.106,
           "roi_flat": 0.1164,
-          "roi_kelly": 0.1004
+          "roi_kelly": 0.1004,
+          "avg_disagreement": null
         }
       }
     },
