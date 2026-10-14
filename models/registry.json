@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-13T23:33:09+00:00",
+  "generated_at": "2026-10-14T07:51:27+00:00",
   "models": {
     "nhl": {
       "sport": "nhl",
@@ -124,17 +124,16 @@
           "model_type": "poisson_xgb_independent"
         }
       },
+      "trained_at": "2026-10-14T07:45:29+00:00",
+      "model_version": "v2026.10.14",
       "training_mode": "full",
       "metrics_in_sample": true,
       "train_until_year": 2026,
       "test_year": null,
       "n_games_train": 21235,
       "n_games_test": 0,
-      "training_duration_sec": 9.340441703796387,
-      "p1_mode": "dedicated",
-      "trained_at": "2026-10-13T23:32:37+00:00",
-      "trained_at_source": "file_mtime",
-      "model_version": "v2026.10.13"
+      "training_duration_sec": 8.390977144241333,
+      "p1_mode": "dedicated"
     },
     "nba": {
       "sport": "nba",
@@ -211,13 +210,15 @@
           "feature_importance": "                    feature  importance\n8           AWAY_PTS_AVG_5G    0.055812\n38         AWAY_PTS_AVG_10G    0.042238\n68         AWAY_PTS_AVG_20G    0.034682\n95  HOME_DEF_RATING_AVG_20G    0.028740\n35   HOME_DEF_RATING_AVG_5G    0.025444\n..                      ...         ...\n9        HOME_FG_PCT_AVG_5G    0.004653\n17          HOME_AST_AVG_5G    0.004305\n3            HOME_REST_DAYS    0.002912\n5                  HOME_B2B    0.000000\n6                  AWAY_B2B    0.000000\n\n[97 rows x 2 columns]"
         }
       },
+      "trained_at": "2026-10-14T07:47:37+00:00",
+      "model_version": "v2026.10.14",
       "training_mode": "full",
       "metrics_in_sample": true,
       "train_seasons": "22021-22025",
       "test_season": "None",
       "n_games_train": 8795,
       "n_games_test": 0,
-      "training_duration_sec": 66.393794298172,
+      "training_duration_sec": 60.93120336532593,
       "models_trained": [
         "win",
         "total",
@@ -225,10 +226,7 @@
         "home_team_total",
         "away_team_total"
       ],
-      "models_failed": [],
-      "trained_at": "2026-10-13T23:32:37+00:00",
-      "trained_at_source": "file_mtime",
-      "model_version": "v2026.10.13"
+      "models_failed": []
     }
   }
 }
