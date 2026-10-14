@@ -29,10 +29,13 @@ from src.api.publication import books_for_bet, match_context
 from src.api.value_finder import find_value_bets, value_bet_to_dict
 
 try:
-    from src.api.nba_schedule import NBAScheduleClient, NBAScheduleError
+    from src.api.nba_schedule import (
+        NBAScheduleClient, NBAScheduleError, espn_today_games,
+    )
 except Exception:
     NBAScheduleClient = None
     NBAScheduleError = Exception
+    espn_today_games = None
 
 try:
     from vizer_core import DirectionGuard, load_config
@@ -97,7 +100,41 @@ def main():
     # Index des cotes par (home, away) pour croisement
     odds_by_matchup = {(g.home, g.away): g for g in odds_games}
 
-    # ── Détection des matchs : NBA API officielle d'abord ──
+    # ── Détection des matchs ──────────────────────────────────────────────
+    #
+    # Trois sources, dans cet ordre, et chacune a sa raison d'être :
+    #
+    # 1. `cdn.nba.com` — horaires et statuts officiels, mais répond 403 depuis
+    #    une IP de datacenter, donc depuis un runner GitHub.
+    # 2. ESPN — joignable partout, déjà la source des scores finaux du projet.
+    # 3. Odds API — ne voit un match que si un bookmaker a ouvert un marché
+    #    dessus, donc perd les matchs sans cotes.
+    #
+    # Les trois sont nécessaires parce que la défaillance de la première est
+    # silencieuse : sans la deuxième, un hors-saison et un détecteur en panne
+    # produisent la même sortie — `no games` — et c'est l'état dans lequel la
+    # NBA est restée 97 jours sans qu'on puisse le savoir.
+    def _merge(sched: list, source: str) -> list:
+        """Croise des matchs détectés avec les cotes disponibles."""
+        out: list = []
+        for sg in sched:
+            go = odds_by_matchup.get((sg.home, sg.away))
+            if go is not None:
+                go.commence_time = go.commence_time or sg.game_time_utc
+                out.append(go)
+            else:
+                # Match détecté sans cotes : prédiction seule, pas de value bet.
+                out.append(GameOdds(
+                    home=sg.home, away=sg.away,
+                    commence_time=sg.game_time_utc,
+                    home_full=code_to_team_name(sg.home),
+                    away_full=code_to_team_name(sg.away),
+                    bookmakers=[],
+                ))
+        print(f"  ✓ {len(out)} matchs détectés via {source} "
+              f"({sum(1 for g in out if g.bookmakers)} avec cotes)", file=sys.stderr)
+        return out
+
     games: list = []
     detection_source = None
     if not args.no_nba_api and NBAScheduleClient is not None:
@@ -106,32 +143,25 @@ def main():
             sched = NBAScheduleClient().get_today_games()
             if sched:
                 detection_source = "NBA API"
-                # Construire des GameOdds en fusionnant avec les cotes Odds API
-                for sg in sched:
-                    key = (sg.home, sg.away)
-                    if key in odds_by_matchup:
-                        # On a les cotes pour ce match
-                        go = odds_by_matchup[key]
-                        go.commence_time = go.commence_time or sg.game_time_utc
-                        games.append(go)
-                    else:
-                        # Match détecté sans cotes (prédiction seule)
-                        games.append(GameOdds(
-                            home=sg.home, away=sg.away,
-                            commence_time=sg.game_time_utc,
-                            home_full=code_to_team_name(sg.home),
-                            away_full=code_to_team_name(sg.away),
-                            bookmakers=[],
-                        ))
-                print(f"  ✓ {len(games)} matchs détectés via NBA API "
-                      f"({sum(1 for g in games if g.bookmakers)} avec cotes)",
-                      file=sys.stderr)
+                games = _merge(sched, detection_source)
             else:
                 print("  ℹ️  Aucun match NBA aujourd'hui (via NBA API).", file=sys.stderr)
         except NBAScheduleError as e:
-            print(f"  ⚠️  NBA API indisponible ({e}), repli sur Odds API.", file=sys.stderr)
+            print(f"  ⚠️  NBA API indisponible ({e})", file=sys.stderr)
 
-    # ── Fallback : Odds API si NBA API n'a rien donné ──
+    if not games and not args.no_nba_api and espn_today_games is not None:
+        print("🏀 Détection des matchs via ESPN...", file=sys.stderr)
+        try:
+            sched = espn_today_games()
+            if sched:
+                detection_source = "ESPN"
+                games = _merge(sched, detection_source)
+            else:
+                print("  ℹ️  Aucun match NBA aujourd'hui (via ESPN).", file=sys.stderr)
+        except NBAScheduleError as e:
+            print(f"  ⚠️  ESPN indisponible ({e})", file=sys.stderr)
+
+    # ── Dernier recours : Odds API, si aucun calendrier n'a répondu ──
     if not games:
         if odds_games:
             detection_source = "Odds API (fallback)"
@@ -139,9 +169,20 @@ def main():
             print(f"  ✓ {len(games)} matchs détectés via Odds API (fallback)",
                   file=sys.stderr)
         else:
-            print("ℹ️  Aucun match NBA détecté (hors-saison ?).", file=sys.stderr)
+            # Les trois sources sont muettes. Deux lectures possibles — pas de
+            # match ce jour, ou trois pannes simultanées — et le message les
+            # distingue, parce que `no games` publié sans contexte a laissé la
+            # NBA invisible pendant trois mois.
+            print("ℹ️  Aucun match détecté par aucune des trois sources.",
+                  file=sys.stderr)
+            print("    Calendrier NBA officiel, ESPN et Odds API muets : jour "
+                  "sans match, ou hors-saison.", file=sys.stderr)
             if args.json:
-                print(json.dumps({'games': [], 'message': 'no games'}, indent=2))
+                print(json.dumps({
+                    'games': [],
+                    'message': 'no games',
+                    'detection_source': 'aucune (3 sources interrogées)',
+                }, indent=2))
             return 0
 
     print(f"\n  📍 Source de détection : {detection_source}\n", file=sys.stderr)

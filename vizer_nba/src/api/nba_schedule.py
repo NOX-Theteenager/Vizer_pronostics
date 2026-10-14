@@ -176,3 +176,57 @@ class NBAScheduleClient:
                     status="scheduled",
                 ))
         return all_games
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Recours ESPN
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# `cdn.nba.com` répond **403 depuis une IP de datacenter** — donc depuis un
+# runner GitHub — et aussi depuis certaines IP résidentielles hors Amérique du
+# Nord. Mesuré, pas supposé : le 403 tombe quels que soient le User-Agent, le
+# Referer et l'Origin.
+#
+# Conséquence si on s'arrête là : la détection se rabat sur Odds API, qui ne
+# voit un match que si un bookmaker a ouvert un marché dessus. Les matchs sans
+# cotes disparaissent, et un hors-saison est indistinguable d'un détecteur en
+# panne — les deux publient `no games`. C'est exactement l'état dans lequel la
+# NBA se trouvait : 97 jours d'archive, zéro prédiction, aucune façon de
+# savoir si le chemin fonctionnait.
+#
+# ESPN répond dans les deux cas, est déjà la source des scores finaux du
+# projet, et ses six écarts d'abréviation sont vérifiés contre `NBA_TEAMS.csv`
+# (cf. `vizer_core/espn.py`).
+
+def espn_today_games(timeout: int = 20) -> list[ScheduledGame]:
+    """
+    Matchs NBA non commencés de la journée américaine courante, via ESPN.
+
+    Même type de retour que `NBAScheduleClient.get_today_games()`, pour être
+    interchangeable à l'appel.
+
+    Raises:
+        NBAScheduleError si ESPN est injoignable.
+    """
+    from datetime import date as _date
+
+    try:
+        from vizer_core.espn import upcoming
+    except ImportError as e:   # pragma: no cover
+        raise NBAScheduleError(f"vizer_core indisponible : {e}") from e
+
+    try:
+        rows = upcoming('nba', _date.today(), timeout=timeout)
+    except Exception as e:
+        raise NBAScheduleError(f"ESPN injoignable : {type(e).__name__}: {e}") from e
+
+    return [
+        ScheduledGame(
+            home=row['home'],
+            away=row['away'],
+            game_time_utc=row.get('commence_time') or '',
+            game_id=row.get('event_id') or '',
+            status='scheduled',
+        )
+        for row in rows
+    ]

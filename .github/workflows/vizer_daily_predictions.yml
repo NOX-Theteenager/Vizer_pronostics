@@ -200,10 +200,19 @@ jobs:
       # Le contrôle ne bloque pas la publication : des prédictions dégradées
       # valent mieux qu'une app vide. Mais il rend le run rouge (step 8), et
       # l'écran Admin affiche l'état des runs.
+      #
+      # Les deux sports sont contrôlés. La NBA l'a été plus tard, et elle
+      # portait le même défaut sous une autre forme : `SEASON_AVG_TOTAL` valait
+      # 398 points au service contre 231 à l'entraînement, parce que le dataset
+      # de la saison 2025-26 comptait 1 780 matchs deux fois et que le
+      # dédoublonnage n'existait que du côté entraînement.
       - name: Vérifier les features servies
         run: |
-          python scripts/check_serving_features.py --sport nhl --verbose \
-            || echo "SERVING_SKEW=nhl" >> "$GITHUB_ENV"
+          SKEW=""
+          python scripts/check_serving_features.py --sport nhl --verbose || SKEW="$SKEW nhl"
+          python scripts/check_serving_features.py --sport nba --verbose || SKEW="$SKEW nba"
+          [ -n "$SKEW" ] && echo "SERVING_SKEW=${SKEW# }" >> "$GITHUB_ENV"
+          true
 
       # ── 4 ter. Verdict directionnel de la veille ─────────────────────────────
       # Un marché qui ne parie jamais que d'un côté ne produit pas N paris

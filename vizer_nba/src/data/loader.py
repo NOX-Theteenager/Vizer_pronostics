@@ -1,6 +1,7 @@
 """
 Data Loader - Chargement simple des datasets NBA
 """
+import sys
 import pandas as pd
 from pathlib import Path
 from typing import Optional
@@ -30,6 +31,43 @@ def normalize_team_abbreviation(abbrev: str) -> str:
     return TEAM_ABBREVIATION_MAPPING.get(abbrev, abbrev)
 
 
+def _dedupe_games(df: pd.DataFrame, label: str) -> pd.DataFrame:
+    """
+    Une ligne par (match, équipe). Jamais deux.
+
+    Pourquoi c'est ici et pas à l'appel : la déduplication existait côté
+    entraînement (`features/engineer.py`) et **pas** côté prédiction. Le
+    dataset de la saison 2025-26 est arrivé avec 1 780 lignes dupliquées sur
+    4 240 — chaque match compté deux fois. Conséquences mesurées :
+
+    - `SEASON_AVG_TOTAL` valait **398 points en production contre 231 à
+      l'entraînement**, parce que la somme par `GAME_ID` additionnait les
+      lignes en double. C'est une des 97 features du modèle de victoire.
+    - les moyennes glissantes « sur les 5 derniers matchs » ne portaient que
+      sur deux ou trois matchs réels, chacun compté deux fois.
+
+    Le modèle décidait donc sur des valeurs que l'entraînement ne lui avait
+    jamais montrées, sans qu'aucun test ne rougisse. C'est la troisième fois
+    que ce projet rencontre cette forme de défaut ; la réponse est la même que
+    les deux précédentes — faire porter la garantie par le chemin commun, pas
+    par chaque appelant.
+
+    La duplication amont reste à corriger (`update_data.py` et le dataset
+    Kaggle). Ce filet ne la masque pas : il la signale sur stderr.
+    """
+    keys = [c for c in ('GAME_ID', 'TEAM_ID') if c in df.columns]
+    if len(keys) < 2:
+        return df
+    before = len(df)
+    df = df.drop_duplicates(subset=keys)
+    removed = before - len(df)
+    if removed:
+        print(f"  ⚠️  {label} : {removed} ligne(s) dupliquée(s) sur {before} "
+              f"écartée(s) — une seule ligne par (match, équipe).",
+              file=sys.stderr)
+    return df
+
+
 class NBADataLoader:
     """Charge les datasets NBA depuis les fichiers CSV"""
     
@@ -52,7 +90,8 @@ class NBADataLoader:
             DataFrame avec tous les matchs
         """
         df = pd.read_csv(self.data_dir / "NBA_GAMES.csv")
-        
+        df = _dedupe_games(df, "NBA_GAMES.csv")
+
         if parse_dates and 'GAME_DATE' in df.columns:
             df['GAME_DATE'] = pd.to_datetime(df['GAME_DATE'])
         

@@ -38,12 +38,37 @@ export interface BetPerformance {
   roi_kelly?: number | null;
 }
 
+/**
+ * Décalage de niveau d'une prédiction ponctuelle (total de buts, de points,
+ * total d'équipe) face au réel.
+ *
+ * Sépare « le modèle se trompe » de « le modèle se trompe toujours du même
+ * côté », qui n'appellent pas la même correction. Un Brier ne distingue pas
+ * les deux : un modèle qui annonce un demi-but de trop à chaque match peut
+ * rester bien classé tout en étant inexploitable.
+ */
+export interface LevelPerformance {
+  n: number;
+  insufficient?: boolean;
+  mean_predicted?: number;
+  mean_actual?: number;
+  /** Prédit − réel. Négatif = le modèle annonce moins que ce qui arrive. */
+  bias?: number;
+  mae?: number;
+  sd?: number;
+  stderr?: number | null;
+  /** Nombre d'erreurs-types entre le biais et zéro. Au-delà de 2, ce n'est plus du hasard. */
+  z?: number | null;
+}
+
 export interface SportPerformance {
   n_games_predicted: number;
   n_games_settled: number;
   from: string | null;
   to: string | null;
   markets: Record<string, MarketPerformance>;
+  /** Absent des résumés produits avant la mise en place de cette mesure. */
+  levels?: Record<string, LevelPerformance>;
   value_bets: BetPerformance;
   value_bets_by_market: Record<string, BetPerformance>;
 }

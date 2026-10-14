@@ -264,10 +264,10 @@ d'abstention, tous volontaires — règle de règlement variable selon le
 bookmaker, ligne entière tombée pile (push), score exact ou intervalle de buts
 après prolongation.
 
-### Deux pièges du couple entraînement / service
+### Les pièges du couple entraînement / service
 
-Les deux ont la même forme — un processus vert, et quelque chose qui disparaît
-en silence. Les deux ont coûté cher avant d'être vus.
+Ils ont la même forme — un processus vert, et quelque chose qui disparaît en
+silence. Chacun a coûté cher avant d'être vu.
 
 **1. Une feature déclarée nulle part vaut zéro, sans bruit.**
 
@@ -283,6 +283,24 @@ production**.
 > **Règle : toute feature du modèle doit être déclarée dans une table de
 > diffs.** `scripts/check_serving_features.py` le vérifie, et tourne dans le
 > job quotidien.
+
+**1 bis. Une feature peut exister des deux côtés et ne pas porter la même
+chose.** Variante NBA du même piège, trouvée en répétant le chemin de
+prédiction avant l'ouverture de la saison. `SEASON_AVG_TOTAL` valait **398
+points au service contre 231 à l'entraînement** : le dataset de la saison
+2025-26 comptait 1 780 de ses 2 460 lignes deux fois, et le dédoublonnage
+n'existait que côté entraînement (`features/engineer.py`). Les moyennes
+glissantes « sur les 5 derniers matchs » ne portaient donc que sur deux ou
+trois matchs réels, et la probabilité de victoire descendait jusqu'à 1,65 % —
+une valeur qui n'existe pas en NBA.
+
+> **Règle : la garantie se place sur le chemin commun, pas chez l'appelant.**
+> Le dédoublonnage est descendu dans `vizer_nba/src/data/loader.py`, qui sert
+> les deux chemins, et il signale ce qu'il écarte au lieu de le corriger en
+> silence. `check_serving_features.py --sport nba` compare en plus les valeurs
+> **d'un matchup à l'autre** : une feature identique sur six affiches ne porte
+> aucune information, qu'elle soit nulle ou non — c'est ce signal qui a révélé
+> celle-ci.
 
 **2. Les réglages d'un marché sont picklés avec le modèle.**
 

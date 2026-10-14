@@ -7,6 +7,7 @@ import type {
   BetPerformance,
   CalibrationBucket,
   DirectionVerdict,
+  LevelPerformance,
   SportPerformance,
 } from '../types/performance';
 
@@ -147,6 +148,69 @@ function BetRow({
   );
 }
 
+/**
+ * Décalage de niveau des prédictions ponctuelles.
+ *
+ * La grandeur qui manquait, et qu'il a fallu calculer à la main pour voir que
+ * le marché `total` du NHL annonçait 5,73 buts pour 6,05 marqués. Un ROI ne
+ * dit pas de quel côté corriger ; un Brier non plus. Ce tableau, oui.
+ */
+function Levels({ levels }: { levels: Record<string, LevelPerformance> }) {
+  const rows = Object.entries(levels).filter(([, l]) => !l.insufficient && l.bias !== undefined);
+  const waiting = Object.entries(levels).filter(([, l]) => l.insufficient);
+  if (!rows.length && !waiting.length) return null;
+  return (
+    <>
+      <h3 className="vz-seclabel">Niveau des prédictions chiffrées</h3>
+      <div className="vz-card vz-card--rows">
+        {rows.map(([key, l]) => {
+          // Au-delà de deux erreurs-types, le décalage n'est plus
+          // attribuable au hasard — en dessous, il ne faut rien en conclure.
+          const solid = l.z !== null && l.z !== undefined && Math.abs(l.z) >= 2;
+          return (
+            <div className="vz-perf__row" key={key}>
+              <span className="vz-f1">
+                <strong>{marketShortLabel(key)}</strong>
+                <small className="vz-note">
+                  annonce {formatNumber(l.mean_predicted ?? 0, 2)} · observé{' '}
+                  {formatNumber(l.mean_actual ?? 0, 2)} · sur {l.n} matchs
+                </small>
+              </span>
+              <span className="vz-perf__roi">
+                <strong className={`vz-num ${solid ? 'is-down' : ''}`}>
+                  {(l.bias ?? 0) > 0 ? '+' : '−'}
+                  {formatNumber(Math.abs(l.bias ?? 0), 2)}
+                </strong>
+                <small>
+                  {l.z === null || l.z === undefined
+                    ? 'écart'
+                    : `${formatNumber(Math.abs(l.z), 1)} σ`}
+                </small>
+              </span>
+            </div>
+          );
+        })}
+        {waiting.map(([key, l]) => (
+          <div className="vz-perf__row" key={key}>
+            <span className="vz-f1">
+              <strong>{marketShortLabel(key)}</strong>
+              <small className="vz-note">{l.n} matchs — pas assez pour conclure</small>
+            </span>
+          </div>
+        ))}
+        <p className="vz-note">
+          Écart entre ce que le modèle annonce et ce qui arrive, en unités du marché
+          (buts, points). Négatif = il annonce moins que la réalité. La colonne σ
+          compte les erreurs-types qui séparent cet écart de zéro :{' '}
+          <strong>en dessous de 2, il n’y a rien à conclure</strong>. C’est la mesure
+          qui dit de quel côté corriger — un rendement ou un score de Brier ne le
+          diront jamais.
+        </p>
+      </div>
+    </>
+  );
+}
+
 export function Performance({
   sport,
   data,
@@ -246,6 +310,8 @@ export function Performance({
           plus il est bas, mieux c’est.
         </p>
       </div>
+
+      {data.levels ? <Levels levels={data.levels} /> : null}
 
       <h3 className="vz-seclabel">Rendement des value bets</h3>
       <div className="vz-card vz-card--rows">

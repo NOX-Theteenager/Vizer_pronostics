@@ -135,6 +135,125 @@ def realised(market: str, keys: list[str], result: dict) -> Optional[str]:
     return None
 
 
+# ── Lecture des prédictions, quelle que soit leur forme ─────────────────────
+#
+# Les deux sports ne publient pas la même chose, et c'est historique : le NHL
+# publie `{probabilities: {...}, expected_value: ...}`, la NBA publie des
+# formes propres à chaque marché (`home_win_proba`, `line_default` +
+# `over_default_proba`, `prediction`). La PWA sait lire les deux ; ce script ne
+# savait lire que la première.
+#
+# Conséquence, mesurée avant correction : **aucun marché NBA n'était mesuré**.
+# Ni justesse, ni Brier, ni calibration. Seuls les value bets l'étaient, parce
+# qu'ils ont une forme commune. La NBA s'apprêtait donc à ouvrir sa saison
+# avec exactement l'angle mort qui a coûté le marché `total` du NHL.
+#
+# On adapte à la lecture plutôt que de changer la forme publiée : les archives
+# déjà écrites gardent l'ancienne, et la PWA s'appuie dessus.
+
+def probabilities_of(entry: dict) -> dict[str, float]:
+    """Probabilités par issue, normalisées depuis l'une ou l'autre forme."""
+    if not isinstance(entry, dict):
+        return {}
+
+    probs = entry.get('probabilities')
+    if isinstance(probs, dict) and probs:
+        return {k: float(v) for k, v in probs.items()
+                if isinstance(v, (int, float))}
+
+    # NBA — vainqueur
+    home, away = entry.get('home_win_proba'), entry.get('away_win_proba')
+    if isinstance(home, (int, float)) and isinstance(away, (int, float)):
+        return {'home': float(home), 'away': float(away)}
+
+    # NBA — total d'équipe : une ligne par défaut et la probabilité de l'over.
+    line, over = entry.get('line_default'), entry.get('over_default_proba')
+    if isinstance(line, (int, float)) and isinstance(over, (int, float)):
+        key = f'{line:g}'
+        return {f'over_{key}': float(over), f'under_{key}': 1.0 - float(over)}
+
+    return {}
+
+
+# Quantité réelle à laquelle comparer une prédiction ponctuelle. Un marché
+# absent de cette table ne porte pas de niveau comparable sans ambiguïté —
+# `exact_score` et `goal_intervals` prédisent une issue, pas une grandeur.
+_POINT_TARGET = {
+    'total': lambda r: r['home_score'] + r['away_score'],
+    'home_team_total': lambda r: r['home_score'],
+    'away_team_total': lambda r: r['away_score'],
+    'p1_total': lambda r: (
+        None if not (r.get('periods') or [])
+        else r['periods'][0]['home'] + r['periods'][0]['away']
+    ),
+}
+
+
+def point_of(entry: dict) -> Optional[float]:
+    """Prédiction ponctuelle d'un marché : NHL `expected_value`, NBA `prediction`."""
+    if not isinstance(entry, dict):
+        return None
+    for key in ('expected_value', 'prediction'):
+        v = entry.get(key)
+        if isinstance(v, (int, float)):
+            return float(v)
+    return None
+
+
+class LevelStats:
+    """
+    Décalage de niveau d'une prédiction ponctuelle face au réel.
+
+    La grandeur qui manquait. Le marché `total` du NHL annonçait 5,73 buts
+    pour 6,05 réellement marqués, et il a fallu aller le calculer à la main
+    pour le voir — aucune sortie du projet ne le portait. L'écart au réel
+    n'est pas toujours le signal le plus net (ici 0,8 écart-type, donc
+    indiscernable du hasard sur 43 matchs), mais c'est lui qui dit **de quel
+    côté et de combien** corriger, ce qu'un ROI ou un Brier ne diront jamais.
+    """
+
+    def __init__(self) -> None:
+        self.n = 0
+        self.sum_pred = 0.0
+        self.sum_actual = 0.0
+        self.sum_err = 0.0
+        self.sum_err2 = 0.0
+        self.sum_abs = 0.0
+
+    def add(self, predicted: float, actual: float) -> None:
+        err = predicted - actual
+        self.n += 1
+        self.sum_pred += predicted
+        self.sum_actual += actual
+        self.sum_err += err
+        self.sum_err2 += err * err
+        self.sum_abs += abs(err)
+
+    def to_dict(self, min_sample: int) -> dict[str, Any]:
+        if self.n < min_sample:
+            return {'n': self.n, 'insufficient': True}
+        bias = self.sum_err / self.n
+        # Écart-type de l'erreur, puis erreur-type de sa moyenne. C'est le
+        # rapport des deux qui dit si le décalage est réel ou si c'est du
+        # bruit — un biais de 0,3 but sur 43 matchs très dispersés ne veut
+        # rien dire.
+        var = max(0.0, self.sum_err2 / self.n - bias * bias)
+        sd = math.sqrt(var)
+        stderr = sd / math.sqrt(self.n) if self.n > 1 else None
+        return {
+            'n': self.n,
+            'mean_predicted': round(self.sum_pred / self.n, 3),
+            'mean_actual': round(self.sum_actual / self.n, 3),
+            'bias': round(bias, 3),
+            'mae': round(self.sum_abs / self.n, 3),
+            'sd': round(sd, 3),
+            'stderr': round(stderr, 3) if stderr else None,
+            # Nombre d'erreurs-types entre le biais et zéro. Au-delà de 2 en
+            # valeur absolue, le décalage n'est plus attribuable au hasard.
+            'z': round(bias / stderr, 2) if stderr else None,
+        }
+
+
 # ── Collecte ────────────────────────────────────────────────────────────────
 
 def game_id(sport: str, game: dict) -> str:
@@ -303,6 +422,7 @@ def analyse(root: pathlib.Path, min_sample: int) -> dict[str, Any]:
     for sport in SPORTS:
         preds = last_predictions(root, sport)
         markets: dict[str, MarketStats] = defaultdict(MarketStats)
+        levels: dict[str, LevelStats] = defaultdict(LevelStats)
         bets = BetStats()
         bets_by_market: dict[str, BetStats] = defaultdict(BetStats)
         matched = 0
@@ -316,16 +436,28 @@ def analyse(root: pathlib.Path, min_sample: int) -> dict[str, Any]:
             dates.append((game.get('commence_time') or '')[:10])
 
             for market, entry in (game.get('predictions') or {}).items():
-                probs = (entry or {}).get('probabilities')
-                if not isinstance(probs, dict) or not probs:
-                    continue
-                clean = {k: float(v) for k, v in probs.items()
-                         if isinstance(v, (int, float))}
-                if not clean:
-                    continue
-                actual = realised(market, list(clean), result)
-                if actual is not None:
-                    markets[market].add(clean, actual)
+                # Deux mesures indépendantes, et aucune ne remplace l'autre.
+                #
+                # Les probabilités disent si le modèle classe bien les issues.
+                # Le niveau dit s'il se trompe systématiquement dans un sens —
+                # ce qu'un Brier ne montre pas : un modèle qui annonce 0,5 but
+                # de trop sur chaque match peut rester bien calibré en
+                # probabilités tout en étant inexploitable.
+                clean = probabilities_of(entry)
+                if clean:
+                    actual = realised(market, list(clean), result)
+                    if actual is not None:
+                        markets[market].add(clean, actual)
+
+                predicted = point_of(entry)
+                target = _POINT_TARGET.get(market)
+                if predicted is not None and target is not None:
+                    try:
+                        observed = target(result)
+                    except (KeyError, TypeError, IndexError):
+                        observed = None
+                    if observed is not None:
+                        levels[market].add(predicted, float(observed))
 
             for vb in game.get('value_bets') or []:
                 market = vb.get('market')
@@ -363,6 +495,10 @@ def analyse(root: pathlib.Path, min_sample: int) -> dict[str, Any]:
             'from': min(dates) if dates else None,
             'to': max(dates) if dates else None,
             'markets': {m: s.to_dict(min_sample) for m, s in sorted(markets.items())},
+            # Décalage de niveau des prédictions ponctuelles. Sépare « le
+            # modèle se trompe » de « le modèle se trompe toujours du même
+            # côté », qui n'appellent pas la même correction.
+            'levels': {m: s.to_dict(min_sample) for m, s in sorted(levels.items())},
             'value_bets': bets.to_dict(min_sample),
             'value_bets_by_market': {
                 m: s.to_dict(min_sample) for m, s in sorted(bets_by_market.items())

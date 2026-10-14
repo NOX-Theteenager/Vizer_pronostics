@@ -417,7 +417,15 @@ class UnifiedPredictor:
 
         df = pd.DataFrame([row])
 
-        # S'assurer que toutes les features attendues par chaque market sont là
+        # S'assurer que toutes les features attendues par chaque market sont là.
+        #
+        # Ce remplissage à zéro est nécessaire — sans lui la prédiction lève —
+        # mais il est **muet** : une feature que personne ne sait calculer et
+        # une feature qui vaut légitimement zéro deviennent indistinguables.
+        # C'est précisément comment le modèle NHL a décidé sur huit features
+        # sur seize pendant des mois. On note donc ce qu'on a dû inventer, pour
+        # que `scripts/check_serving_features.py` puisse le lire.
+        invented: dict[str, list[str]] = {}
         for market_name in self.registry.list_markets():
             market = self.registry.get(market_name)
             if hasattr(market, 'predictor') and hasattr(market.predictor, 'feature_columns'):
@@ -425,6 +433,8 @@ class UnifiedPredictor:
                 for col in expected:
                     if col not in df.columns:
                         df[col] = 0
+                        invented.setdefault(market_name, []).append(col)
+        self.last_invented_features = invented
 
         return df
 

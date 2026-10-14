@@ -40,43 +40,16 @@ import argparse
 import json
 import sys
 import urllib.error
-import urllib.request
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-ESPN = "https://site.api.espn.com/apis/site/v2/sports/{path}/scoreboard?dates={day}"
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-SPORT_PATHS = {"nhl": "hockey/nhl", "nba": "basketball/nba"}
-
-# ESPN abrège quelques équipes autrement que le reste du projet. Le reste des
-# codes coïncide, on ne remappe donc que les écarts réels.
-#
-# UTAH → ARI côté NHL n'est pas une coquille : les modèles sont entraînés sur
-# l'historique Moneypuck, où la franchise de l'Utah prolonge celle de l'Arizona
-# (cf. TEAM_REMAP dans vizer_nhl/src/utils.py). Publier UTA ici casserait
-# l'appariement avec les prédictions.
-ALIASES: dict[str, dict[str, str]] = {
-    # `UTA` **et** `UTAH` : ESPN n'abrège pas l'Utah pareil selon l'endpoint —
-    # `UTAH` sur la liste des équipes, `UTA` sur le scoreboard. Sans les deux,
-    # un match de l'Utah est publié sous un code que les prédictions
-    # n'emploient jamais, et le pari correspondant ne se clôture pas.
-    "nhl": {"LA": "LAK", "NJ": "NJD", "SJ": "SJS", "TB": "TBL",
-            "UTAH": "ARI", "UTA": "ARI"},
-    "nba": {"GS": "GSW", "NO": "NOP", "NY": "NYK", "SA": "SAS",
-            "UTAH": "UTA", "WSH": "WAS"},
-}
-
-
-def team_code(sport: str, abbrev: str) -> str:
-    return ALIASES.get(sport, {}).get(abbrev, abbrev)
-
-
-def fetch(url: str, timeout: int = 30) -> dict[str, Any]:
-    req = urllib.request.Request(url, headers={"User-Agent": "vizer-results/1.0"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode("utf-8"))
-
+# Table d'alias et accès HTTP partagés avec la détection de calendrier NBA
+# (cf. vizer_core/espn.py). Ils étaient dupliqués ; l'écart UTA/UTAH avait
+# déjà montré ce que coûte une table à deux endroits.
+from vizer_core.espn import scoreboard, team_code  # noqa: E402
 
 def _periods(competitors: list[dict]) -> list[dict[str, int]]:
     """Scores par période, alignés domicile/extérieur.
@@ -149,9 +122,8 @@ def collect(days: list[date], sports: list[str]) -> dict[str, list[dict]]:
         key = day.isoformat()
         games: list[dict] = []
         for sport in sports:
-            url = ESPN.format(path=SPORT_PATHS[sport], day=day.strftime("%Y%m%d"))
             try:
-                games.extend(parse_day(sport, fetch(url)))
+                games.extend(parse_day(sport, scoreboard(sport, day)))
             except (urllib.error.URLError, TimeoutError, ValueError, KeyError) as e:
                 print(f"  ⚠️  {sport.upper()} {key} : {type(e).__name__}: {e}",
                       file=sys.stderr)
