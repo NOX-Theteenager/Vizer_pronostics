@@ -29,6 +29,12 @@ on:
       - 'scripts/**'
       - 'kaggle/**'
       - 'vizer_web/**'
+      # `tests/` et `pyproject.toml` manquaient : un commit ne touchant que
+      # les tests ne déclenchait pas le job qui les exécute. Les fichiers qui
+      # décident de ce qui est publié ne vérifiaient donc pas leurs propres
+      # modifications — et une correction de ce job est passée sans run.
+      - 'tests/**'
+      - 'pyproject.toml'
       - '.github/workflows/vizer_checks.yml'
   pull_request:
   workflow_dispatch:
