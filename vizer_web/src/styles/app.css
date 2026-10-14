@@ -3455,3 +3455,119 @@ code {
   outline-offset: 1px;
   border-color: transparent;
 }
+
+/* ── Performance des modèles ─────────────────────────────────────────────
+   Une grille à quatre colonnes : marché, effectif, justesse, Brier. Les trois
+   mesures sont alignées à droite pour se comparer d'une ligne à l'autre. */
+.vz-perf__head,
+.vz-perf__grid {
+  display: grid;
+  grid-template-columns: 1fr 44px 72px 60px;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.vz-perf__head {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--border);
+}
+
+.vz-perf__head > :not(.vz-f1),
+.vz-perf__grid > :not(.vz-f1) {
+  text-align: right;
+}
+
+.vz-perf__grid {
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.vz-perf__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.vz-perf__row small {
+  display: block;
+}
+
+.vz-perf__roi {
+  text-align: right;
+  flex: none;
+}
+
+.vz-perf__roi small {
+  display: block;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+/* ── Calibration ─────────────────────────────────────────────────────────
+   Le repère marque la probabilité annoncée, la barre la fréquence réelle.
+   L'écart entre les deux est toute l'information : c'est pour ça qu'ils
+   partagent la même échelle horizontale. */
+.vz-calib__row {
+  display: grid;
+  grid-template-columns: 68px 1fr 64px 40px;
+  gap: 9px;
+  align-items: center;
+  padding: 7px 0;
+}
+
+.vz-calib__band {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.vz-calib__track {
+  position: relative;
+  height: 14px;
+  border-radius: 7px;
+  background: var(--bar-track);
+  overflow: hidden;
+}
+
+.vz-calib__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--value);
+  border-radius: 7px;
+}
+
+.vz-calib__target {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--text);
+  z-index: 1;
+}
+
+.vz-calib__out {
+  text-align: right;
+  font-size: 13px;
+}
+
+.vz-calib__out small {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-left: 3px;
+}
+
+.vz-calib__out small.is-warn {
+  color: var(--warning);
+}
+
+.vz-calib__n {
+  text-align: right;
+  font-size: 10px;
+  color: var(--text-dim);
+}

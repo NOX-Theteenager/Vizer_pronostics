@@ -2,9 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Chip, SectionLabel, SegButton, SegGroup } from '../components/Primitives';
 import { IconCheck, IconDownload, IconRefresh, IconWarning, IconX } from '../components/Icons';
 import { useToast } from '../context/ToastContext';
+import { Performance } from '../components/Performance';
+import type { PerformanceFile } from '../types/performance';
 import {
   fetchGateStatus,
   fetchModelRegistry,
+  fetchPerformance,
   type GateStatus,
   type ModelInfo,
   type ModelRegistryFile,
@@ -98,6 +101,9 @@ export function Admin() {
   const [registry, setRegistry] = useState<ModelRegistryFile | null>(null);
   const [registryError, setRegistryError] = useState<string | null>(null);
   const [gate, setGate] = useState<GateStatus | null>(null);
+  const [perf, setPerf] = useState<PerformanceFile | null>(null);
+  /** Deux lectures du même modèle : sa fiche, et ce qu'il vaut en vrai. */
+  const [tab, setTab] = useState<'modele' | 'performance'>('modele');
   const [runs, setRuns] = useState<WorkflowRun[]>([]);
   const [history, setHistory] = useState<string[]>([]);
   const [compareDay, setCompareDay] = useState<string | null>(null);
@@ -112,6 +118,12 @@ export function Admin() {
       setRegistryError(null);
     } catch (e) {
       setRegistryError(e instanceof Error ? e.message : 'Registre introuvable');
+    }
+    try {
+      setPerf(await fetchPerformance());
+    } catch {
+      // Publié par le job quotidien ; absent tant qu'il n'a pas tourné.
+      setPerf(null);
     }
     try {
       setGate(await fetchGateStatus());
@@ -190,8 +202,7 @@ export function Admin() {
       </div>
       <p className="vz-note">Pilotage des modèles et des données · {REPO}</p>
 
-      <SectionLabel>Modèle</SectionLabel>
-      <SegGroup label="Modèle">
+      <SegGroup label="Sport">
         {(Object.keys(SPORTS) as Sport[]).map((s) => (
           <SegButton key={s} active={sport === s} onClick={() => setSport(s)}>
             {SPORTS[s].label} · {SPORTS[s].league}
@@ -199,6 +210,28 @@ export function Admin() {
         ))}
       </SegGroup>
 
+      <SegGroup label="Vue">
+        <SegButton active={tab === 'modele'} onClick={() => setTab('modele')}>
+          Modèle
+        </SegButton>
+        <SegButton active={tab === 'performance'} onClick={() => setTab('performance')}>
+          Performance réelle
+        </SegButton>
+      </SegGroup>
+
+      {tab === 'performance' ? (
+        perf?.sports?.[sport] ? (
+          <Performance data={perf.sports[sport]!} />
+        ) : (
+          <div className="vz-card">
+            <p className="vz-note">
+              Mesure indisponible pour ce sport. Elle est publiée une fois par jour
+              par le job de prédictions, dans <code>performance/summary.json</code>.
+            </p>
+          </div>
+        )
+      ) : (
+      <>
       {registryError && (
         <div className="vz-stopalert">
           <IconWarning size={18} />
@@ -418,6 +451,9 @@ export function Admin() {
         >
           Oublier le jeton GitHub
         </button>
+      )}
+
+      </>
       )}
 
       <SectionLabel>Journal des exécutions</SectionLabel>

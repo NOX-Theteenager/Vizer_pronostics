@@ -16,6 +16,7 @@
 import type { Sport, SportFeed } from '../types/model';
 import { normalizeFeed } from '../types/normalize';
 import { normalizeLive, type LiveGame } from '../types/live';
+import type { PerformanceFile } from '../types/performance';
 import { normalizeResults, type GameResult } from '../types/results';
 import { KEYS, readJson, writeJson } from './storage';
 
@@ -263,6 +264,22 @@ export interface GateStatus {
 export async function fetchGateStatus(): Promise<GateStatus> {
   const url = `${MODELS_BASE}/gate.json?cb=${Math.floor(Date.now() / 300_000)}`;
   return (await fetchJson(url)) as GateStatus;
+}
+
+/* ── Performance ─────────────────────────────────────────────────────────── */
+
+/** Racine des mesures de performance, voisine de `predictions/`. */
+export const PERFORMANCE_BASE = DATA_BASE.replace(/\/predictions\/?$/, '/performance');
+
+/**
+ * Ce que valent réellement les prédictions publiées.
+ *
+ * Recalculé une fois par jour par le job de publication : un cache de cinq
+ * minutes suffit, et le chiffre ne bouge pas plus vite que ça.
+ */
+export async function fetchPerformance(): Promise<PerformanceFile> {
+  const url = `${PERFORMANCE_BASE}/summary.json?cb=${Math.floor(Date.now() / 300_000)}`;
+  return (await fetchJson(url)) as PerformanceFile;
 }
 
 /** Archive d'un jour donné — utilisée par l'écran Historique. */
