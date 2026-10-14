@@ -62,12 +62,18 @@ def find_value_bets(
         )
         # Best line shopping : on prend la meilleure cote disponible
         best_home_odds, best_away_odds = game_odds.best_moneyline_odds()
+        # Calculé une fois pour les deux côtés : la meilleure cote est l'avis
+        # le plus optimiste du marché, le consensus en est l'avis central.
+        market = game_odds.consensus_moneyline_probs()
+        mkt_home, mkt_away = market if market else (None, None)
         if best_home_odds:
-            vb = ml_market.value_bet(ml_pred, 'home', best_home_odds)
+            vb = ml_market.value_bet(ml_pred, 'home', best_home_odds,
+                                     market_proba=mkt_home)
             if vb:
                 bets.append(vb)
         if best_away_odds:
-            vb = ml_market.value_bet(ml_pred, 'away', best_away_odds)
+            vb = ml_market.value_bet(ml_pred, 'away', best_away_odds,
+                                     market_proba=mkt_away)
             if vb:
                 bets.append(vb)
     except Exception as e:
@@ -176,4 +182,9 @@ def value_bet_to_dict(vb: ValueBet) -> dict[str, Any]:
         'kelly_stake': round(vb.kelly_stake, 4),
         'expected_value_per_unit': round(vb.expected_value_per_unit, 4),
         'confidence': vb.confidence,
+        # Les deux opinions qui ont produit la décision : `predicted_proba`
+        # est leur mélange, et sans le détail on ne peut pas mesurer après
+        # coup laquelle avait raison.
+        'model_proba': round(vb.model_proba, 4) if vb.model_proba is not None else None,
+        'market_proba': round(vb.market_proba, 4) if vb.market_proba is not None else None,
     }

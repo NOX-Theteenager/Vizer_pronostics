@@ -130,6 +130,13 @@ def main():
                     'edge': round(vb.edge, 4),
                     'kelly_stake': round(vb.kelly_stake, 4),
                     'confidence': vb.confidence,
+                    # Les deux opinions qui ont produit la décision. Sans
+                    # elles, impossible de savoir après coup si le mélange
+                    # modèle/marché a aidé ou nui.
+                    'model_proba': (round(vb.model_proba, 4)
+                                    if vb.model_proba is not None else None),
+                    'market_proba': (round(vb.market_proba, 4)
+                                     if vb.market_proba is not None else None),
                     # Comparatif entre bookmakers sur la même sélection.
                     'books': books_for_bet(go, vb.market_name, vb.selection),
                 }

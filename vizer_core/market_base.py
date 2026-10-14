@@ -75,12 +75,19 @@ class ValueBet:
     """Pari à valeur détecté : edge positif après filtrage par seuil."""
     market_name: str
     selection: str
+    # Avis du modèle — inchangé, c'est lui qui déclenche la sélection et que
+    # l'app affiche face à la probabilité implicite.
     predicted_proba: float
     bookmaker_odds: float
     implied_proba: float
     edge: float                 # predicted - implied
     kelly_stake: float          # fraction du bankroll (déjà ajustée par kelly_factor)
     confidence: Confidence
+    # Avis du modèle (identique à `predicted_proba`) et consensus de marché
+    # marge retirée. Publiés pour pouvoir trancher plus tard qui avait raison :
+    # sans eux, impossible de mesurer si le mélange a aidé ou nui.
+    model_proba: float | None = None
+    market_proba: float | None = None
 
     @property
     def expected_value_per_unit(self) -> float:
@@ -117,6 +124,20 @@ class MarketBase(ABC):
         self.enabled: bool = config.get("enabled", False)
         self.edge_threshold: float = config.get("edge_threshold", 0.05)
         self.kelly_factor: float = config.get("kelly_factor", 0.25)
+        # Confiance accordée au modèle face au consensus des bookmakers, pour
+        # **dimensionner la mise**. 1.0 = on ignore le marché (comportement
+        # historique) ; en dessous, la probabilité qui alimente Kelly est tirée
+        # vers le prix du marché, donc la mise rétrécit.
+        #
+        # Ce réglage ne sert pas à sélectionner : appliquer un seuil d'edge sur
+        # une probabilité mélangée ne retiendrait que les plus gros désaccords,
+        # c'est-à-dire précisément ceux que la mesure montre perdants.
+        self.market_blend: float = float(config.get("market_blend", 1.0))
+        # Écart maximal toléré entre le modèle et le consensus. Au-delà, on
+        # suspecte une erreur de modèle plutôt qu'une opportunité : gardien non
+        # annoncé, features périmées, équipe mal appariée. C'est un plafond,
+        # pas un plancher — contrairement au seuil d'edge.
+        self.max_disagreement: float = float(config.get("max_disagreement", 1.0))
         self.hyperparameters: dict[str, Any] = config.get("hyperparameters", {})
         self._is_fitted: bool = False
 
@@ -159,6 +180,7 @@ class MarketBase(ABC):
         prediction: MarketPrediction,
         selection: str,
         bookmaker_odds: float,
+        market_proba: float | None = None,
     ) -> ValueBet | None:
         """
         Détecte un value bet si l'edge dépasse le seuil configuré.
@@ -170,6 +192,12 @@ class MarketBase(ABC):
         Returns:
             ValueBet si edge ≥ edge_threshold ET sélection valide, sinon None.
         """
+        if not self.enabled:
+            # Un marché désactivé ne doit pas produire de pari. Ça n'allait pas
+            # de soi : le détecteur n'interrogeait que la présence du marché
+            # dans le registre, si bien qu'un marché mis hors service continuait
+            # de publier des value bets.
+            return None
         if selection not in prediction.probabilities:
             return None
         if bookmaker_odds <= 1.0:
@@ -179,10 +207,31 @@ class MarketBase(ABC):
         implied = 1.0 / bookmaker_odds
         edge = proba - implied
 
+        # ── Sélection : sur l'avis du modèle, pas sur un mélange ──────────
         if edge < self.edge_threshold:
             return None
 
-        kelly_raw = (proba * bookmaker_odds - 1) / (bookmaker_odds - 1)
+        # Plafond de désaccord. Le prix du marché agrège ce que le modèle ne
+        # voit pas : gardien confirmé, blessure de dernière minute, argent
+        # informé. Un modèle peut être bien calibré sur l'ensemble des matchs
+        # et se tromper précisément là où il s'écarte le plus du marché —
+        # c'est ce que montre l'historique publié, où l'erreur grandit avec le
+        # désaccord. Au-delà du plafond, on lit ça comme un bug, pas une
+        # aubaine.
+        if market_proba is not None and (proba - market_proba) > self.max_disagreement:
+            return None
+
+        # ── Dimensionnement : là, le marché compte ────────────────────────
+        # La mise suit une probabilité tirée vers le consensus. Parier sur
+        # l'avis du modèle tout en misant comme si le marché n'existait pas
+        # revient à doubler la confiance accordée à la seule source qu'on
+        # n'a pas encore prouvée.
+        if market_proba is not None and 0.0 <= self.market_blend < 1.0:
+            sizing = self.market_blend * proba + (1 - self.market_blend) * market_proba
+        else:
+            sizing = proba
+
+        kelly_raw = (sizing * bookmaker_odds - 1) / (bookmaker_odds - 1)
         kelly_stake = max(0.0, kelly_raw) * self.kelly_factor
 
         return ValueBet(
@@ -194,6 +243,8 @@ class MarketBase(ABC):
             edge=edge,
             kelly_stake=kelly_stake,
             confidence=prediction.confidence,
+            model_proba=proba,
+            market_proba=market_proba,
         )
 
     # ----------------------------------------------------------- Helpers

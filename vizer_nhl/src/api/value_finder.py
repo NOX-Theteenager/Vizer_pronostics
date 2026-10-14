@@ -48,12 +48,17 @@ def find_value_bets(
             pred = ml.predict(game_odds.home, game_odds.away,
                               context={'features_row': features})
             best_home, best_away = game_odds.best_moneyline_odds()
+            # On parie à la meilleure cote, mais on compare au consensus :
+            # la meilleure cote est l'avis le plus optimiste du marché, le
+            # consensus en est l'avis central.
+            market = game_odds.consensus_moneyline_probs()
+            mkt_home, mkt_away = market if market else (None, None)
             if best_home:
-                vb = ml.value_bet(pred, 'home', best_home)
+                vb = ml.value_bet(pred, 'home', best_home, market_proba=mkt_home)
                 if vb:
                     bets.append(vb)
             if best_away:
-                vb = ml.value_bet(pred, 'away', best_away)
+                vb = ml.value_bet(pred, 'away', best_away, market_proba=mkt_away)
                 if vb:
                     bets.append(vb)
         except Exception as e:
@@ -69,12 +74,16 @@ def find_value_bets(
                 line=consensus_line, context={'features_row': features},
             )
             best_over, best_under = game_odds.best_over_under_odds(consensus_line)
+            market = game_odds.consensus_total_probs(consensus_line)
+            mkt_over, mkt_under = market if market else (None, None)
             if best_over:
-                vb = total.value_bet(pred, f'over_{consensus_line}', best_over)
+                vb = total.value_bet(pred, f'over_{consensus_line}', best_over,
+                                     market_proba=mkt_over)
                 if vb:
                     bets.append(vb)
             if best_under:
-                vb = total.value_bet(pred, f'under_{consensus_line}', best_under)
+                vb = total.value_bet(pred, f'under_{consensus_line}', best_under,
+                                     market_proba=mkt_under)
                 if vb:
                     bets.append(vb)
         except Exception as e:

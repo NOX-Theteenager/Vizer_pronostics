@@ -128,6 +128,34 @@ class GameOdds:
         best_away = max((b.away_ml for b in self.bookmakers if b.away_ml), default=None)
         return best_home, best_away
 
+    def consensus_moneyline_probs(self) -> Optional[tuple[float, float]]:
+        """
+        Probabilités « justes » du marché, marge retirée, moyennées sur les books.
+
+        Pourquoi pas simplement `1 / meilleure_cote` : cette valeur contient la
+        marge du bookmaker, et surtout elle vient du book le plus optimiste, qui
+        est par construction un cas particulier. Pour savoir ce que *pense* le
+        marché, on normalise chaque book sur lui-même — ses deux cotes somment
+        à plus de 1, l'excédent est sa marge — puis on moyenne.
+
+        Retourne `None` s'il n'y a aucun book cotant les deux côtés : une
+        moyenne sur un seul côté ne veut rien dire.
+        """
+        probs: list[tuple[float, float]] = []
+        for b in self.bookmakers:
+            if not b.home_ml or not b.away_ml or b.home_ml <= 1 or b.away_ml <= 1:
+                continue
+            raw_home, raw_away = 1.0 / b.home_ml, 1.0 / b.away_ml
+            overround = raw_home + raw_away
+            if overround <= 0:
+                continue
+            probs.append((raw_home / overround, raw_away / overround))
+
+        if not probs:
+            return None
+        n = len(probs)
+        return sum(p[0] for p in probs) / n, sum(p[1] for p in probs) / n
+
     def consensus_total_line(self) -> Optional[float]:
         """Ligne totale consensus (médiane des points proposés par les books)."""
         points = [t.point for b in self.bookmakers for t in b.totals]
@@ -136,6 +164,26 @@ class GameOdds:
         points.sort()
         n = len(points)
         return points[n // 2] if n % 2 else (points[n // 2 - 1] + points[n // 2]) / 2
+
+    def consensus_total_probs(self, line: float) -> Optional[tuple[float, float]]:
+        """Probabilités justes over/under pour une ligne, marge retirée."""
+        probs: list[tuple[float, float]] = []
+        for b in self.bookmakers:
+            for t in b.totals:
+                if abs(t.point - line) > 1e-6:
+                    continue
+                if not t.over_odds or not t.under_odds:
+                    continue
+                if t.over_odds <= 1 or t.under_odds <= 1:
+                    continue
+                raw_over, raw_under = 1.0 / t.over_odds, 1.0 / t.under_odds
+                overround = raw_over + raw_under
+                if overround > 0:
+                    probs.append((raw_over / overround, raw_under / overround))
+        if not probs:
+            return None
+        n = len(probs)
+        return sum(p[0] for p in probs) / n, sum(p[1] for p in probs) / n
 
     def best_over_under_odds(self, line: float) -> tuple[Optional[float], Optional[float]]:
         """Meilleures cotes over/under pour une ligne donnée."""

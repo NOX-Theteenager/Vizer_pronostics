@@ -122,6 +122,29 @@ class GameOdds:
     away_full: str
     bookmakers: list[BookmakerOdds] = field(default_factory=list)
 
+    def consensus_moneyline_probs(self) -> Optional[tuple[float, float]]:
+        """
+        Probabilités justes du marché, marge retirée, moyennées sur les books.
+
+        `1 / meilleure_cote` contient la marge du bookmaker et vient du book le
+        plus optimiste. Pour savoir ce que *pense* le marché, on normalise
+        chaque book sur lui-même puis on moyenne. Voir l'équivalent NHL : les
+        deux doivent rester cohérents.
+        """
+        probs: list[tuple[float, float]] = []
+        for b in self.bookmakers:
+            home, away = b.moneyline_home, b.moneyline_away
+            if not home or not away or home <= 1 or away <= 1:
+                continue
+            raw_home, raw_away = 1.0 / home, 1.0 / away
+            overround = raw_home + raw_away
+            if overround > 0:
+                probs.append((raw_home / overround, raw_away / overround))
+        if not probs:
+            return None
+        n = len(probs)
+        return sum(p[0] for p in probs) / n, sum(p[1] for p in probs) / n
+
     def best_moneyline_odds(self) -> tuple[Optional[float], Optional[float]]:
         """Best line shopping : retourne (best_home_odds, best_away_odds)."""
         ml_homes = [b.moneyline_home for b in self.bookmakers if b.moneyline_home]

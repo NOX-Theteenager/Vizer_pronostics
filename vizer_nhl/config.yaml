@@ -32,6 +32,24 @@ markets:
     enabled: true
     edge_threshold: 0.05
     kelly_factor: 0.25
+    # Plafond de désaccord avec le consensus des bookmakers.
+    #
+    # Mesuré sur 51 value bets publiés (29/09 → 14/10, cf. performance/) : le
+    # modèle est bien calibré dans l'ensemble — il annonce 60-70 %, il arrive
+    # 62 % — mais son erreur grandit avec son désaccord. Edge < 8 % : ROI
+    # −2 %. Edge > 12 % : le modèle dit 56 %, la réalité donne 31 %. Le motif
+    # est monotone sur les tranches de cote comme sur celles d'edge.
+    #
+    # 0.12 écarte la zone où le désaccord cesse d'être une opinion pour
+    # devenir un symptôme — gardien non annoncé, features périmées. Le chiffre
+    # ne se valide pas sur 51 paris (±15 points d'incertitude) ; c'est une
+    # borne de prudence, pas un optimum ajusté.
+    max_disagreement: 0.12
+    # Confiance accordée au modèle pour **dimensionner la mise**. 0.5 : à
+    # preuve non faite, le prix du marché vaut autant que le modèle. Ne touche
+    # pas à la sélection — un seuil d'edge sur une probabilité mélangée ne
+    # retiendrait que les plus gros désaccords, ceux-là mêmes qui perdent.
+    market_blend: 0.5
     hyperparameters:
       val_fraction: 0.15
       xgb:

@@ -252,10 +252,19 @@ class BetStats:
         self.kelly_stake = 0.0
         self.kelly_profit = 0.0
         self.edge_sum = 0.0
+        # Désaccord entre le modèle et le consensus de marché, quand les deux
+        # sont publiés. C'est la quantité qui décide du plafond de sélection :
+        # la suivre permet de vérifier que le plafond est au bon endroit.
+        self.gap_sum = 0.0
+        self.gap_n = 0
 
-    def add(self, odds: float, kelly: float, won: bool, edge: float) -> None:
+    def add(self, odds: float, kelly: float, won: bool, edge: float,
+            gap: Optional[float] = None) -> None:
         self.n += 1
         self.edge_sum += edge
+        if gap is not None:
+            self.gap_sum += gap
+            self.gap_n += 1
         if won:
             self.won += 1
             self.flat_profit += odds - 1
@@ -280,6 +289,9 @@ class BetStats:
             # marché peu misé paraîtrait artificiellement performant.
             'roi_kelly': (
                 round(self.kelly_profit / self.kelly_stake, 4) if self.kelly_stake else None
+            ),
+            'avg_disagreement': (
+                round(self.gap_sum / self.gap_n, 4) if self.gap_n else None
             ),
         }
 
@@ -333,8 +345,17 @@ def analyse(root: pathlib.Path, min_sample: int) -> dict[str, Any]:
                 kelly = float(vb.get('kelly_stake') or vb.get('kelly_stake_fraction') or 0)
                 edge = float(vb.get('edge') or 0)
                 won = actual == selection
-                bets.add(float(odds), kelly, won, edge)
-                bets_by_market[market].add(float(odds), kelly, won, edge)
+                # Publié depuis l'ajout du consensus de marché ; absent des
+                # archives antérieures, d'où la moyenne sur les seuls paris
+                # qui le portent.
+                model_p, market_p = vb.get('model_proba'), vb.get('market_proba')
+                gap = (
+                    float(model_p) - float(market_p)
+                    if isinstance(model_p, (int, float)) and isinstance(market_p, (int, float))
+                    else None
+                )
+                bets.add(float(odds), kelly, won, edge, gap)
+                bets_by_market[market].add(float(odds), kelly, won, edge, gap)
 
         out[sport] = {
             'n_games_predicted': len(preds),
