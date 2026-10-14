@@ -1,0 +1,207 @@
+{
+  "date": "2026-10-04",
+  "generated_at": "2026-10-14T11:19:52+00:00",
+  "games": [
+    {
+      "sport": "nhl",
+      "home": "DET",
+      "away": "WPG",
+      "home_name": "Detroit Red Wings",
+      "away_name": "Winnipeg Jets",
+      "commence_time": "2026-10-04T17:00Z",
+      "home_score": 2,
+      "away_score": 3,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 0,
+          "away": 2
+        },
+        {
+          "home": 1,
+          "away": 1
+        },
+        {
+          "home": 1,
+          "away": 0
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "NYR",
+      "away": "ARI",
+      "home_name": "New York Rangers",
+      "away_name": "Utah Mammoth",
+      "commence_time": "2026-10-04T22:00Z",
+      "home_score": 4,
+      "away_score": 2,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 1,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 1
+        },
+        {
+          "home": 3,
+          "away": 1
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "ANA",
+      "away": "FLA",
+      "home_name": "Anaheim Ducks",
+      "away_name": "Florida Panthers",
+      "commence_time": "2026-10-05T00:00Z",
+      "home_score": 3,
+      "away_score": 2,
+      "overtime": true,
+      "periods": [
+        {
+          "home": 1,
+          "away": 1
+        },
+        {
+          "home": 1,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 1
+        },
+        {
+          "home": 1,
+          "away": 0
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "SEA",
+      "away": "CGY",
+      "home_name": "Seattle Kraken",
+      "away_name": "Calgary Flames",
+      "commence_time": "2026-10-05T00:00Z",
+      "home_score": 6,
+      "away_score": 1,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 3,
+          "away": 0
+        },
+        {
+          "home": 2,
+          "away": 0
+        },
+        {
+          "home": 1,
+          "away": 1
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "VAN",
+      "away": "VGK",
+      "home_name": "Vancouver Canucks",
+      "away_name": "Vegas Golden Knights",
+      "commence_time": "2026-10-05T01:00Z",
+      "home_score": 2,
+      "away_score": 3,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 1,
+          "away": 0
+        },
+        {
+          "home": 1,
+          "away": 3
+        },
+        {
+          "home": 0,
+          "away": 0
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nba",
+      "home": "DEN",
+      "away": "UTA",
+      "home_name": "Denver Nuggets",
+      "away_name": "Utah Jazz",
+      "commence_time": "2026-10-04T23:00Z",
+      "home_score": 97,
+      "away_score": 109,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 26,
+          "away": 36
+        },
+        {
+          "home": 26,
+          "away": 27
+        },
+        {
+          "home": 25,
+          "away": 25
+        },
+        {
+          "home": 20,
+          "away": 21
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nba",
+      "home": "LAC",
+      "away": "GSW",
+      "home_name": "LA Clippers",
+      "away_name": "Golden State Warriors",
+      "commence_time": "2026-10-04T23:00Z",
+      "home_score": 104,
+      "away_score": 101,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 23,
+          "away": 24
+        },
+        {
+          "home": 32,
+          "away": 19
+        },
+        {
+          "home": 22,
+          "away": 30
+        },
+        {
+          "home": 27,
+          "away": 28
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    }
+  ]
+}

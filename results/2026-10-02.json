@@ -1,0 +1,145 @@
+{
+  "date": "2026-10-02",
+  "generated_at": "2026-10-14T11:19:44+00:00",
+  "games": [
+    {
+      "sport": "nhl",
+      "home": "DET",
+      "away": "NYR",
+      "home_name": "Detroit Red Wings",
+      "away_name": "New York Rangers",
+      "commence_time": "2026-10-02T22:30Z",
+      "home_score": 0,
+      "away_score": 2,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 0,
+          "away": 1
+        },
+        {
+          "home": 0,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 1
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "CAR",
+      "away": "WSH",
+      "home_name": "Carolina Hurricanes",
+      "away_name": "Washington Capitals",
+      "commence_time": "2026-10-02T23:00Z",
+      "home_score": 2,
+      "away_score": 5,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 0,
+          "away": 3
+        },
+        {
+          "home": 1,
+          "away": 2
+        },
+        {
+          "home": 1,
+          "away": 0
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "WPG",
+      "away": "BOS",
+      "home_name": "Winnipeg Jets",
+      "away_name": "Boston Bruins",
+      "commence_time": "2026-10-03T00:00Z",
+      "home_score": 3,
+      "away_score": 4,
+      "overtime": true,
+      "periods": [
+        {
+          "home": 1,
+          "away": 2
+        },
+        {
+          "home": 2,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 1
+        },
+        {
+          "home": 0,
+          "away": 1
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "DAL",
+      "away": "STL",
+      "home_name": "Dallas Stars",
+      "away_name": "St. Louis Blues",
+      "commence_time": "2026-10-03T01:00Z",
+      "home_score": 0,
+      "away_score": 4,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 0,
+          "away": 1
+        },
+        {
+          "home": 0,
+          "away": 1
+        },
+        {
+          "home": 0,
+          "away": 2
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "VGK",
+      "away": "ANA",
+      "home_name": "Vegas Golden Knights",
+      "away_name": "Anaheim Ducks",
+      "commence_time": "2026-10-03T02:00Z",
+      "home_score": 3,
+      "away_score": 4,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 0,
+          "away": 1
+        },
+        {
+          "home": 0,
+          "away": 3
+        },
+        {
+          "home": 3,
+          "away": 0
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    }
+  ]
+}

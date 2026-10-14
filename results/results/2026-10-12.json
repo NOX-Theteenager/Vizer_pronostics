@@ -1,0 +1,242 @@
+{
+  "date": "2026-10-12",
+  "generated_at": "2026-10-13T22:11:36+00:00",
+  "games": [
+    {
+      "sport": "nhl",
+      "home": "BUF",
+      "away": "FLA",
+      "home_name": "Buffalo Sabres",
+      "away_name": "Florida Panthers",
+      "commence_time": "2026-10-12T17:00Z",
+      "home_score": 5,
+      "away_score": 3,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 2,
+          "away": 1
+        },
+        {
+          "home": 1,
+          "away": 2
+        },
+        {
+          "home": 2,
+          "away": 0
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "NJD",
+      "away": "OTT",
+      "home_name": "New Jersey Devils",
+      "away_name": "Ottawa Senators",
+      "commence_time": "2026-10-12T23:00Z",
+      "home_score": 1,
+      "away_score": 4,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 0,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 2
+        },
+        {
+          "home": 1,
+          "away": 2
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "MIN",
+      "away": "VGK",
+      "home_name": "Minnesota Wild",
+      "away_name": "Vegas Golden Knights",
+      "commence_time": "2026-10-13T00:00Z",
+      "home_score": 4,
+      "away_score": 2,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 3,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 1
+        },
+        {
+          "home": 1,
+          "away": 1
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
+    {
+      "sport": "nba",
+      "home": "POR",
+      "away": "LON",
+      "home_name": "Portland Trail Blazers",
+      "away_name": "London Lions",
+      "commence_time": "2026-10-12T20:00Z",
+      "home_score": 119,
+      "away_score": 66,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 34,
+          "away": 21
+        },
+        {
+          "home": 38,
+          "away": 12
+        },
+        {
+          "home": 28,
+          "away": 16
+        },
+        {
+          "home": 19,
+          "away": 17
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
+    {
+      "sport": "nba",
+      "home": "ATL",
+      "away": "OKC",
+      "home_name": "Atlanta Hawks",
+      "away_name": "Oklahoma City Thunder",
+      "commence_time": "2026-10-12T23:00Z",
+      "home_score": 113,
+      "away_score": 110,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 29,
+          "away": 28
+        },
+        {
+          "home": 27,
+          "away": 21
+        },
+        {
+          "home": 23,
+          "away": 30
+        },
+        {
+          "home": 34,
+          "away": 31
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
+    {
+      "sport": "nba",
+      "home": "WAS",
+      "away": "BKN",
+      "home_name": "Washington Wizards",
+      "away_name": "Brooklyn Nets",
+      "commence_time": "2026-10-12T23:00Z",
+      "home_score": 122,
+      "away_score": 131,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 32,
+          "away": 36
+        },
+        {
+          "home": 40,
+          "away": 37
+        },
+        {
+          "home": 22,
+          "away": 30
+        },
+        {
+          "home": 28,
+          "away": 28
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nba",
+      "home": "NYK",
+      "away": "MIN",
+      "home_name": "New York Knicks",
+      "away_name": "Minnesota Timberwolves",
+      "commence_time": "2026-10-12T23:30Z",
+      "home_score": 104,
+      "away_score": 122,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 25,
+          "away": 30
+        },
+        {
+          "home": 25,
+          "away": 32
+        },
+        {
+          "home": 30,
+          "away": 28
+        },
+        {
+          "home": 24,
+          "away": 32
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nba",
+      "home": "UTA",
+      "away": "SAS",
+      "home_name": "Utah Jazz",
+      "away_name": "San Antonio Spurs",
+      "commence_time": "2026-10-13T01:00Z",
+      "home_score": 119,
+      "away_score": 109,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 33,
+          "away": 26
+        },
+        {
+          "home": 35,
+          "away": 35
+        },
+        {
+          "home": 31,
+          "away": 17
+        },
+        {
+          "home": 20,
+          "away": 31
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    }
+  ]
+}

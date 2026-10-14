@@ -1,0 +1,149 @@
+{
+  "date": "2026-09-29",
+  "generated_at": "2026-10-14T11:19:34+00:00",
+  "games": [
+    {
+      "sport": "nhl",
+      "home": "CAR",
+      "away": "FLA",
+      "home_name": "Carolina Hurricanes",
+      "away_name": "Florida Panthers",
+      "commence_time": "2026-09-29T21:00Z",
+      "home_score": 0,
+      "away_score": 1,
+      "overtime": true,
+      "periods": [
+        {
+          "home": 0,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 1
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "TOR",
+      "away": "MTL",
+      "home_name": "Toronto Maple Leafs",
+      "away_name": "Montreal Canadiens",
+      "commence_time": "2026-09-29T23:00Z",
+      "home_score": 2,
+      "away_score": 3,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 1,
+          "away": 1
+        },
+        {
+          "home": 0,
+          "away": 1
+        },
+        {
+          "home": 1,
+          "away": 1
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "BOS",
+      "away": "NYR",
+      "home_name": "Boston Bruins",
+      "away_name": "New York Rangers",
+      "commence_time": "2026-09-30T00:00Z",
+      "home_score": 3,
+      "away_score": 0,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 0,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 0
+        },
+        {
+          "home": 3,
+          "away": 0
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "EDM",
+      "away": "VAN",
+      "home_name": "Edmonton Oilers",
+      "away_name": "Vancouver Canucks",
+      "commence_time": "2026-09-30T02:00Z",
+      "home_score": 5,
+      "away_score": 6,
+      "overtime": true,
+      "periods": [
+        {
+          "home": 1,
+          "away": 1
+        },
+        {
+          "home": 1,
+          "away": 1
+        },
+        {
+          "home": 3,
+          "away": 3
+        },
+        {
+          "home": 0,
+          "away": 1
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "VGK",
+      "away": "CHI",
+      "home_name": "Vegas Golden Knights",
+      "away_name": "Chicago Blackhawks",
+      "commence_time": "2026-09-30T02:45Z",
+      "home_score": 5,
+      "away_score": 2,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 2,
+          "away": 0
+        },
+        {
+          "home": 1,
+          "away": 1
+        },
+        {
+          "home": 2,
+          "away": 1
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    }
+  ]
+}

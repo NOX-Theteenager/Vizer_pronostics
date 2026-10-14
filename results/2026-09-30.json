@@ -1,0 +1,87 @@
+{
+  "date": "2026-09-30",
+  "generated_at": "2026-10-14T11:19:38+00:00",
+  "games": [
+    {
+      "sport": "nhl",
+      "home": "PHI",
+      "away": "PIT",
+      "home_name": "Philadelphia Flyers",
+      "away_name": "Pittsburgh Penguins",
+      "commence_time": "2026-09-30T23:30Z",
+      "home_score": 0,
+      "away_score": 7,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 0,
+          "away": 2
+        },
+        {
+          "home": 0,
+          "away": 3
+        },
+        {
+          "home": 0,
+          "away": 2
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "TOR",
+      "away": "NYI",
+      "home_name": "Toronto Maple Leafs",
+      "away_name": "New York Islanders",
+      "commence_time": "2026-09-30T23:30Z",
+      "home_score": 2,
+      "away_score": 1,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 2,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 1
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "COL",
+      "away": "LAK",
+      "home_name": "Colorado Avalanche",
+      "away_name": "Los Angeles Kings",
+      "commence_time": "2026-10-01T02:00Z",
+      "home_score": 8,
+      "away_score": 4,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 2,
+          "away": 1
+        },
+        {
+          "home": 4,
+          "away": 2
+        },
+        {
+          "home": 2,
+          "away": 1
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    }
+  ]
+}
