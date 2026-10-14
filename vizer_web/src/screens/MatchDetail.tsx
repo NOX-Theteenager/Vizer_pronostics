@@ -7,6 +7,7 @@ import { EmptyState } from '../components/States';
 import { ValueBetCard } from '../components/ValueBetCard';
 import { useBankroll } from '../context/BankrollContext';
 import { useData } from '../context/DataContext';
+import { useLiveGame } from '../context/LiveContext';
 import { useSettings } from '../context/SettingsContext';
 import { CONFIDENCE_LABEL, dayPhrase, formatEdge, formatOdds, formatProbaBare, formatTime, isPast, probaToOdds } from '../lib/format';
 import { SPORTS, type Game, type ValueBet } from '../types/model';
@@ -24,6 +25,7 @@ export function MatchDetail({
   const { gameId = '' } = useParams();
   const navigate = useNavigate();
   const { findGame, loading } = useData();
+  const live = useLiveGame(gameId);
   const { settings } = useSettings();
   const { bankroll, slip } = useBankroll();
 
@@ -100,6 +102,20 @@ export function MatchDetail({
               {settings.probFormat === 'pct' && <small>%</small>}
             </div>
           </>
+        )}
+
+        {/* Le score réel, sous les probabilités : les deux se lisent ensemble,
+            c'est précisément la comparaison qui intéresse pendant le match. */}
+        {live && (
+          <span
+            className={`vz-arena__live vz-arena__live--xl${live.state === 'in' ? ' is-live' : ''}`}
+          >
+            {live.state === 'in' && <i className="vz-arena__liveDot" aria-hidden="true" />}
+            <strong className="vz-num">
+              {live.homeScore}–{live.awayScore}
+            </strong>
+            <small>{live.detail}</small>
+          </span>
         )}
       </div>
 

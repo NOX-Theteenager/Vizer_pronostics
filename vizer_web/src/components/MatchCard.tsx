@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useLiveGame } from '../context/LiveContext';
 import { useSettings } from '../context/SettingsContext';
 import { dayPhrase, formatOdds, formatProbaBare, formatTime, isPast, probaToOdds } from '../lib/format';
 import type { Game } from '../types/model';
@@ -11,6 +12,7 @@ import { LeagueTag } from './Primitives';
  */
 export function MatchCard({ game, index = 0 }: { game: Game; index?: number }) {
   const { settings } = useSettings();
+  const live = useLiveGame(game.id);
   const started = isPast(game.commenceTime);
   const topVb = game.valueBets[0];
   const showVb = !!topVb && !started;
@@ -58,7 +60,23 @@ export function MatchCard({ game, index = 0 }: { game: Game; index?: number }) {
           </>
         )}
 
-        {started && <span className="vz-arena__started">● Commencé</span>}
+        {/* Le direct remplace la mention « Commencé » dès qu'un score existe :
+            à ce moment-là, le score est l'information utile, pas le fait que
+            le match ait débuté. */}
+        {live ? (
+          <span
+            className={`vz-arena__live${live.state === 'in' ? ' is-live' : ''}`}
+            aria-label={`Score ${live.away} ${live.awayScore}, ${live.home} ${live.homeScore} — ${live.detail}`}
+          >
+            {live.state === 'in' && <i className="vz-arena__liveDot" aria-hidden="true" />}
+            <strong className="vz-num">
+              {live.homeScore}–{live.awayScore}
+            </strong>
+            <small>{live.detail}</small>
+          </span>
+        ) : (
+          started && <span className="vz-arena__started">● Commencé</span>
+        )}
       </div>
 
       <div className="vz-match__row">

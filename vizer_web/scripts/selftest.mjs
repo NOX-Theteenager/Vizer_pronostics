@@ -30,6 +30,7 @@ export { followMarkets } from './src/lib/follow.ts';
 export { marketFamily } from './src/data/markets.ts';
 export { kellyStake, KELLY_CAP } from './src/lib/kelly.ts';
 export { normalizeResults } from './src/types/results.ts';
+export { normalizeLive } from './src/types/live.ts';
 export { settleSelection, settleBet, resultIndex, matchKey, findResult } from './src/lib/settle.ts';
 `;
 
@@ -197,6 +198,29 @@ check(
   'cote juste = 1 ÷ proba',
   Math.abs(ml.options.find((o) => o.selection === 'home').odds - 2.21) < 0.02,
 );
+
+console.log('\n── Direct ──');
+// Le relais peut renvoyer n'importe quoi : le normaliseur est la frontière.
+const liveRaw = {
+  games: [
+    {
+      id: 'nhl-NJD@DET-2026-10-13', sport: 'nhl', home: 'DET', away: 'NJD',
+      commenceTime: '2026-10-13T22:00Z', state: 'post', detail: 'Final/OT',
+      period: 4, clock: '0:00', homeScore: 4, awayScore: 5,
+    },
+    { id: 'a', sport: 'foot', home: 'A', away: 'B', state: 'in', homeScore: 1, awayScore: 0 },
+    { id: 'b', sport: 'nhl', home: 'A', away: 'B', state: 'pre', homeScore: 0, awayScore: 0 },
+    { id: 'c', sport: 'nba', home: 'A', away: 'B', state: 'in' },
+  ],
+};
+const liveGames = mod.normalizeLive(liveRaw);
+check('seul le match valide est retenu', liveGames.length === 1, `reçu ${liveGames.length}`);
+check('identifiant aligné sur gameId()', liveGames[0].id === 'nhl-NJD@DET-2026-10-13');
+check('score et détail lus', liveGames[0].homeScore === 4 && liveGames[0].detail === 'Final/OT');
+check('sport inconnu écarté', !liveGames.some((g) => g.id === 'a'));
+check('match non commencé écarté', !liveGames.some((g) => g.id === 'b'));
+check('score manquant écarté', !liveGames.some((g) => g.id === 'c'));
+check('entrée nulle tolérée', mod.normalizeLive(null).length === 0);
 
 console.log('\n── Clôture automatique ──');
 // Échantillon calqué sur la sortie de scripts/publish_results.py.

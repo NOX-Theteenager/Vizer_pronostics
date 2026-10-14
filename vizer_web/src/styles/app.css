@@ -3275,3 +3275,59 @@ code {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* ── Score en direct ─────────────────────────────────────────────────────
+   Même emplacement que la mention « Commencé » qu'il remplace, en haut à
+   droite de l'arène. Le point ne clignote que pendant le match, et jamais
+   si l'utilisateur a demandé moins d'animations. */
+.vz-arena__live {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  font-size: 12px;
+  color: #f3f5f9;
+}
+
+.vz-arena__live strong {
+  font-size: 15px;
+  letter-spacing: 0.02em;
+}
+
+.vz-arena__live small {
+  opacity: 0.8;
+  font-size: 11px;
+}
+
+.vz-arena__liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff5a5a;
+  animation: vz-livepulse 1.6s ease-in-out infinite;
+}
+
+@keyframes vz-livepulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vz-arena__liveDot { animation: none; }
+}
+
+.vz-arena__live--xl {
+  top: auto;
+  bottom: 14px;
+  right: 50%;
+  transform: translateX(50%);
+  padding: 6px 14px;
+}
+
+.vz-arena__live--xl strong { font-size: 19px; }

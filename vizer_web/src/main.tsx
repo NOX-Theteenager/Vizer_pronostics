@@ -4,6 +4,7 @@ import { HashRouter } from 'react-router-dom';
 import { App } from './App';
 import { BankrollProvider } from './context/BankrollContext';
 import { DataProvider } from './context/DataContext';
+import { LiveProvider } from './context/LiveContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { ToastProvider } from './context/ToastContext';
 import { registerServiceWorker } from './lib/sw-register';
@@ -23,7 +24,11 @@ createRoot(root).render(
         <ToastProvider>
           <BankrollProvider>
             <DataProvider>
-              <App />
+              {/* Le direct dépend du feed du jour : il sait ainsi quand il n'y
+                  a rien à suivre et s'abstient de sonder. */}
+              <LiveProvider>
+                <App />
+              </LiveProvider>
             </DataProvider>
           </BankrollProvider>
         </ToastProvider>

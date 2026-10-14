@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_USE_MOCK?: string;
   /** Dépôt interrogé par l'écran Admin (runs GitHub Actions). */
   readonly VITE_GITHUB_REPO?: string;
+  /** Force l'adresse du relais de scores en direct (dev local). */
+  readonly VITE_LIVE_URL?: string;
 }
 
 interface ImportMeta {

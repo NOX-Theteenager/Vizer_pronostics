@@ -15,6 +15,7 @@
  */
 import type { Sport, SportFeed } from '../types/model';
 import { normalizeFeed } from '../types/normalize';
+import { normalizeLive, type LiveGame } from '../types/live';
 import { normalizeResults, type GameResult } from '../types/results';
 import { KEYS, readJson, writeJson } from './storage';
 
@@ -298,4 +299,26 @@ export async function fetchResults(): Promise<GameResult[]> {
 export function readCachedResults(): GameResult[] {
   const raw = readJson<unknown>(KEYS.results, null);
   return raw ? normalizeResults(raw) : [];
+}
+
+/* ── Direct ──────────────────────────────────────────────────────────────── */
+
+/**
+ * URL du relais de scores en direct, ou `null` s'il n'existe pas ici.
+ *
+ * Le relais est une fonction servie à côté de l'app. Quand `DATA_BASE` est
+ * relatif, c'est qu'on tourne derrière nos propres fonctions — sur GitHub
+ * Pages ou en `npm run dev`, elles n'existent pas, et il vaut mieux désactiver
+ * le direct que de laisser l'app tenter un appel voué au 404.
+ *
+ * `VITE_LIVE_URL` force l'adresse, ce qui permet de pointer un déploiement
+ * réel depuis le développement local.
+ */
+export const LIVE_URL: string | null =
+  import.meta.env.VITE_LIVE_URL || (DATA_BASE.startsWith('/') ? '/api/live' : null);
+
+/** Scores en direct. Lève si le relais est absent ou injoignable. */
+export async function fetchLive(): Promise<LiveGame[]> {
+  if (!LIVE_URL) return [];
+  return normalizeLive(await fetchOnce(LIVE_URL, 8_000));
 }
