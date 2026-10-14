@@ -258,6 +258,25 @@ Si le dépôt devenait privé, définir `VIZER_GITHUB_TOKEN` : le proxy bascule
 alors sur l'API contenus de GitHub. `VIZER_REPO` et `VIZER_BRANCH` permettent
 de déplacer la source sans rebuild.
 
+### Notifications hors application — ce qu'il reste à provisionner
+
+Les alertes ne partent aujourd'hui que si l'app est ouverte : `useAlerts`
+compare les value bets au seuil réglé et appelle l'API `Notification`. Un
+téléphone verrouillé ne reçoit rien, parce qu'un vrai push ne part pas du
+navigateur mais d'un serveur.
+
+Trois pièces manquent, et deux demandent une action dans le tableau de bord
+Vercel — le connecteur utilisé ici est en lecture seule sur les projets :
+
+| Pièce | Qui | Comment |
+|---|---|---|
+| Paire de clés VAPID | vous | `npx web-push generate-vapid-keys`, puis les poser en variables d'environnement du projet (`VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`) |
+| Stockage des abonnements | vous | un store Vercel (Blob ou KV) créé depuis l'onglet *Storage*, puis relié au projet |
+| Endpoints + cron | code | `api/push/subscribe`, `api/push/send`, et une entrée `crons` dans `vercel.json` calée après 7h UTC |
+
+L'ordre compte : sans les deux premières, la troisième ne peut qu'échouer au
+démarrage. Une fois les clés et le store en place, le reste se branche dessus.
+
 ### GitHub Pages (repli)
 
 [`vizer_web_deploy.yml`](../.github/workflows/vizer_web_deploy.yml), déclenché à

@@ -271,7 +271,7 @@ après prolongation.
   mais il n'y a ni `candidates/`, ni rollback, ni validation manuelle avant
   déploiement.
 - **Notifications hors application** : les alertes ne partent que si l'app est
-  ouverte. Un vrai push demande des clés VAPID et un service qui conserve les
-  abonnements.
+  ouverte. Un vrai push demande des clés VAPID et un store d'abonnements à
+  provisionner côté hébergeur — le détail est dans `vizer_web/README.md` §7.
 
 Détails d'implémentation : `vizer_web/README.md`.
