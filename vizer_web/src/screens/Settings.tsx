@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   IconArrowDown,
   IconArrowUp,
@@ -8,6 +8,8 @@ import {
   IconX,
 } from '../components/Icons';
 import { SegButton, SegGroup, SectionLabel, Switch } from '../components/Primitives';
+import { pushStatus, subscribePush, unsubscribePush, type PushStatus } from '../lib/push';
+import { useToast } from '../context/ToastContext';
 import { AmountSheet } from '../components/overlays/AmountSheet';
 import { useBankroll } from '../context/BankrollContext';
 import { useData } from '../context/DataContext';
@@ -36,12 +38,48 @@ export function Settings({
   onOpenInstall: () => void;
   onReplayOnboarding: () => void;
 }) {
+
   const { settings, update } = useSettings();
   const { generatedAt, origin, refresh, loadDemo } = useData();
   const { permission } = useAlerts();
   const { bankroll, transactions, deposit, withdraw } = useBankroll();
   const [sheet, setSheet] = useState<'deposit' | 'withdraw' | null>(null);
   const [cacheCleared, setCacheCleared] = useState(false);
+  const { showToast } = useToast();
+
+  /**
+   * Notifications hors application.
+   *
+   * Distinct de `alertsEnabled`, qui ne gouverne que les alertes affichées
+   * quand l'app est ouverte : ici le serveur pousse, donc l'abonnement vit
+   * côté serveur et doit être interrogé plutôt que déduit d'un réglage local.
+   */
+  const [push, setPush] = useState<PushStatus | null>(null);
+  const [pushBusy, setPushBusy] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    void pushStatus().then((st) => alive && setPush(st));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const togglePush = useCallback(
+    async (wanted: boolean) => {
+      setPushBusy(true);
+      const error = wanted ? await subscribePush(settings.alertThreshold) : await unsubscribePush();
+      showToast(
+        error ??
+          (wanted
+            ? 'Notifications activées — même app fermée'
+            : 'Notifications désactivées'),
+      );
+      setPush(await pushStatus());
+      setPushBusy(false);
+    },
+    [settings.alertThreshold, showToast],
+  );
 
   return (
     <div className="vz-screen vz-up">
@@ -176,6 +214,27 @@ export function Settings({
             aria-label="Seuil d'edge déclencheur"
           />
         </div>
+
+        {push?.supported && (
+          <div className="vz-field vz-field--col">
+            <div className="vz-field__head">
+              <span>Recevoir même l’app fermée</span>
+              <Switch
+                checked={push.subscribed}
+                disabled={!push.ready || pushBusy}
+                onChange={(v) => void togglePush(v)}
+                label="Recevoir les alertes même l’app fermée"
+              />
+            </div>
+            <p className="vz-note">
+              {push.ready
+                ? push.subscribed
+                  ? `Une alerte par jour au maximum, sur le meilleur pari au-dessus de ${settings.alertThreshold} % d’edge. Rebasculez le curseur puis réactivez pour changer le seuil enregistré.`
+                  : 'Les alertes ci-dessus ne partent que si l’app est ouverte. Activez ceci pour les recevoir téléphone verrouillé.'
+                : 'Indisponible : le serveur n’a pas de clés de notification configurées.'}
+            </p>
+          </div>
+        )}
         <div className="vz-field">
           <span>Plage silencieuse</span>
           <strong className="vz-num">

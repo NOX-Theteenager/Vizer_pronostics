@@ -3260,3 +3260,18 @@ code {
   padding: 1px 5px;
   border-radius: 5px;
 }
+
+/* ── Marque ──────────────────────────────────────────────────────────────
+   Le logo est une image, pas un tracé : elle doit rester nette au pixel près
+   aux petites tailles et ne jamais se laisser étirer par un conteneur flex. */
+.vz-mark {
+  display: block;
+  flex: none;
+  object-fit: contain;
+  user-select: none;
+}
+
+.vz-switch:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

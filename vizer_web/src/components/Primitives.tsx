@@ -143,10 +143,13 @@ export function Switch({
   checked,
   onChange,
   label,
+  disabled = false,
 }: {
   checked: boolean;
   onChange: (v: boolean) => void;
   label: string;
+  /** Interrupteur dont la bascule n'est pas possible pour l'instant. */
+  disabled?: boolean;
 }) {
   return (
     <button
@@ -154,6 +157,7 @@ export function Switch({
       role="switch"
       aria-checked={checked}
       aria-label={label}
+      disabled={disabled}
       className={`vz-switch${checked ? ' is-on' : ''}`}
       onClick={() => onChange(!checked)}
     >

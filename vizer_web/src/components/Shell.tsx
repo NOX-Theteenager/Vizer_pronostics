@@ -1,3 +1,4 @@
+import logoUrl from '../assets/vizer-logo.png';
 import { NavLink } from 'react-router-dom';
 import { SPORTS, type Sport } from '../types/model';
 import {
@@ -76,35 +77,29 @@ export function AppBar({
 }
 
 /**
- * Marque Vizer. La maquette référence `VizerLogo.png` (un « V » néon vert) ;
- * il est redessiné ici en SVG pour tenir la contrainte « aucune ressource
- * externe » et suivre le thème — même tracé, mêmes couleurs.
+ * Marque Vizer — le logo fourni (`assets/VizerLogo.png`), détouré.
+ *
+ * Il était jusqu'ici redessiné en SVG pour tenir la contrainte « aucune
+ * ressource externe ». Le fichier importé reste local : Vite l'intègre au
+ * build avec un nom haché, rien n'est chargé depuis un tiers.
+ *
+ * `scripts/gen_icons.py` produit `src/assets/vizer-logo.png` et les icônes
+ * PWA depuis la même source — une seule image à remplacer pour tout changer.
  */
 export function VizerMark({ size = 30 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" aria-label="Vizer" role="img">
-      <defs>
-        <linearGradient id="vzMarkL" x1="0" y1="0" x2="0.6" y2="1">
-          <stop offset="0%" stopColor="#4ff09a" />
-          <stop offset="100%" stopColor="#13b36a" />
-        </linearGradient>
-        <linearGradient id="vzMarkR" x1="1" y1="0" x2="0.4" y2="1">
-          <stop offset="0%" stopColor="#e9eef5" />
-          <stop offset="100%" stopColor="#9aa6b6" />
-        </linearGradient>
-      </defs>
-      {/* Deux lames qui se rejoignent en pointe — le « V » du logo. */}
-      <path d="M6 12 L20 12 L33 50 L27 56 Z" fill="url(#vzMarkL)" />
-      <path d="M58 12 L44 12 L31 50 L37 56 Z" fill="url(#vzMarkR)" />
-      <path
-        d="M20 13 L32 48"
-        fill="none"
-        stroke="#9dffcf"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        opacity=".8"
-      />
-    </svg>
+    <img
+      src={logoUrl}
+      width={size}
+      height={size}
+      alt="Vizer"
+      className="vz-mark"
+      // Le logo est purement décoratif à côté du titre, mais il porte le nom
+      // de l'app dans l'écran de démarrage et l'onboarding, où aucun texte ne
+      // le double : l'alternative textuelle reste utile.
+      decoding="async"
+      draggable={false}
+    />
   );
 }
 

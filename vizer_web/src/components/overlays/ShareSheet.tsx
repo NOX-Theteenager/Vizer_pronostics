@@ -4,6 +4,7 @@ import { useToast } from '../../context/ToastContext';
 import { formatMoney, formatPnl } from '../../lib/currency';
 import { Switch } from '../Primitives';
 import { Sheet } from '../Sheet';
+import logoUrl from '../../assets/vizer-logo.png';
 import { VizerMark } from '../Shell';
 import type { FollowedBet } from '../../types/bankroll';
 
@@ -30,7 +31,29 @@ export function ShareSheet({ bet, onClose }: { bet: FollowedBet | null; onClose:
     return `EN COURS${withStake ? ` · gain potentiel ${formatMoney(potential, settings.currency)}` : ''}`;
   }, [bet, won, lost, withStake, settings.currency]);
 
-  /** Rend la carte en PNG 1080×1080. */
+  /**
+ * Charge la marque une seule fois pour le rendu canvas.
+ *
+ * `drawImage` exige une image déjà décodée. La promesse est mémorisée au
+ * niveau du module : partager plusieurs paris ne redécode pas le PNG, et un
+ * échec de chargement n'empêche pas de produire la carte — elle sort juste
+ * sans marque, ce qui vaut mieux qu'un partage impossible.
+ */
+let markPromise: Promise<HTMLImageElement | null> | null = null;
+
+function loadMark(): Promise<HTMLImageElement | null> {
+  if (!markPromise) {
+    markPromise = new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = logoUrl;
+    });
+  }
+  return markPromise;
+}
+
+/** Rend la carte en PNG 1080×1080. */
   const toBlob = useCallback(async (): Promise<Blob | null> => {
     if (!bet) return null;
     const W = 1080;
@@ -49,27 +72,9 @@ export function ShareSheet({ bet, onClose }: { bet: FollowedBet | null; onClose:
     x.fillStyle = g;
     x.fillRect(0, 0, W, W);
 
-    // Marque : les deux lames du « V », dessinées plutôt que chargées.
-    const mark = (ox: number, oy: number, s: number) => {
-      const p = (fx: number, fy: number): [number, number] => [ox + fx * s, oy + fy * s];
-      x.fillStyle = '#2ce08c';
-      x.beginPath();
-      x.moveTo(...p(0.09, 0.19));
-      x.lineTo(...p(0.31, 0.19));
-      x.lineTo(...p(0.52, 0.78));
-      x.lineTo(...p(0.42, 0.88));
-      x.closePath();
-      x.fill();
-      x.fillStyle = '#c9d2dd';
-      x.beginPath();
-      x.moveTo(...p(0.91, 0.19));
-      x.lineTo(...p(0.69, 0.19));
-      x.lineTo(...p(0.48, 0.78));
-      x.lineTo(...p(0.58, 0.88));
-      x.closePath();
-      x.fill();
-    };
-    mark(64, 56, 104);
+    // Marque : le logo de l'app, le même fichier que partout ailleurs.
+    const markImg = await loadMark();
+    if (markImg) x.drawImage(markImg, 64, 48, 112, 112);
 
     x.fillStyle = '#f3f5f9';
     x.font = `900 46px ${F}`;

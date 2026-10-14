@@ -15,6 +15,12 @@
       "destination": "/api/data?path=:path*"
     }
   ],
+  "crons": [
+    {
+      "path": "/api/push/send",
+      "schedule": "10 7 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/sw.js",

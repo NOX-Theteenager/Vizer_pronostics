@@ -11,7 +11,7 @@
 
    Aucune dépendance : pas de Workbox, pas de CDN (§8).
    ========================================================================= */
-const VERSION = 'v3';
+const VERSION = 'v4';
 const SHELL_CACHE = `vizer-shell-${VERSION}`;
 const DATA_CACHE = `vizer-data-${VERSION}`;
 
@@ -127,6 +127,35 @@ function stripQuery(href) {
   u.search = '';
   return u.toString();
 }
+
+/**
+ * Notification poussée par le serveur (api/push/send).
+ *
+ * `userVisibleOnly: true` a été promis au moment de l'abonnement : chaque
+ * message reçu DOIT afficher une notification, sinon le navigateur finit par
+ * révoquer l'abonnement. D'où le repli sur un texte générique quand la
+ * charge utile est absente ou illisible.
+ */
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = {};
+  }
+  const title = data.title || 'Vizer';
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: data.body || 'Un nouveau value bet est disponible.',
+      icon: './icons/icon-192.png',
+      badge: './icons/icon-192.png',
+      tag: data.gameId || 'vizer-value-bet',
+      // Remplace la notification précédente du même match au lieu d'empiler.
+      renotify: false,
+      data: { gameId: data.gameId },
+    }),
+  );
+});
 
 /** Clic sur une notification système : ouvrir le match concerné. */
 self.addEventListener('notificationclick', (event) => {
