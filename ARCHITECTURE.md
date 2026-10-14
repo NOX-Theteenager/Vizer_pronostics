@@ -298,6 +298,47 @@ faisait planter la prédiction** sur un modèle plus ancien
 > config ne porte pas le nom du marché — la NBA appelle `win` ce que le
 > registre nomme `moneyline`.
 
+### Un ROI unanime n'est pas un ROI
+
+Troisième piège de la même famille, mais côté mesure plutôt que code : le
+chiffre était vrai, c'est sa lecture qui était fausse.
+
+Le marché `total` NHL affichait **+11,6 % sur 28 paris**, positif dans toutes
+les tranches d'edge. J'ai réactivé le marché là-dessus. Ses 39 paris publiés
+sont **tous des `under`, aucun `over`** : ce n'est pas un échantillon de 39
+décisions, c'est **une décision directionnelle jouée 39 fois**. Son rendement
+mesure de quel côté le dé est tombé, pas une compétence de sélection.
+
+La cause, mesurée : modèle 5,73 buts attendus contre 6,05 marqués, et **sous
+la ligne du marché sur 38 matchs sur 39**, de 0,54 but en moyenne. Un décalage
+de niveau, pas une opportunité.
+
+Aucun contrôle ne le voyait. La barrière de qualité juge l'erreur moyenne du
+régresseur (MAE 1,87, dans les clous) et non le sens des paris qu'il
+déclenche. L'écran Performance affiche un ROI, et un ROI de pari unanime reste
+un ROI. `max_disagreement` borne l'**ampleur** d'un écart, jamais la
+**constance de son signe**.
+
+> **Règle : un taux de réussite ne se lit jamais sans la répartition des sens
+> qui l'a produit.** `scripts/check_market_direction.py` la calcule à chaque
+> run et la publie dans `performance/direction.json` ; l'écran Performance
+> l'affiche collée au ROI, et barre le ROI quand le marché est unanime.
+> `vizer_core/direction_guard.py` retient alors les paris du côté dominant —
+> et seulement ceux-là, pour que le premier pari à contre-courant puisse lever
+> la retenue.
+
+Deux propriétés de ce contrôle méritent d'être retenues :
+
+- **Il n'attend aucun résultat.** Le sens d'un pari est connu à la
+  publication, donc le défaut est visible le jour même. Le ROI, lui, a mis
+  trois semaines à le révéler — et seulement parce qu'on est allé le chercher.
+- **Il ne teste pas contre 50/50.** Mesuré sur l'archive réelle, un test
+  binomial contre l'équilibre condamne aussi le moneyline (49 `away` contre 9
+  `home`, p = 9·10⁻⁸) et éteint le seul marché qui fonctionne. 50/50 n'est pas
+  le bon modèle de référence : rien n'impose qu'un sélectionneur honnête
+  trouve autant d'occasions des deux côtés. L'unanimité, elle, ne demande
+  aucune référence — elle énonce ce qu'on ne peut pas conclure.
+
 ### Reste à faire
 
 - **Pas de pipeline candidat → promotion** : l'entraînement écrase directement

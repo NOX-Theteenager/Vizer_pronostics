@@ -70,20 +70,31 @@ markets:
         random_state: 42
 
   total:
-    # Réactivé le 14/10/2026. Il était coupé sur un backtest à −11 %, mais un
-    # défaut de `value_bet()` ignorait `enabled` : le marché a continué de
-    # publier des paris pendant des mois. La mesure sur ces paris réels donne
-    # **+11,6 % sur 28 paris** (cf. performance/), positive dans toutes les
-    # tranches d'edge — à l'inverse du moneyline, qui se dégrade quand le
-    # désaccord grandit. Le couper maintenant reviendrait à supprimer le seul
-    # marché dont on ait une trace favorable.
+    # Historique de ce marché, parce qu'il illustre une erreur de lecture.
     #
-    # ⚠ À surveiller : **les 28 paris sont des `under`, aucun `over`.** Le
-    # modèle prédit systématiquement moins de buts que le marché. Soit il
-    # exploite un biais connu — les books remontent les totaux parce que le
-    # public aime l'over — soit il sous-estime les buts et a eu de la chance.
-    # 28 paris ne tranchent pas. C'est par là que ce marché cassera, si il
-    # casse.
+    # Coupé sur un backtest à −11 %, il a continué de publier des paris
+    # pendant des mois (`value_bet()` ignorait `enabled`). Ces paris réels
+    # affichaient **+11,6 % sur 28 paris**, chiffre sur lequel je l'ai
+    # réactivé le 14/10/2026. C'était une erreur : les 28 paris — 39 depuis —
+    # sont **tous des `under`, aucun `over`**. Un marché qui ne parie jamais
+    # de l'autre côté ne produit pas n paris indépendants, il produit un pari
+    # directionnel joué n fois. Le +11,6 % mesurait donc si le dé était tombé
+    # du bon côté, pas une compétence de sélection.
+    #
+    # La cause est mesurée, et c'est un décalage de niveau, pas une
+    # opportunité : modèle 5,73 buts attendus contre 6,05 réellement marqués,
+    # et **sous la ligne du marché sur 38 des 39 matchs**, de 0,54 but en
+    # moyenne. L'écart au réel (−0,31 ± 0,41) reste à 0,8 écart-type de zéro,
+    # donc indiscernable du hasard sur cet échantillon — mais la constance du
+    # signe face au marché, elle, ne l'est pas.
+    #
+    # `enabled` reste à true **volontairement** : le modèle doit continuer de
+    # prédire et d'être mesuré, sinon on devient aveugle sur le marché qu'on
+    # surveille. Ce sont les *paris* qui sont retenus, par le garde-fou
+    # directionnel (`vizer_core/direction_guard.py`), et seulement du côté
+    # dominant — un `over` passerait, parce que c'est la preuve qui manque.
+    # Corriger le niveau du régresseur est l'étape suivante ; elle attend un
+    # échantillon plus large.
     enabled: true
     edge_threshold: 0.05
     kelly_factor: 0.25

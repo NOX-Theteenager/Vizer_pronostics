@@ -3510,6 +3510,32 @@ code {
   color: var(--text-dim);
 }
 
+/* ── Sens des paris ──────────────────────────────────────────────────────
+   Collé au rendement, et non relégué ailleurs : c'est la ligne qui dit si le
+   pourcentage juste à côté veut dire quelque chose. */
+.vz-dir {
+  display: block;
+  margin-top: 3px;
+  line-height: 1.35;
+}
+
+.vz-dir.is-warn {
+  color: var(--warning);
+}
+
+.vz-dir.is-down {
+  color: var(--danger);
+}
+
+/* Le ROI d'un marché unanime reste lisible, mais barré : on ne le cache pas
+   — ce serait perdre l'information — on l'empêche de se lire comme une
+   mesure de compétence. */
+.vz-dir__struck {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  opacity: 0.55;
+}
+
 /* ── Calibration ─────────────────────────────────────────────────────────
    Le repère marque la probabilité annoncée, la barre la fréquence réelle.
    L'écart entre les deux est toute l'information : c'est pour ça qu'ils

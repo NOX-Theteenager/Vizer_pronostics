@@ -5,9 +5,15 @@ import { Chip } from '../components/Primitives';
 import { ValueBetCard } from '../components/ValueBetCard';
 import { useBankroll } from '../context/BankrollContext';
 import { useData } from '../context/DataContext';
-import { MARKET_FAMILIES } from '../data/markets';
+import { MARKET_FAMILIES, marketShortLabel } from '../data/markets';
 import { isPast } from '../lib/format';
-import { SPORTS, type Confidence, type Sport, type ValueBet } from '../types/model';
+import {
+  SPORTS,
+  SPORT_KEYS,
+  type Confidence,
+  type Sport,
+  type ValueBet,
+} from '../types/model';
 import { CONFIDENCE_LABEL } from '../lib/format';
 
 type SportFilter = 'all' | Sport;
@@ -22,7 +28,7 @@ export function ValueBets({
   onFollow: (vb: ValueBet) => void;
   onAddSlip: (vb: ValueBet) => void;
 }) {
-  const { valueBets, loading } = useData();
+  const { valueBets, feeds, loading } = useData();
   const { bankroll, slip } = useBankroll();
 
   const [sportF, setSportF] = useState<SportFilter>('all');
@@ -31,6 +37,22 @@ export function ValueBets({
   const [sort, setSort] = useState<SortMode>('edge');
   const [edgeMin, setEdgeMin] = useState(4);
   const [showStarted, setShowStarted] = useState(false);
+
+  /**
+   * Marchés dont les paris ont été retenus à la publication.
+   *
+   * Affiché parce qu'un marché qui se tait sans rien dire est le défaut qu'on
+   * cherche à éviter : sans cette ligne, le `total` disparaîtrait de l'écran
+   * et rien n'indiquerait que c'est une décision plutôt qu'une absence
+   * d'occasion.
+   */
+  const withheld = useMemo(
+    () =>
+      SPORT_KEYS.flatMap((s) =>
+        (feeds[s]?.withheldMarkets ?? []).map((w) => ({ ...w, sport: s })),
+      ),
+    [feeds],
+  );
 
   const startedCount = useMemo(
     () => valueBets.filter((vb) => isPast(vb.commenceTime)).length,
@@ -119,6 +141,23 @@ export function ValueBets({
           aria-label="Edge minimum"
         />
       </div>
+
+      {withheld.length > 0 && (
+        <div className="vz-card">
+          <p className="vz-note">
+            🛑{' '}
+            <strong>
+              {withheld
+                .map((w) => `${marketShortLabel(w.market)} (${w.sport.toUpperCase()})`)
+                .join(', ')}
+            </strong>{' '}
+            — paris non proposés aujourd’hui. Ce marché n’a jamais parié dans l’autre
+            sens sur les dernières semaines : son rendement passé ne mesure donc pas sa
+            sélection, mais un pari directionnel unique répété. Les prédictions restent
+            visibles dans chaque match.
+          </p>
+        </div>
+      )}
 
       {loading && valueBets.length === 0 ? (
         <RailSkeletons count={2} />

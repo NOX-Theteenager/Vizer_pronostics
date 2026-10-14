@@ -404,6 +404,11 @@ function feedMeta<G>(sport: Sport, raw: RawFeed<G>, games: Game[]): SportFeed {
     games: games.sort(
       (a, b) => new Date(a.commenceTime).getTime() - new Date(b.commenceTime).getTime(),
     ),
+    // Tableau vide plutôt qu'absent : les archives d'avant le garde-fou ne
+    // portent pas le champ, et l'appelant n'a pas à distinguer les deux cas.
+    withheldMarkets: (raw.withheld_markets ?? []).filter(
+      (w) => w && typeof w.market === 'string',
+    ),
     ...(raw.message ? { message: raw.message } : {}),
     ...(raw.detection_source ? { detectionSource: raw.detection_source } : {}),
   };
@@ -417,6 +422,7 @@ export function normalizeFeed(sport: Sport, raw: unknown): SportFeed {
       modelsTrainedAt: null,
       modelVersion: null,
       games: [],
+      withheldMarkets: [],
       message: 'no games',
     };
   }

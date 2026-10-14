@@ -166,6 +166,11 @@ export interface RawFeed<G> {
   /** Version lisible du modèle (« v2026.10.06 »). */
   model_version?: string | null;
   games: G[];
+  /**
+   * Marchés dont les paris ont été retenus par le garde-fou directionnel.
+   * Absent des archives antérieures à sa mise en service.
+   */
+  withheld_markets?: { market: string; side: string; reason: string }[];
   /** Hors-saison : `{ games: [], message: 'no games' }`. */
   message?: string;
 }

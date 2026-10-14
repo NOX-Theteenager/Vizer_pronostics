@@ -155,12 +155,26 @@ export interface Game {
   error?: string;
 }
 
+/**
+ * Un marché dont les paris ont été retenus à la publication, et pourquoi.
+ *
+ * Publié par `predict_all.py` quand le garde-fou directionnel s'est déclenché.
+ * Existe pour que l'absence d'un marché ne soit jamais muette : un marché qui
+ * disparaît sans explication est exactement le défaut qu'on cherche à éviter.
+ */
+export interface WithheldMarket {
+  market: string;
+  side: string;
+  reason: string;
+}
+
 export interface SportFeed {
   sport: Sport;
   generatedAt: string | null;
   modelsTrainedAt: string | null;
   modelVersion: string | null;
   games: Game[];
+  withheldMarkets: WithheldMarket[];
   message?: string;
   detectionSource?: string;
 }

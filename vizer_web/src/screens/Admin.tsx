@@ -5,8 +5,9 @@ import { useToast } from '../context/ToastContext';
 import { Performance } from '../components/Performance';
 import { useData } from '../context/DataContext';
 import { policyKey, savePolicy } from '../lib/marketPolicy';
-import type { PerformanceFile } from '../types/performance';
+import type { DirectionFile, PerformanceFile } from '../types/performance';
 import {
+  fetchDirection,
   fetchGateStatus,
   fetchModelRegistry,
   fetchPerformance,
@@ -105,6 +106,8 @@ export function Admin() {
   const [registryError, setRegistryError] = useState<string | null>(null);
   const [gate, setGate] = useState<GateStatus | null>(null);
   const [perf, setPerf] = useState<PerformanceFile | null>(null);
+  /** Sens des paris par marché — se lit collé au rendement, cf. Performance. */
+  const [direction, setDirection] = useState<DirectionFile | null>(null);
   const [policyBusy, setPolicyBusy] = useState(false);
   /** Deux lectures du même modèle : sa fiche, et ce qu'il vaut en vrai. */
   const [tab, setTab] = useState<'modele' | 'performance'>('modele');
@@ -131,6 +134,14 @@ export function Admin() {
     } catch {
       // Publié par le job quotidien ; absent tant qu'il n'a pas tourné.
       setPerf(null);
+    }
+    try {
+      setDirection(await fetchDirection());
+    } catch {
+      // Idem. Son absence ne doit pas masquer le reste de l'écran : le
+      // rendement s'affiche alors sans son contexte directionnel, ce qui
+      // était la situation d'avant.
+      setDirection(null);
     }
     try {
       setGate(await fetchGateStatus());
@@ -256,6 +267,7 @@ export function Admin() {
           <Performance
             sport={sport}
             data={perf.sports[sport]!}
+            direction={direction?.sports?.[sport]}
             policy={policy}
             busy={policyBusy}
             onToggle={adminKey ? toggleMarket : null}

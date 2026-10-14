@@ -10,6 +10,9 @@
 #
 # Deux contrôles, quelques secondes chacun :
 #   - ruff F821 (noms non définis) sur le code Python ;
+#   - les tests de `vizer_core` qui décident de ce qui est publié : le garde-fou
+#     directionnel retient des paris, une erreur y fait soit disparaître des
+#     paris valables, soit passer le défaut qu'il surveille ;
 #   - build + auto-tests de la PWA, qui vérifient aussi le contrat de données
 #     et la fonction servie par Vercel.
 # =============================================================================
@@ -36,7 +39,7 @@ concurrency:
 
 jobs:
   python:
-    name: Python — noms non définis
+    name: Python — noms non définis et décisions de publication
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -45,8 +48,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Installer ruff
-        run: pip install --quiet "ruff~=0.17"
+      - name: Installer ruff et pytest
+        run: pip install --quiet "ruff~=0.17" "pytest~=8.3"
 
       # F821 seul : on ne veut pas imposer un style à un code existant, on veut
       # empêcher un NameError de partir en production. Les notebooks Kaggle sont
@@ -55,6 +58,11 @@ jobs:
         run: |
           ruff check --select F821 --output-format=concise \
             vizer_core/ vizer_nba/ vizer_nhl/ scripts/ kaggle/
+
+      # `tests/` ne dépend que de la bibliothèque standard : pas de pandas, pas
+      # de modèle à charger, quelques dixièmes de seconde.
+      - name: Tester les décisions de publication
+        run: python -m pytest tests/ -q
 
   web:
     name: PWA — build et contrat de données

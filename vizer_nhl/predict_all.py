@@ -24,7 +24,7 @@ import os
 import sys
 from pathlib import Path
 
-from vizer_core import load_config
+from vizer_core import DirectionGuard, load_config
 
 from src.api.odds_client import NHLOddsClient, OddsAPIError, code_to_team_name
 from src.api.unified_predictor import NHLUnifiedPredictor
@@ -39,6 +39,30 @@ def resolve_api_key(args, config: dict) -> str | None:
     if os.environ.get('ODDS_API_KEY'):
         return os.environ['ODDS_API_KEY']
     return config.get('odds_api', {}).get('key')
+
+
+def _bet_dict(go, vb) -> dict:
+    """Sérialise un ValueBet. Partagé par `value_bets` et `withheld_bets` :
+    un pari retenu doit être publié sous exactement la même forme, sinon le
+    scanner directionnel ne le recompte pas et le verdict s'auto-efface."""
+    return {
+        'market': vb.market_name,
+        'selection': vb.selection,
+        'predicted_proba': round(vb.predicted_proba, 4),
+        'bookmaker_odds': vb.bookmaker_odds,
+        'edge': round(vb.edge, 4),
+        'kelly_stake': round(vb.kelly_stake, 4),
+        'confidence': vb.confidence,
+        # Les deux opinions qui ont produit la décision. Sans elles,
+        # impossible de savoir après coup si le mélange modèle/marché a
+        # aidé ou nui.
+        'model_proba': (round(vb.model_proba, 4)
+                        if vb.model_proba is not None else None),
+        'market_proba': (round(vb.market_proba, 4)
+                         if vb.market_proba is not None else None),
+        # Comparatif entre bookmakers sur la même sélection.
+        'books': books_for_bet(go, vb.market_name, vb.selection),
+    }
 
 
 def main():
@@ -95,6 +119,19 @@ def main():
 
     print(f"  ✓ {len(games)} matchs détectés\n", file=sys.stderr)
 
+    # Garde-fou directionnel : retient les paris d'un marché qui n'a jamais
+    # parié que d'un côté sur la fenêtre récente (cf. direction_guard.py).
+    # Inerte si le verdict de la veille est absent — on publie sans plutôt que
+    # de ne rien publier, mais on le dit.
+    guard = DirectionGuard.load(os.environ.get('VIZER_DIRECTION_VERDICTS'), 'nhl')
+    if guard:
+        for market, side in sorted(guard.withhold.items()):
+            print(f"  🛑 {market} : paris « {side} » retenus — {guard.reasons.get(market, '')}",
+                  file=sys.stderr)
+    elif not os.environ.get('VIZER_DIRECTION_VERDICTS'):
+        print("  ℹ️  pas de verdict directionnel fourni — aucun marché retenu",
+              file=sys.stderr)
+
     # Prédire chaque match
     meta = getattr(predictor.registry, '_metadata', {}) or {}
     output = {
@@ -102,6 +139,12 @@ def main():
         # Horodatage et version des modèles : affichés par la PWA et l'Admin.
         'models_trained_at': meta.get('trained_at'),
         'model_version': meta.get('model_version'),
+        # Marchés dont les paris sont retenus ce jour, et pourquoi. Publié
+        # pour que l'absence d'un marché dans le feed ne soit jamais muette.
+        'withheld_markets': [
+            {'market': m, 'side': side, 'reason': guard.reasons.get(m, '')}
+            for m, side in sorted(guard.withhold.items())
+        ],
         'games': [],
     }
     for go in games:
@@ -113,7 +156,9 @@ def main():
         if args.min_edge is not None:
             value_bets = [vb for vb in value_bets if vb.edge >= args.min_edge]
 
-        if args.value_only and not value_bets:
+        value_bets, withheld = guard.split(value_bets)
+
+        if args.value_only and not value_bets and not withheld:
             continue
 
         game_entry = {
@@ -121,26 +166,14 @@ def main():
             'away': go.away,
             'commence_time': go.commence_time,
             'predictions': all_pred.get('markets', {}),
-            'value_bets': [
-                {
-                    'market': vb.market_name,
-                    'selection': vb.selection,
-                    'predicted_proba': round(vb.predicted_proba, 4),
-                    'bookmaker_odds': vb.bookmaker_odds,
-                    'edge': round(vb.edge, 4),
-                    'kelly_stake': round(vb.kelly_stake, 4),
-                    'confidence': vb.confidence,
-                    # Les deux opinions qui ont produit la décision. Sans
-                    # elles, impossible de savoir après coup si le mélange
-                    # modèle/marché a aidé ou nui.
-                    'model_proba': (round(vb.model_proba, 4)
-                                    if vb.model_proba is not None else None),
-                    'market_proba': (round(vb.market_proba, 4)
-                                     if vb.market_proba is not None else None),
-                    # Comparatif entre bookmakers sur la même sélection.
-                    'books': books_for_bet(go, vb.market_name, vb.selection),
-                }
-                for vb in value_bets
+            'value_bets': [_bet_dict(go, vb) for vb in value_bets],
+            # Paris détectés puis retenus par le garde-fou directionnel. Ils
+            # sont publiés — jamais supprimés — pour deux raisons : le scanner
+            # les recompte, et l'utilisateur voit ce qui a été écarté plutôt
+            # qu'un marché devenu silencieux sans explication.
+            'withheld_bets': [
+                {**_bet_dict(go, vb), 'withheld_reason': reason}
+                for vb, reason in withheld
             ],
             # Forme récente et confrontations directes (absentes si l'équipe
             # n'a pas d'historique dans le dataset).

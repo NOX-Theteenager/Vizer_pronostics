@@ -16,7 +16,7 @@
 import type { Sport, SportFeed } from '../types/model';
 import { normalizeFeed } from '../types/normalize';
 import { normalizeLive, type LiveGame } from '../types/live';
-import type { PerformanceFile } from '../types/performance';
+import type { DirectionFile, PerformanceFile } from '../types/performance';
 import { normalizeResults, type GameResult } from '../types/results';
 import { KEYS, readJson, writeJson } from './storage';
 
@@ -280,6 +280,18 @@ export const PERFORMANCE_BASE = DATA_BASE.replace(/\/predictions\/?$/, '/perform
 export async function fetchPerformance(): Promise<PerformanceFile> {
   const url = `${PERFORMANCE_BASE}/summary.json?cb=${Math.floor(Date.now() / 300_000)}`;
   return (await fetchJson(url)) as PerformanceFile;
+}
+
+/**
+ * Sens des paris publiés, par marché.
+ *
+ * Se lit **à côté** du rendement, jamais séparément : un marché qui ne parie
+ * que d'un côté affiche un ROI qui ne mesure pas sa sélection. C'est le
+ * chiffre qui dit si le rendement voisin veut dire quelque chose.
+ */
+export async function fetchDirection(): Promise<DirectionFile> {
+  const url = `${PERFORMANCE_BASE}/direction.json?cb=${Math.floor(Date.now() / 300_000)}`;
+  return (await fetchJson(url)) as DirectionFile;
 }
 
 /** Archive d'un jour donné — utilisée par l'écran Historique. */

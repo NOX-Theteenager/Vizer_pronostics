@@ -12,6 +12,7 @@
 #   results/latest.json                    ← scores finaux, 7 derniers jours
 #   results/YYYY-MM-DD.json                ← un fichier par jour (backtest)
 #   performance/summary.json               ← ce que valent les prédictions
+#   performance/direction.json             ← marchés qui ne parient que d'un côté
 #
 # Sources au runtime :
 #   - Code       : branche main
@@ -204,6 +205,63 @@ jobs:
           python scripts/check_serving_features.py --sport nhl --verbose \
             || echo "SERVING_SKEW=nhl" >> "$GITHUB_ENV"
 
+      # ── 4 ter. Verdict directionnel de la veille ─────────────────────────────
+      # Un marché qui ne parie jamais que d'un côté ne produit pas N paris
+      # indépendants : il produit un pari directionnel joué N fois. Son ROI ne
+      # mesure donc pas une compétence de sélection — c'est exactement ce qui
+      # a conduit à réactiver le `total` NHL sur un +11,6 % trompeur, alors que
+      # ses 39 paris étaient tous des `under`.
+      #
+      # Le verdict est calculé en fin de run (step 7) et publié dans
+      # `performance/direction.json`. On lit ici celui du run précédent : le
+      # sens des paris du jour ne peut pas servir à filtrer les paris du jour.
+      # Le décalage est d'un demi-run — deux passages quotidiens — pas d'un
+      # jour.
+      #
+      # Absence du fichier = garde-fou inerte, et c'est voulu : des
+      # prédictions publiées sans filtre valent mieux qu'une journée muette.
+      - name: Récupérer le verdict directionnel précédent
+        run: |
+          mkdir -p /tmp/guard
+          VERDICT=/tmp/guard/performance/direction.json
+
+          git archive origin/models-artifacts performance/direction.json 2>/dev/null \
+            | tar -x -C /tmp/guard 2>/dev/null || true
+
+          # Pas de verdict publié : on le calcule ici, sur l'archive. Sans ce
+          # recours, le garde-fou ne s'activerait qu'au run suivant sa propre
+          # mise en service — et le premier run publierait sans filtre les
+          # paris qu'il est censé retenir. Même raisonnement si la publication
+          # de la veille a échoué. 14 Mo d'archive, quelques secondes.
+          if [ ! -f "$VERDICT" ]; then
+            echo "  ℹ️  pas de verdict publié — calcul sur l'archive"
+            mkdir -p /tmp/guard/hist
+            if git archive origin/models-artifacts predictions/archive 2>/dev/null \
+                 | tar -x -C /tmp/guard/hist 2>/dev/null; then
+              python scripts/check_market_direction.py \
+                --root /tmp/guard/hist --out "$VERDICT" \
+                || rm -f "$VERDICT"
+            else
+              echo "  ℹ️  archive des prédictions indisponible"
+            fi
+          fi
+
+          if [ -f "$VERDICT" ]; then
+            echo "VIZER_DIRECTION_VERDICTS=$VERDICT" >> "$GITHUB_ENV"
+            python -c "
+          import json
+          d = json.load(open('/tmp/guard/performance/direction.json'))
+          for sport, rows in (d.get('sports') or {}).items():
+              for r in rows:
+                  if r.get('withhold'):
+                      print(f\"  🛑 {sport}/{r['market']} : « {r['withhold']} » retenu — {r['reason']}\")
+                  elif r.get('status') == 'imbalanced':
+                      print(f\"  ⚠️  {sport}/{r['market']} : {r['reason']}\")
+          "
+          else
+            echo "  ℹ️  aucun verdict directionnel — aucun marché retenu ce run"
+          fi
+
       # ── 5. Prédictions ───────────────────────────────────────────────────────
       # Un échec sur un sport ne bloque pas l'autre : on publie ce qui a réussi,
       # et le job est marqué en échec à la fin (step 8) si un sport a échoué.
@@ -329,6 +387,14 @@ jobs:
           python "$GITHUB_WORKSPACE/scripts/export_performance.py" --root . \
             || echo "⚠️  Performance non recalculée"
 
+          # Sens des paris publiés, par marché. Calculé après la copie des
+          # prédictions du jour, donc en les incluant — et sans avoir besoin
+          # d'un seul résultat : le sens d'un pari est connu à la publication.
+          # C'est ce qui rend ce contrôle rapide là où le ROI met des semaines
+          # à révéler le même défaut.
+          python "$GITHUB_WORKSPACE/scripts/check_market_direction.py" --root . \
+            || echo "⚠️  Verdict directionnel non recalculé"
+
           git add predictions/ models/ results/ performance/ vizer_web/vercel.json
           if git diff --cached --quiet; then
             echo "ℹ️  Aucun changement de prédictions à commiter."
@@ -366,6 +432,9 @@ jobs:
             echo "  ⚠️  Features manquantes au service : ${SERVING_SKEW}"
             echo "     Les prédictions publiées sont dégradées — voir le log"
             echo "     de l'étape « Vérifier les features servies »."
+          fi
+          if [ -f /tmp/guard/performance/direction.json ]; then
+            echo "  🧭 Verdict directionnel appliqué (run précédent)"
           fi
           if [ -n "${FAILED_SPORTS}" ]; then
             echo "  ❌ Échec sur :${FAILED_SPORTS}"

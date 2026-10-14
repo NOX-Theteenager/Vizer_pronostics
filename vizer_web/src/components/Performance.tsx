@@ -6,6 +6,7 @@ import type { Sport } from '../types/model';
 import type {
   BetPerformance,
   CalibrationBucket,
+  DirectionVerdict,
   SportPerformance,
 } from '../types/performance';
 
@@ -18,6 +19,29 @@ import type {
  * ne sont pas masqués — on affiche l'effectif atteint, qui est l'information
  * utile pour savoir quand revenir.
  */
+
+/**
+ * Sens des paris d'un marché.
+ *
+ * Posé délibérément **collé au rendement**, et non dans une section à part.
+ * Le `total` NHL affichait +11,6 % sur 28 paris et ce chiffre a servi à le
+ * réactiver ; ses 39 paris étaient tous des `under`. Un marché qui ne parie
+ * jamais de l'autre côté ne produit pas n paris indépendants, il produit un
+ * pari directionnel joué n fois — et un ROI vu seul ne le dit pas.
+ */
+function Direction({ v }: { v: DirectionVerdict }) {
+  if (v.status === 'insufficient') return null;
+  const sides = Object.entries(v.counts).sort((a, b) => b[1] - a[1]);
+  const tone =
+    v.status === 'withheld' ? 'is-down' : v.status === 'imbalanced' ? 'is-warn' : '';
+  return (
+    <small className={`vz-note vz-dir ${tone}`}>
+      {v.status === 'withheld' ? '🛑 ' : v.status === 'imbalanced' ? '⚠️ ' : ''}
+      {sides.map(([side, n]) => `${n} ${side}`).join(' · ')}
+      {v.status !== 'ok' ? ` — ${v.reason}` : ''}
+    </small>
+  );
+}
 
 /** Pourcentage signé, teinté selon qu'il est favorable ou non. */
 function Signed({ value, digits = 1 }: { value: number; digits?: number }) {
@@ -81,10 +105,12 @@ function Calibration({ buckets }: { buckets: CalibrationBucket[] }) {
 function BetRow({
   label,
   bets,
+  direction,
   toggle,
 }: {
   label: string;
   bets: BetPerformance;
+  direction?: DirectionVerdict;
   toggle?: { on: boolean; busy: boolean; onChange: (v: boolean) => void; label: string };
 }) {
   const insufficient = bets.insufficient || bets.roi_flat === undefined;
@@ -97,11 +123,16 @@ function BetRow({
             ? `${bets.n} pari(s) — pas assez pour conclure`
             : `${bets.won}/${bets.n} gagnés · edge moyen ${formatNumber((bets.avg_edge ?? 0) * 100, 1)} %`}
         </small>
+        {direction ? <Direction v={direction} /> : null}
       </span>
       {!insufficient && (
         <span className="vz-perf__roi">
-          <Signed value={bets.roi_flat!} />
-          <small>mise plate</small>
+          {/* Barré quand le marché est unanime : le chiffre reste lisible,
+              mais on ne peut plus le prendre pour une mesure. */}
+          <span className={direction?.status === 'withheld' ? 'vz-dir__struck' : undefined}>
+            <Signed value={bets.roi_flat!} />
+          </span>
+          <small>{direction?.status === 'withheld' ? 'non interprétable' : 'mise plate'}</small>
         </span>
       )}
       {toggle && (
@@ -119,17 +150,22 @@ function BetRow({
 export function Performance({
   sport,
   data,
+  direction,
   policy,
   onToggle,
   busy,
 }: {
   sport: Sport;
   data: SportPerformance;
+  /** Verdicts directionnels par marché ; absent tant que le job n'a pas tourné. */
+  direction?: DirectionVerdict[];
   policy: MarketPolicy;
   /** `null` quand l'utilisateur n'a pas de clé d'administration. */
   onToggle: ((market: string, bettable: boolean) => void) | null;
   busy: boolean;
 }) {
+  const verdicts = new Map((direction ?? []).map((v) => [v.market, v]));
+  const withheld = (direction ?? []).filter((v) => v.status === 'withheld');
   const markets = Object.entries(data.markets).sort(
     (a, b) => (b[1].n ?? 0) - (a[1].n ?? 0),
   );
@@ -219,6 +255,7 @@ export function Performance({
             key={key}
             label={marketShortLabel(key)}
             bets={bets}
+            direction={verdicts.get(key)}
             toggle={
               onToggle
                 ? {
@@ -245,6 +282,15 @@ export function Performance({
           quels marchés valent la peine — et elle est indépendante de ce que vous avez
           effectivement suivi.
         </p>
+        {withheld.length > 0 && (
+          <p className="vz-note">
+            🛑 <strong>{withheld.map((v) => marketShortLabel(v.market)).join(', ')}</strong>{' '}
+            {withheld.length > 1 ? 'ne parient' : 'ne parie'} jamais de l’autre côté.
+            Leurs paris du sens dominant ne sont plus proposés — les prédictions, elles,
+            continuent d’être publiées et mesurées. Un seul pari à contre-courant suffit
+            à lever la retenue : c’est précisément la preuve qui manque.
+          </p>
+        )}
       </div>
     </>
   );

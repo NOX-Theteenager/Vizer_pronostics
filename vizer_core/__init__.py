@@ -10,6 +10,7 @@ Ce package contient UNIQUEMENT du code agnostique au sport :
 - UnifiedPredictor   : façade haut niveau
 - load_config        : chargement et validation de config.yaml
 - check_registry     : barrière de qualité (refuse un modèle sous son plancher)
+- DirectionGuard     : retient un marché qui ne parie jamais que d'un côté
 
 Aucune logique métier (features, API, conventions de saison) ne doit
 être ajoutée ici. Voir ARCHITECTURE.md section 12.
@@ -28,6 +29,7 @@ from .backtest import (
 from .synthetic_odds_v2 import CalibratedSyntheticOddsProvider
 from .quality_gate import check_registry, GateResult, MarketCheck
 from .explain import top_contributions
+from .direction_guard import DirectionGuard, Verdict, direction_of, scan as scan_directions
 
 __version__ = "0.3.0"
 
@@ -44,6 +46,10 @@ __all__ = [
     "check_registry",
     "GateResult",
     "MarketCheck",
+    "DirectionGuard",
+    "Verdict",
+    "direction_of",
+    "scan_directions",
     "detect_target_leakage",
     "assert_no_leakage",
     "LeakageError",
