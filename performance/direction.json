@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-14T20:45:14+00:00",
+  "generated_at": "2026-10-14T23:01:29+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -11,9 +11,9 @@
       {
         "market": "moneyline",
         "status": "imbalanced",
-        "n": 58,
+        "n": 59,
         "counts": {
-          "away": 49,
+          "away": 50,
           "home": 9
         },
         "dominant": "away",
@@ -21,21 +21,21 @@
         "withhold": null,
         "from": "2026-09-29",
         "to": "2026-10-16",
-        "reason": "49 paris sur 58 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
+        "reason": "50 paris sur 59 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
         "status": "withheld",
-        "n": 39,
+        "n": 38,
         "counts": {
-          "under": 39
+          "under": 38
         },
         "dominant": "under",
         "minority": 0,
         "withhold": "under",
         "from": "2026-09-29",
         "to": "2026-10-16",
-        "reason": "39 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
+        "reason": "38 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
       }
     ],
     "nba": []
