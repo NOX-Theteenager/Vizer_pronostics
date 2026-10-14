@@ -274,7 +274,24 @@ jobs:
             cp "$PREDS_DIR/registry.json" "models/history/${TODAY}.json"
           fi
 
-          git add predictions/ models/ results/
+          # Vercel déploie sur chaque push du dépôt, y compris sur cette
+          # branche de données — qui n'a pas d'application à construire, d'où
+          # un déploiement rouge par jour. Vercel lit `vercel.json` dans le
+          # répertoire racine du projet (`vizer_web/`) sur la branche poussée :
+          # ce fichier lui dit de ne rien construire ici. Écrit à chaque run
+          # pour survivre à une recréation de la branche.
+          mkdir -p vizer_web
+          cat > vizer_web/vercel.json <<'VERCELJSON'
+          {
+            "git": {
+              "deploymentEnabled": {
+                "models-artifacts": false
+              }
+            }
+          }
+          VERCELJSON
+
+          git add predictions/ models/ results/ vizer_web/vercel.json
           if git diff --cached --quiet; then
             echo "ℹ️  Aucun changement de prédictions à commiter."
             exit 0
