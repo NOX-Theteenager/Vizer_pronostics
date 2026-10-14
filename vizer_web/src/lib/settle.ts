@@ -36,6 +36,41 @@ export function resultIndex(results: GameResult[]): Map<string, GameResult> {
   return map;
 }
 
+/** `YYYY-MM-DD` décalé de `days`, sans toucher au fuseau. */
+function shiftDay(day: string, days: number): string | null {
+  const t = Date.parse(`${day}T12:00:00Z`);
+  if (Number.isNaN(t)) return null;
+  return new Date(t + days * 86_400_000).toISOString().slice(0, 10);
+}
+
+/**
+ * Retrouve le résultat d'un match, à un jour près.
+ *
+ * L'identifiant d'un match porte la date UTC de son coup d'envoi. Celle du
+ * pari vient de l'Odds API, celle du résultat d'ESPN : deux sources qui
+ * s'accordent sur l'heure à quelques minutes près, ce qui suffit à les faire
+ * tomber de part et d'autre de minuit UTC pour un match du soir américain.
+ * On essaie donc la veille et le lendemain avant d'abandonner — les équipes et
+ * le sport, eux, lèvent l'ambiguïté.
+ */
+export function findResult(
+  index: Map<string, GameResult>,
+  matchId: string,
+): GameResult | undefined {
+  const exact = index.get(matchId);
+  if (exact) return exact;
+
+  const m = /^(.*)-(\d{4}-\d{2}-\d{2})$/.exec(matchId);
+  if (!m) return undefined;
+  for (const delta of [-1, 1]) {
+    const day = shiftDay(m[2], delta);
+    if (!day) continue;
+    const hit = index.get(`${m[1]}-${day}`);
+    if (hit) return hit;
+  }
+  return undefined;
+}
+
 /** Over/Under : `null` si la ligne tombe pile (push), sinon le verdict. */
 function overUnder(selection: string, value: number): Settlement {
   const m = /^(over|under)_(-?\d+(?:\.\d+)?)$/.exec(selection);
@@ -144,9 +179,9 @@ export function settleSelection(
 function settleCombo(legs: ComboLeg[], index: Map<string, GameResult>): Settlement {
   let allWon = true;
   for (const leg of legs) {
-    // Une jambe porte le `matchId` du match, qui est exactement la clé de
-    // l'index — même construction que `gameId()` du normaliseur.
-    const result = index.get(leg.matchId);
+    // Une jambe porte le `matchId` du match, même construction que `gameId()`
+    // du normaliseur.
+    const result = findResult(index, leg.matchId);
     if (!result) {
       allWon = false;
       continue;
@@ -172,7 +207,7 @@ export function settleBet(
 
   if (bet.combo && bet.legs?.length) return settleCombo(bet.legs, index);
 
-  const result = index.get(bet.matchId);
+  const result = findResult(index, bet.matchId);
   if (!result) return null;
   return settleSelection(bet.market, bet.selection, result);
 }

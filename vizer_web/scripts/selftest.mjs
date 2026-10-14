@@ -30,7 +30,7 @@ export { followMarkets } from './src/lib/follow.ts';
 export { marketFamily } from './src/data/markets.ts';
 export { kellyStake, KELLY_CAP } from './src/lib/kelly.ts';
 export { normalizeResults } from './src/types/results.ts';
-export { settleSelection, settleBet, resultIndex, matchKey } from './src/lib/settle.ts';
+export { settleSelection, settleBet, resultIndex, matchKey, findResult } from './src/lib/settle.ts';
 `;
 
 const out = await build({
@@ -276,6 +276,18 @@ const pendingBet = {
   odds: 1.95, stake: 5000, status: 'pending', pnl: null,
 };
 check('pari suivi clôturé', mod.settleBet(pendingBet, index) === 'won');
+check(
+  'résultat retrouvé à un jour près (minuit UTC)',
+  mod.findResult(index, 'nhl-MTL@TOR-2026-10-13')?.homeScore === 4,
+);
+check(
+  'écart de deux jours refusé',
+  mod.findResult(index, 'nhl-MTL@TOR-2026-10-14') === undefined,
+);
+check(
+  'pari daté de la veille clôturé quand même',
+  mod.settleBet({ ...pendingBet, matchId: 'nhl-MTL@TOR-2026-10-11' }, index) === 'won',
+);
 check(
   'pari déjà clôturé jamais réévalué',
   mod.settleBet({ ...pendingBet, status: 'lost' }, index) === null,
