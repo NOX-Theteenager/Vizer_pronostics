@@ -258,24 +258,41 @@ Si le dépôt devenait privé, définir `VIZER_GITHUB_TOKEN` : le proxy bascule
 alors sur l'API contenus de GitHub. `VIZER_REPO` et `VIZER_BRANCH` permettent
 de déplacer la source sans rebuild.
 
-### Notifications hors application — ce qu'il reste à provisionner
+### Notifications hors application
 
-Les alertes ne partent aujourd'hui que si l'app est ouverte : `useAlerts`
-compare les value bets au seuil réglé et appelle l'API `Notification`. Un
-téléphone verrouillé ne reçoit rien, parce qu'un vrai push ne part pas du
-navigateur mais d'un serveur.
+Les alertes de `useAlerts` ne partent que si l'app est ouverte. Le push, lui,
+part du serveur :
 
-Trois pièces manquent, et deux demandent une action dans le tableau de bord
-Vercel — le connecteur utilisé ici est en lecture seule sur les projets :
+| Route | Rôle |
+|---|---|
+| `GET /api/push/vapid` | clé publique + `ready`, pour que le client ne propose l'option que si le serveur sait vraiment envoyer |
+| `POST /api/push/subscribe` | ajoute ou retire un abonnement, dédoublonné par endpoint |
+| `GET /api/push/send` | cron à 7h10 UTC, dix minutes après la publication des prédictions |
 
-| Pièce | Qui | Comment |
-|---|---|---|
-| Paire de clés VAPID | vous | `npx web-push generate-vapid-keys`, puis les poser en variables d'environnement du projet (`VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`) |
-| Stockage des abonnements | vous | un store Vercel (Blob ou KV) créé depuis l'onglet *Storage*, puis relié au projet |
-| Endpoints + cron | code | `api/push/subscribe`, `api/push/send`, et une entrée `crons` dans `vercel.json` calée après 7h UTC |
+Variables requises sur le projet : `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`,
+`VAPID_SUBJECT`, un store (`KV_REST_API_URL` + `KV_REST_API_TOKEN`, ou les
+équivalents Upstash) et `CRON_SECRET`. `GET /api/health` répond par des
+booléens — présence d'une clé, jamais sa valeur — pour vérifier sans rien
+exposer.
 
-L'ordre compte : sans les deux premières, la troisième ne peut qu'échouer au
-démarrage. Une fois les clés et le store en place, le reste se branche dessus.
+**Au plus une notification par abonné et par jour**, sur son meilleur pari
+au-dessus de son seuil. Chaque couple (abonné, pari) est marqué 20 h dans le
+store : un second appel du cron ne renotifie personne, ce qui protège aussi
+une URL publiquement joignable. Les abonnements expirés (404/410) sont retirés
+au lieu d'être réessayés indéfiniment.
+
+### Le logo
+
+`assets/VizerLogo.png` est la source unique. `npm run icons` en tire la marque
+de l'app (`src/assets/vizer-logo.png`) et les cinq icônes PWA : **remplacer ce
+fichier et relancer la commande suffit à changer le logo partout.**
+
+Le fond gris opaque du rendu d'origine est retiré par estimation — flou large
+pour modéliser le fond, puis écart à ce fond — et non par seuil sur une
+couleur : la lame argentée est claire et peu saturée, le ballon sombre et
+neutre, chacun ressemble au fond sur un critère isolé. La lueur est de la
+lumière *sur* du gris, donc elle est décomposée pour retrouver sa vraie
+couleur ; sans ça elle laissait un voile gris sur le thème clair.
 
 ### GitHub Pages (repli)
 

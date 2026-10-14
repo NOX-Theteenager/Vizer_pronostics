@@ -270,8 +270,8 @@ après prolongation.
   la production. La barrière de qualité empêche qu'un modèle dégradé parte,
   mais il n'y a ni `candidates/`, ni rollback, ni validation manuelle avant
   déploiement.
-- **Notifications hors application** : les alertes ne partent que si l'app est
-  ouverte. Un vrai push demande des clés VAPID et un store d'abonnements à
-  provisionner côté hébergeur — le détail est dans `vizer_web/README.md` §7.
+Les notifications hors application sont en place depuis le 14 octobre 2026 :
+un cron Vercel lit les prédictions publiées et pousse, au plus une alerte par
+abonné et par jour. Le détail est dans `vizer_web/README.md` §7.
 
 Détails d'implémentation : `vizer_web/README.md`.
