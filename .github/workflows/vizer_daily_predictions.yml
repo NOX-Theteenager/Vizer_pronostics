@@ -11,6 +11,7 @@
 #   predictions/archive/YYYY-MM-DD/*.json  ← archives (écran Historique)
 #   results/latest.json                    ← scores finaux, 7 derniers jours
 #   results/YYYY-MM-DD.json                ← un fichier par jour (backtest)
+#   performance/summary.json               ← ce que valent les prédictions
 #
 # Sources au runtime :
 #   - Code       : branche main
@@ -291,7 +292,14 @@ jobs:
           }
           VERCELJSON
 
-          git add predictions/ models/ results/ vizer_web/vercel.json
+          # Performance réelle des prédictions : la jointure archive × résultats.
+          # Calculée ici, après la publication des résultats du jour, pour que
+          # le chiffre intègre les matchs de la veille. Un échec ne doit pas
+          # faire perdre les prédictions du jour.
+          python "$GITHUB_WORKSPACE/scripts/export_performance.py" --root . \
+            || echo "⚠️  Performance non recalculée"
+
+          git add predictions/ models/ results/ performance/ vizer_web/vercel.json
           if git diff --cached --quiet; then
             echo "ℹ️  Aucun changement de prédictions à commiter."
             exit 0
@@ -304,7 +312,7 @@ jobs:
           # plutôt que d'échouer et de perdre les prédictions du jour.
           for attempt in 1 2 3; do
             if git push --quiet origin models-artifacts; then
-              echo "✅ Publié → predictions/latest/, archive/${TODAY}/, results/"
+              echo "✅ Publié → predictions/, results/, performance/"
               exit 0
             fi
             echo "  ⚠️  Push rejeté (tentative ${attempt}/3) — rebase sur origin/models-artifacts"
