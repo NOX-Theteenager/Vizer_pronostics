@@ -264,6 +264,40 @@ d'abstention, tous volontaires — règle de règlement variable selon le
 bookmaker, ligne entière tombée pile (push), score exact ou intervalle de buts
 après prolongation.
 
+### Deux pièges du couple entraînement / service
+
+Les deux ont la même forme — un processus vert, et quelque chose qui disparaît
+en silence. Les deux ont coûté cher avant d'être vus.
+
+**1. Une feature déclarée nulle part vaut zéro, sans bruit.**
+
+Les différentiels (`diff_*`) arrivent pré-calculés dans le dataset agrégé. À
+l'entraînement, `fit_transform` les trouve et passe son chemin. En prédiction
+il n'y a pas de dataset : `TeamStateBuilder` reconstruit les colonnes
+`_home`/`_away`, et seules les tables `RECOVERED_DIFFS` / `MULTI_WINDOW_DIFFS`
+disent comment en tirer le différentiel. Six y manquaient ; `reindex(fill_value=0)`
+les remplissait de zéros, et le modèle NHL décidait sur huit features sur
+seize — **38 % de son pouvoir explicatif perdu entre l'entraînement et la
+production**.
+
+> **Règle : toute feature du modèle doit être déclarée dans une table de
+> diffs.** `scripts/check_serving_features.py` le vérifie, et tourne dans le
+> job quotidien.
+
+**2. Les réglages d'un marché sont picklés avec le modèle.**
+
+`enabled`, `edge_threshold`, `kelly_factor` et les garde-fous vivaient en
+attributs posés par `__init__`. Deux conséquences : modifier `config.yaml`
+n'avait aucun effet avant le réentraînement suivant, et **ajouter un réglage
+faisait planter la prédiction** sur un modèle plus ancien
+(`AttributeError`). Ils sont devenus des propriétés lues depuis `_config`, et
+`ModelRegistry.reconfigure()` applique la config du dépôt au registre chargé.
+
+> **Règle : pas d'attribut de réglage dans `__init__` d'un marché.** Une
+> propriété avec un défaut, et un alias dans `MARKET_ALIASES` si la clé de
+> config ne porte pas le nom du marché — la NBA appelle `win` ce que le
+> registre nomme `moneyline`.
+
 ### Reste à faire
 
 - **Pas de pipeline candidat → promotion** : l'entraînement écrase directement
