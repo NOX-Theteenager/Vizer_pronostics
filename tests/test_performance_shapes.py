@@ -12,17 +12,11 @@ Les formes testées ici sont **relevées sur une sortie réelle** de
 """
 from __future__ import annotations
 
-import importlib.util
-import pathlib
-
 import pytest
 
-_SPEC = importlib.util.spec_from_file_location(
-    'export_performance',
-    pathlib.Path(__file__).resolve().parent.parent / 'scripts' / 'export_performance.py',
-)
-ep = importlib.util.module_from_spec(_SPEC)
-_SPEC.loader.exec_module(ep)
+from conftest import load
+
+ep = load('scripts/export_performance.py')
 
 
 # Relevé sur `python predict_all.py --json`, NBA, 14/10/2026.

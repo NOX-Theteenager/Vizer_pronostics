@@ -18,10 +18,10 @@ dependencies = [
 include = ["vizer_core*"]
 
 [tool.pytest.ini_options]
-# `vizer_core` n'est pas forcément installé quand les tests tournent (le job
-# CI n'installe que ruff et pytest, et les dépendances ML pèsent 300 Mo pour
-# des tests qui n'en ont aucun besoin). Sans cette ligne, l'import marchait
-# par accident, parce que `python -m pytest` ajoute le répertoire courant au
-# chemin — et cassait dès qu'on écrivait `pytest` tout court.
-pythonpath = ["."]
+# Le dossier des tests est sur le chemin pour que `conftest.load()` soit
+# importable depuis chaque module de test. Les modules testés, eux, sont
+# chargés **par chemin** et non par import de package : `vizer_core/__init__.py`
+# tire joblib, pandas, scikit-learn et xgboost, et ces tests n'en utilisent
+# aucun. Le détail est dans `tests/conftest.py`.
+pythonpath = [".", "tests"]
 testpaths = ["tests"]

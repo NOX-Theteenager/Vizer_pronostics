@@ -12,9 +12,16 @@ from datetime import date
 
 import pytest
 
-from vizer_core.direction_guard import (
-    MIN_SAMPLE, DirectionGuard, Verdict, direction_of, scan,
-)
+from conftest import load
+
+# Chargé par chemin : passer par `vizer_core.direction_guard` déclencherait
+# l'`__init__` du package et ses dépendances ML (cf. conftest.py).
+_dg = load('vizer_core/direction_guard.py')
+MIN_SAMPLE = _dg.MIN_SAMPLE
+DirectionGuard = _dg.DirectionGuard
+Verdict = _dg.Verdict
+direction_of = _dg.direction_of
+scan = _dg.scan
 
 
 # ── Axes directionnels ──────────────────────────────────────────────────────
