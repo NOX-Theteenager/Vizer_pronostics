@@ -1,13 +1,8 @@
 {
-  "checked_at": "2026-10-14T07:40:21+00:00",
-  "run_number": "30",
-  "run_id": "38529314547",
+  "checked_at": "2026-10-14T07:49:25+00:00",
+  "run_number": "31",
+  "run_id": "38530255568",
   "sport": "both",
-  "passed": false,
-  "blocked": {
-    "NBA": {
-      "cause": "eval_training_failed",
-      "headline": "l'entraînement d'évaluation a planté : Commande échouée (code 1): python train.py --output /tmp/nba_eval.pkl"
-    }
-  }
+  "passed": true,
+  "blocked": {}
 }
