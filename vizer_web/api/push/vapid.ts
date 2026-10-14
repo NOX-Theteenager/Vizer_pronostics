@@ -4,8 +4,8 @@
  * Publique par construction : c'est elle que le client passe à
  * `pushManager.subscribe()`. La clé privée, elle, ne quitte jamais le serveur.
  */
-import { env, isSet } from '../_lib/env';
-import { kvConfigured } from '../_lib/kv';
+import { env, isSet } from '../_lib/env.js';
+import { kvConfigured } from '../_lib/kv.js';
 
 export function GET(): Response {
   const key = env('VAPID_PUBLIC_KEY');

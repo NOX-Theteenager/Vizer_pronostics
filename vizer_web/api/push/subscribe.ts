@@ -9,7 +9,7 @@
  * L'endpoint est fourni par le service de push du navigateur et ne désigne
  * que ce navigateur-là.
  */
-import { kvConfigured, sadd, smembers, srem } from '../_lib/kv';
+import { kvConfigured, sadd, smembers, srem } from '../_lib/kv.js';
 
 export const SUBS_KEY = 'vizer:push:subs';
 

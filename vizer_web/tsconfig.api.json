@@ -2,8 +2,14 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022", "DOM"],
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    // NodeNext et non « bundler » : les fonctions tournent sous le runtime
+    // Node de Vercel, dans un paquet `"type": "module"`. L'ESM y exige
+    // l'extension dans les imports relatifs — `./env` échoue à l'exécution
+    // avec ERR_MODULE_NOT_FOUND. Ce réglage fait appliquer la même règle au
+    // build, donc l'erreur apparaît ici plutôt qu'en production.
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,

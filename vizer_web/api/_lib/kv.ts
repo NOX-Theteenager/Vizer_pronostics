@@ -10,7 +10,7 @@
  * `UPSTASH_REDIS_REST_TOKEN` côté Upstash direct. On accepte les deux plutôt
  * que d'imposer un câblage.
  */
-import { envAny } from './env';
+import { envAny } from './env.js';
 
 function credentials(): { url: string; token: string } | null {
   const url = envAny('KV_REST_API_URL', 'UPSTASH_REDIS_REST_URL');

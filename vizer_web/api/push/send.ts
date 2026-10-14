@@ -18,9 +18,9 @@
  */
 import webpush from 'web-push';
 
-import { env } from '../_lib/env';
-import { kvConfigured, setIfAbsent, smembers, srem } from '../_lib/kv';
-import { SUBS_KEY } from './subscribe';
+import { env } from '../_lib/env.js';
+import { kvConfigured, setIfAbsent, smembers, srem } from '../_lib/kv.js';
+import { SUBS_KEY } from './subscribe.js';
 
 /** Un abonnement tel que stocké par `subscribe`. */
 interface StoredSub {
