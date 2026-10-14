@@ -164,6 +164,40 @@ class GameOdds:
         lines.sort()
         return lines[len(lines) // 2]
 
+    @staticmethod
+    def _devig(pairs: list[tuple[float, float]]) -> Optional[tuple[float, float]]:
+        """Moyenne des probabilités justes d'un marché à deux issues."""
+        probs: list[tuple[float, float]] = []
+        for a, b in pairs:
+            if not a or not b or a <= 1 or b <= 1:
+                continue
+            raw_a, raw_b = 1.0 / a, 1.0 / b
+            overround = raw_a + raw_b
+            if overround > 0:
+                probs.append((raw_a / overround, raw_b / overround))
+        if not probs:
+            return None
+        n = len(probs)
+        return sum(p[0] for p in probs) / n, sum(p[1] for p in probs) / n
+
+    def consensus_total_probs(self, line: float) -> Optional[tuple[float, float]]:
+        """Probabilités justes over/under sur une ligne, marge retirée."""
+        return self._devig([
+            (t.over_odds, t.under_odds)
+            for b in self.bookmakers for t in b.totals
+            if abs(t.line - line) < 0.01
+        ])
+
+    def consensus_team_total_probs(
+        self, team_full_name: str, line: float,
+    ) -> Optional[tuple[float, float]]:
+        """Idem pour le total d'une équipe seule."""
+        return self._devig([
+            (t.over_odds, t.under_odds)
+            for b in self.bookmakers for t in b.team_totals
+            if t.team_full_name == team_full_name and abs(t.line - line) < 0.01
+        ])
+
     def best_over_under_odds(self, line: float) -> tuple[Optional[float], Optional[float]]:
         """Best line shopping pour over/under sur une ligne donnée."""
         overs, unders = [], []

@@ -19,6 +19,13 @@ import joblib
 from .market_base import MarketBase
 
 
+# Noms alternatifs sous lesquels un marché peut apparaître dans un config.yaml.
+# Clé : nom du marché dans le registre. Valeur : clés de config acceptées.
+MARKET_ALIASES: dict[str, tuple[str, ...]] = {
+    'moneyline': ('win',),
+}
+
+
 class ModelRegistry:
     """
     Conteneur de marchés et métadonnées globales.
@@ -117,6 +124,38 @@ class ModelRegistry:
             "metadata": self._metadata,
         }
         joblib.dump(payload, path)
+
+    def reconfigure(self, markets_config: dict) -> list[str]:
+        """
+        Réapplique la configuration courante aux marchés déjà entraînés.
+
+        Les marchés sont picklés avec la config du jour de l'entraînement.
+        Sans ce rappel, modifier `config.yaml` — un seuil d'edge, un facteur
+        Kelly, ou même `enabled` — n'avait aucun effet avant le réentraînement
+        suivant, et rien ne le signalait.
+
+        Retourne les noms des marchés effectivement reconfigurés.
+        """
+        touched = []
+        for name in self.list_markets():
+            cfg = markets_config.get(name)
+            if not isinstance(cfg, dict):
+                # La clé de config ne porte pas toujours le nom du marché :
+                # la NBA appelle `win` ce que le registre nomme `moneyline`
+                # (nom historique, cf. src/models/markets/__init__.py). Sans
+                # cet alias, la config NBA du moneyline n'atteignait jamais
+                # le marché — ni les seuils, ni les garde-fous.
+                for alias in MARKET_ALIASES.get(name, ()):
+                    cfg = markets_config.get(alias)
+                    if isinstance(cfg, dict):
+                        break
+            if not isinstance(cfg, dict):
+                continue
+            market = self.get(name)
+            if hasattr(market, 'reconfigure'):
+                market.reconfigure(cfg)
+                touched.append(name)
+        return touched
 
     @classmethod
     def load(cls, path: str | Path) -> "ModelRegistry":

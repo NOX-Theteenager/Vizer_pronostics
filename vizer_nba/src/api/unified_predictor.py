@@ -32,6 +32,10 @@ class UnifiedPredictor:
 
     def __init__(self, model_path: str = 'models/nba_model.pkl'):
         self.registry = ModelRegistry.load(model_path)
+        # La config des marchés est figée dans le pickle à l'entraînement :
+        # on réapplique celle du dépôt pour qu'un changement de seuil, de
+        # facteur Kelly ou de `enabled` prenne effet sans réentraîner.
+        self._apply_live_config()
         self.loader = NBADataLoader()
         self._games_cache: pd.DataFrame | None = None
         self._teams_cache: pd.DataFrame | None = None
@@ -565,3 +569,15 @@ class UnifiedPredictor:
 
     def print_model_summary(self) -> None:
         self.registry.print_summary()
+
+    # ------------------------------------------------------------------
+    def _apply_live_config(self, config_path: str = 'config.yaml') -> None:
+        """Réapplique `config.yaml` aux marchés du registre chargé."""
+        try:
+            from vizer_core import load_config
+            cfg = load_config(config_path, validate=False)
+        except Exception:
+            # Config introuvable (exécution hors du dossier du sport) : on
+            # garde les réglages du pickle plutôt que d'échouer au chargement.
+            return
+        self.registry.reconfigure(cfg.get('markets') or {})

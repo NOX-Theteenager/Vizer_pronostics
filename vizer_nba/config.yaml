@@ -67,6 +67,18 @@ markets:
     enabled: true
     edge_threshold: 0.04
     kelly_factor: 0.25
+    # Garde-fous ajoutés le 14/10/2026.
+    #
+    # Rejoué sur les dernières cotes en cache (17/05/2026), le détecteur
+    # proposait un over à **32 points d'edge** et une mise Kelly de 17 % de
+    # bankroll. Un désaccord de cette ampleur avec le marché n'est pas une
+    # aubaine, c'est un symptôme — et aucune mesure ne vient encore étayer ce
+    # modèle, la NBA n'ayant pas publié un match depuis mai.
+    #
+    # Les mêmes valeurs qu'en NHL, pour la même raison : à preuve non faite,
+    # le prix du marché vaut autant que le modèle.
+    max_disagreement: 0.12
+    market_blend: 0.5
     hyperparameters:
       model: xgboost
       n_estimators: 300
@@ -84,6 +96,18 @@ markets:
     enabled: true
     edge_threshold: 0.05
     kelly_factor: 0.25
+    # Garde-fous ajoutés le 14/10/2026.
+    #
+    # Rejoué sur les dernières cotes en cache (17/05/2026), le détecteur
+    # proposait un over à **32 points d'edge** et une mise Kelly de 17 % de
+    # bankroll. Un désaccord de cette ampleur avec le marché n'est pas une
+    # aubaine, c'est un symptôme — et aucune mesure ne vient encore étayer ce
+    # modèle, la NBA n'ayant pas publié un match depuis mai.
+    #
+    # Les mêmes valeurs qu'en NHL, pour la même raison : à preuve non faite,
+    # le prix du marché vaut autant que le modèle.
+    max_disagreement: 0.12
+    market_blend: 0.5
     hyperparameters:
       model: xgboost
       n_estimators: 500            # ↑ pour permettre l'early stopping
@@ -131,6 +155,18 @@ markets:
     edge_threshold: 0.05
     kelly_factor: 0.20
     default_ou_line: 112.5
+    # Garde-fous ajoutés le 14/10/2026.
+    #
+    # Rejoué sur les dernières cotes en cache (17/05/2026), le détecteur
+    # proposait un over à **32 points d'edge** et une mise Kelly de 17 % de
+    # bankroll. Un désaccord de cette ampleur avec le marché n'est pas une
+    # aubaine, c'est un symptôme — et aucune mesure ne vient encore étayer ce
+    # modèle, la NBA n'ayant pas publié un match depuis mai.
+    #
+    # Les mêmes valeurs qu'en NHL, pour la même raison : à preuve non faite,
+    # le prix du marché vaut autant que le modèle.
+    max_disagreement: 0.12
+    market_blend: 0.5
     hyperparameters:
       model: xgboost
       n_estimators: 500
@@ -148,6 +184,18 @@ markets:
     edge_threshold: 0.05
     kelly_factor: 0.20
     default_ou_line: 110.5
+    # Garde-fous ajoutés le 14/10/2026.
+    #
+    # Rejoué sur les dernières cotes en cache (17/05/2026), le détecteur
+    # proposait un over à **32 points d'edge** et une mise Kelly de 17 % de
+    # bankroll. Un désaccord de cette ampleur avec le marché n'est pas une
+    # aubaine, c'est un symptôme — et aucune mesure ne vient encore étayer ce
+    # modèle, la NBA n'ayant pas publié un match depuis mai.
+    #
+    # Les mêmes valeurs qu'en NHL, pour la même raison : à preuve non faite,
+    # le prix du marché vaut autant que le modèle.
+    max_disagreement: 0.12
+    market_blend: 0.5
     hyperparameters:
       model: xgboost
       n_estimators: 500

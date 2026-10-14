@@ -37,9 +37,24 @@ name: Vizer Daily Predictions
 
 on:
   schedule:
-    # Tous les jours à 7h UTC : les cotes du jour sont publiées, et les
-    # prédictions sont prêtes pour le café du matin (8-9h en France).
+    # 7h UTC : les cotes du jour sont publiées, et les prédictions sont prêtes
+    # pour le café du matin (8-9h en France).
     - cron: '0 7 * * *'
+    # 20h UTC : second passage, environ deux heures avant le premier match
+    # nord-américain.
+    #
+    # Le passage du matin prédit **13,7 heures** avant le coup d'envoi (médiane
+    # mesurée sur le feed publié). Les gardiens partants, les blessures et les
+    # compositions tombent bien après — et c'est précisément là que le marché
+    # bouge. Pronostiquer quatorze heures à l'avance revient à parier contre
+    # quelqu'un qui en saura plus que vous avant le début du match.
+    #
+    # Le second passage réécrit `predictions/latest/` avec des cotes fraîches
+    # et l'état d'équipe à jour. L'archive du jour est écrasée au même chemin,
+    # donc c'est bien la dernière version avant le match qui est mesurée — ce
+    # que `export_performance.py` attend déjà (il ne retient que la dernière
+    # prédiction publiée avant le coup d'envoi).
+    - cron: '0 20 * * *'
   workflow_dispatch:
     inputs:
       sport:

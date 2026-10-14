@@ -90,12 +90,16 @@ def find_value_bets(
                 context={'features_row': features},
             )
             best_over, best_under = game_odds.best_over_under_odds(consensus_line)
+            market = game_odds.consensus_total_probs(consensus_line)
+            mkt_over, mkt_under = market if market else (None, None)
             if best_over:
-                vb = total_market.value_bet(t_pred, f'over_{consensus_line}', best_over)
+                vb = total_market.value_bet(t_pred, f'over_{consensus_line}', best_over,
+                                            market_proba=mkt_over)
                 if vb:
                     bets.append(vb)
             if best_under:
-                vb = total_market.value_bet(t_pred, f'under_{consensus_line}', best_under)
+                vb = total_market.value_bet(t_pred, f'under_{consensus_line}', best_under,
+                                            market_proba=mkt_under)
                 if vb:
                     bets.append(vb)
         except Exception as e:
@@ -118,12 +122,18 @@ def find_value_bets(
                 context={'features_row': features},
             )
             best_over, best_under = game_odds.best_team_over_under_odds(side, consensus_tt)
+            team_full = getattr(game_odds, f'{side}_full', None)
+            market = (game_odds.consensus_team_total_probs(team_full, consensus_tt)
+                      if team_full else None)
+            mkt_over, mkt_under = market if market else (None, None)
             if best_over:
-                vb = tt_market.value_bet(tt_pred, f'over_{consensus_tt}', best_over)
+                vb = tt_market.value_bet(tt_pred, f'over_{consensus_tt}', best_over,
+                                         market_proba=mkt_over)
                 if vb:
                     bets.append(vb)
             if best_under:
-                vb = tt_market.value_bet(tt_pred, f'under_{consensus_tt}', best_under)
+                vb = tt_market.value_bet(tt_pred, f'under_{consensus_tt}', best_under,
+                                         market_proba=mkt_under)
                 if vb:
                     bets.append(vb)
         except Exception as e:

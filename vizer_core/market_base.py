@@ -121,25 +121,73 @@ class MarketBase(ABC):
                 f"{type(self).__name__} doit définir un attribut de classe `name`."
             )
         self._config = config
-        self.enabled: bool = config.get("enabled", False)
-        self.edge_threshold: float = config.get("edge_threshold", 0.05)
-        self.kelly_factor: float = config.get("kelly_factor", 0.25)
-        # Confiance accordée au modèle face au consensus des bookmakers, pour
-        # **dimensionner la mise**. 1.0 = on ignore le marché (comportement
-        # historique) ; en dessous, la probabilité qui alimente Kelly est tirée
-        # vers le prix du marché, donc la mise rétrécit.
-        #
-        # Ce réglage ne sert pas à sélectionner : appliquer un seuil d'edge sur
-        # une probabilité mélangée ne retiendrait que les plus gros désaccords,
-        # c'est-à-dire précisément ceux que la mesure montre perdants.
-        self.market_blend: float = float(config.get("market_blend", 1.0))
-        # Écart maximal toléré entre le modèle et le consensus. Au-delà, on
-        # suspecte une erreur de modèle plutôt qu'une opportunité : gardien non
-        # annoncé, features périmées, équipe mal appariée. C'est un plafond,
-        # pas un plancher — contrairement au seuil d'edge.
-        self.max_disagreement: float = float(config.get("max_disagreement", 1.0))
         self.hyperparameters: dict[str, Any] = config.get("hyperparameters", {})
         self._is_fitted: bool = False
+
+    # ------------------------------------------------------- Réglages
+    #
+    # Lus depuis `_config` à chaque accès, et non figés en attributs au
+    # moment de `__init__`.
+    #
+    # La raison est que ces objets sont **picklés avec le modèle**. Un
+    # attribut posé dans `__init__` n'existe pas sur une instance restaurée
+    # d'un pickle plus ancien : ajouter un réglage faisait planter la
+    # prédiction en production avec un `AttributeError`, alors même que le
+    # code et la config étaient corrects.
+    #
+    # En propriétés, un réglage absent de l'ancienne config retombe sur son
+    # défaut au lieu de lever. Et `reconfigure()` permet d'appliquer la config
+    # courante à un modèle déjà entraîné, sans réentraîner.
+
+    @property
+    def enabled(self) -> bool:
+        return bool(self._config.get("enabled", False))
+
+    @property
+    def edge_threshold(self) -> float:
+        return float(self._config.get("edge_threshold", 0.05))
+
+    @property
+    def kelly_factor(self) -> float:
+        return float(self._config.get("kelly_factor", 0.25))
+
+    @property
+    def market_blend(self) -> float:
+        """
+        Confiance accordée au modèle face au consensus, pour **dimensionner la
+        mise**. 1.0 = on ignore le marché (comportement historique) ; en
+        dessous, la probabilité qui alimente Kelly est tirée vers le prix du
+        marché, donc la mise rétrécit.
+
+        Ne sert pas à sélectionner : appliquer un seuil d'edge sur une
+        probabilité mélangée ne retiendrait que les plus gros désaccords,
+        c'est-à-dire précisément ceux que la mesure montre perdants.
+        """
+        return float(self._config.get("market_blend", 1.0))
+
+    @property
+    def max_disagreement(self) -> float:
+        """
+        Écart maximal toléré entre le modèle et le consensus. Au-delà, on
+        suspecte une erreur de modèle plutôt qu'une opportunité : gardien non
+        annoncé, features périmées, équipe mal appariée. C'est un plafond, pas
+        un plancher — contrairement au seuil d'edge.
+        """
+        return float(self._config.get("max_disagreement", 1.0))
+
+    def reconfigure(self, config: dict[str, Any]) -> None:
+        """
+        Applique une nouvelle configuration à un marché déjà entraîné.
+
+        Sans ça, `edge_threshold`, `kelly_factor` et même `enabled` restaient
+        ceux du jour de l'entraînement : changer `config.yaml` n'avait aucun
+        effet avant le réentraînement suivant, en silence. Les
+        hyperparamètres, eux, ne sont pas touchés — ils ont façonné un modèle
+        déjà ajusté, les relire n'aurait aucun sens.
+        """
+        merged = dict(self._config)
+        merged.update({k: v for k, v in config.items() if k != "hyperparameters"})
+        self._config = merged
 
     # ------------------------------------------------------------ Interface
     @abstractmethod

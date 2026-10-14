@@ -36,6 +36,10 @@ class NHLUnifiedPredictor:
         dataset_filename: str = 'dataset_agrege_vizer_nhl.csv',
     ):
         self.registry = ModelRegistry.load(model_path)
+        # La config des marchés est figée dans le pickle à l'entraînement :
+        # on réapplique celle du dépôt pour qu'un changement de seuil, de
+        # facteur Kelly ou de `enabled` prenne effet sans réentraîner.
+        self._apply_live_config()
         self.meta = getattr(self.registry, '_metadata', {}) or {}
 
         # Charger le dataset pour reconstruire l'état des équipes
@@ -168,3 +172,15 @@ class NHLUnifiedPredictor:
     @property
     def known_teams(self) -> list[str]:
         return self.team_state.known_teams
+
+    # ------------------------------------------------------------------
+    def _apply_live_config(self, config_path: str = 'config.yaml') -> None:
+        """Réapplique `config.yaml` aux marchés du registre chargé."""
+        try:
+            from vizer_core import load_config
+            cfg = load_config(config_path, validate=False)
+        except Exception:
+            # Config introuvable (exécution hors du dossier du sport) : on
+            # garde les réglages du pickle plutôt que d'échouer au chargement.
+            return
+        self.registry.reconfigure(cfg.get('markets') or {})
