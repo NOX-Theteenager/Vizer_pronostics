@@ -98,7 +98,15 @@ def fetch_all_games(incremental=True):
     if not all_games:
         if existing_df is not None:
             print("\n⚠️  Aucune nouvelle donnée, conservation des données existantes")
-            return existing_df
+            # Dédoublonner ici aussi, et pas seulement sur le chemin de fusion.
+            #
+            # Ce retour anticipé a transporté 1 780 lignes dupliquées de la
+            # saison 2025-26 pendant des mois : la saison étant terminée,
+            # chaque exécution passait par là, réécrivait le fichier tel quel,
+            # et ne voyait jamais le `drop_duplicates` plus bas. Côté
+            # prédiction, ça donnait un `SEASON_AVG_TOTAL` de 398 points au
+            # lieu de 231.
+            return _dedupe(existing_df)
         else:
             print("\n✗ Aucune donnée récupérée!")
             return None
@@ -125,13 +133,7 @@ def fetch_all_games(incremental=True):
     # Trier par date
     combined_df = combined_df.sort_values('GAME_DATE')
     
-    # Supprimer les doublons
-    before_dedup = len(combined_df)
-    combined_df = combined_df.drop_duplicates(subset=['GAME_ID', 'TEAM_ID'], keep='last')
-    after_dedup = len(combined_df)
-    
-    if before_dedup != after_dedup:
-        print(f"🧹 {before_dedup - after_dedup} doublons supprimés")
+    combined_df = _dedupe(combined_df)
     
     # Statistiques
     print("\n" + "=" * 70)
@@ -144,6 +146,17 @@ def fetch_all_games(incremental=True):
     print(f"Colonnes:               {len(combined_df.columns)}")
     
     return combined_df
+
+
+def _dedupe(df):
+    """Une ligne par (match, équipe). Appliqué sur **tous** les chemins de
+    retour : c'est l'oubli d'un seul d'entre eux qui a laissé passer 1 780
+    doublons."""
+    before = len(df)
+    df = df.drop_duplicates(subset=['GAME_ID', 'TEAM_ID'], keep='last')
+    if len(df) != before:
+        print(f"🧹 {before - len(df)} doublons supprimés")
+    return df
 
 
 def save_dataset(df, output_path='data/NBA_GAMES.csv'):
