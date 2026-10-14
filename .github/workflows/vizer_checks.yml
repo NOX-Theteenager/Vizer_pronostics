@@ -1,0 +1,83 @@
+# =============================================================================
+# Vizer Checks — contrôles rapides avant qu'une erreur atteigne un pipeline
+# =============================================================================
+#
+# Né d'un cas réel : un `datetime.now(timezone.utc)` sans l'import de
+# `timezone` dans vizer_nba/train.py. Le fichier compile, les tests manuels ne
+# passaient pas par là, et l'erreur n'est apparue qu'au moment de sauvegarder
+# le registre — c'est-à-dire après cinq minutes d'entraînement sur Kaggle, dans
+# un run de production.
+#
+# Deux contrôles, quelques secondes chacun :
+#   - ruff F821 (noms non définis) sur le code Python ;
+#   - build + auto-tests de la PWA, qui vérifient aussi le contrat de données
+#     et la fonction servie par Vercel.
+# =============================================================================
+
+name: Vizer Checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'vizer_core/**'
+      - 'vizer_nba/**'
+      - 'vizer_nhl/**'
+      - 'scripts/**'
+      - 'kaggle/**'
+      - 'vizer_web/**'
+      - '.github/workflows/vizer_checks.yml'
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: vizer-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Python — noms non définis
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+
+      - name: Installer ruff
+        run: pip install --quiet "ruff~=0.17"
+
+      # F821 seul : on ne veut pas imposer un style à un code existant, on veut
+      # empêcher un NameError de partir en production. Les notebooks Kaggle sont
+      # inclus — c'est là que le code tourne vraiment.
+      - name: Vérifier les noms non définis
+        run: |
+          ruff check --select F821 --output-format=concise \
+            vizer_core/ vizer_nba/ vizer_nhl/ scripts/ kaggle/
+
+  web:
+    name: PWA — build et contrat de données
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: vizer_web
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: vizer_web/package-lock.json
+
+      - run: npm ci
+
+      # `tsc -b` couvre src/ ET api/ : c'est ce qui reproduit localement
+      # l'erreur de compilation qui avait fait disparaître la fonction Vercel
+      # sans rendre le déploiement rouge.
+      - name: Construire
+        run: npm run build
+
+      - name: Auto-tests d'intégration
+        run: npm run test

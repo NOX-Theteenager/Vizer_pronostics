@@ -16,7 +16,7 @@ Tout paramètre vient de config.yaml. Aucune valeur hardcodée.
 """
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 import pandas as pd
 
 from vizer_core import (
