@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-17",
+  "generated_at": "2026-10-17T21:59:40+00:00",
+  "games": [
+    {
+      "sport": "nhl",
+      "home": "WSH",
+      "away": "NJD",
+      "home_name": "Washington Capitals",
+      "away_name": "New Jersey Devils",
+      "commence_time": "2026-10-17T17:00Z",
+      "home_score": 4,
+      "away_score": 2,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 1,
+          "away": 1
+        },
+        {
+          "home": 3,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 1
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    }
+  ]
+}
