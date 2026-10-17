@@ -1,701 +1,10 @@
 {
-  "generated_at": "2026-10-16T22:35:33+00:00",
-  "n_games": 16,
+  "generated_at": "2026-10-17T11:29:44+00:00",
+  "n_games": 14,
   "models_trained_at": "2026-10-14T19:36:22+00:00",
   "model_version": "v2026.10.14",
-  "withheld_markets": [
-    {
-      "market": "total",
-      "side": "under",
-      "reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
-    }
-  ],
+  "withheld_markets": [],
   "games": [
-    {
-      "home": "COL",
-      "away": "PIT",
-      "commence_time": "2026-10-17T01:10:00Z",
-      "predictions": {
-        "btts": {
-          "probabilities": {
-            "yes": 0.8790640208854685,
-            "no": 0.12093597911453147
-          },
-          "expected_value": null,
-          "confidence": "high",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 3.2552273273468018,
-            "lambda_away": 2.4572720527648926,
-            "p_home_scores": 0.9614279488154158,
-            "p_away_scores": 0.9143316688146744,
-            "home_team": "COL",
-            "away_team": "PIT"
-          }
-        },
-        "exact_score": {
-          "probabilities": {
-            "3-2": 0.1287243124763376,
-            "2-2": 0.1186316341672414,
-            "3-3": 0.10543688518649318,
-            "3-1": 0.10477009440733155,
-            "4-2": 0.10475672491672573,
-            "2-3": 0.09717006640433035,
-            "2-1": 0.0965555556079015,
-            "4-3": 0.08580525749234993,
-            "4-1": 0.08526261860086248,
-            "1-2": 0.0728868507404262
-          },
-          "expected_value": null,
-          "confidence": "high",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 3.2552273273468018,
-            "lambda_away": 2.4572720527648926,
-            "top_score": "3-2",
-            "top_proba": 0.1287243124763376,
-            "top_n": 10,
-            "home_team": "COL",
-            "away_team": "PIT"
-          }
-        },
-        "goal_intervals": {
-          "probabilities": {
-            "0-2": 0.07609652087417484,
-            "3-4": 0.2492822188082719,
-            "5-6": 0.3269948822062228,
-            "7-8": 0.2230859917729754,
-            "9+": 0.12454038633835506
-          },
-          "expected_value": 5.712499380111694,
-          "confidence": "medium",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 3.2552273273468018,
-            "lambda_away": 2.4572720527648926,
-            "lambda_total": 5.712499380111694,
-            "modal_bucket": "5-6",
-            "modal_proba": 0.3269948822062228,
-            "home_team": "COL",
-            "away_team": "PIT"
-          }
-        },
-        "moneyline": {
-          "probabilities": {
-            "home": 0.5514745712280273,
-            "away": 0.44852542877197266
-          },
-          "expected_value": null,
-          "confidence": "medium",
-          "metadata": {
-            "home_team": "COL",
-            "away_team": "PIT",
-            "temperature": 1.1328927367260067,
-            "best_model": "XGB",
-            "engine": "NHLMoneylineEngine"
-          }
-        },
-        "p1_btts": {
-          "probabilities": {
-            "yes": 0.3173611554206958,
-            "no": 0.6826388445793041
-          },
-          "expected_value": null,
-          "confidence": "medium",
-          "metadata": {
-            "model": "poisson_p1_independent",
-            "mode": "dedicated",
-            "lambda_p1_home": 0.9038186073303223,
-            "lambda_p1_away": 0.7622788548469543,
-            "p_p1_home_scores": 0.5949799096608814,
-            "p_p1_away_scores": 0.5333981034781174,
-            "home_team": "COL",
-            "away_team": "PIT"
-          }
-        },
-        "p1_total": {
-          "probabilities": {
-            "over_1.5": 0.49615252396848075,
-            "under_1.5": 0.5038474760315192
-          },
-          "expected_value": 1.6660974621772766,
-          "confidence": "low",
-          "metadata": {
-            "model": "poisson_p1_independent",
-            "mode": "dedicated",
-            "lambda_p1_home": 0.9038186073303223,
-            "lambda_p1_away": 0.7622788548469543,
-            "lambda_p1_total": 1.6660974621772766,
-            "line_used": 1.5,
-            "home_team": "COL",
-            "away_team": "PIT"
-          }
-        },
-        "p1_winner": {
-          "probabilities": {
-            "home_lead": 0.36813194644621533,
-            "tied": 0.343404347975405,
-            "away_lead": 0.2884637055783796
-          },
-          "expected_value": null,
-          "confidence": "low",
-          "metadata": {
-            "model": "poisson_p1_independent",
-            "mode": "dedicated",
-            "lambda_p1_home": 0.9038186073303223,
-            "lambda_p1_away": 0.7622788548469543,
-            "home_team": "COL",
-            "away_team": "PIT"
-          }
-        },
-        "total": {
-          "probabilities": {
-            "over_5.5": 0.5071105327124068,
-            "under_5.5": 0.4928894672875932
-          },
-          "expected_value": 5.712499380111694,
-          "confidence": "low",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 3.2552273273468018,
-            "lambda_away": 2.4572720527648926,
-            "lambda_total": 5.712499380111694,
-            "line_used": 5.5,
-            "home_team": "COL",
-            "away_team": "PIT"
-          }
-        }
-      },
-      "value_bets": [
-        {
-          "market": "moneyline",
-          "selection": "away",
-          "predicted_proba": 0.4485,
-          "bookmaker_odds": 2.85,
-          "edge": 0.0976,
-          "kelly_stake": 0.0187,
-          "confidence": "medium",
-          "model_proba": 0.4485,
-          "market_proba": 0.3504,
-          "books": [
-            {
-              "name": "betrivers",
-              "odds": 2.85,
-              "best": true
-            },
-            {
-              "name": "betonlineag",
-              "odds": 2.77,
-              "best": false
-            },
-            {
-              "name": "lowvig",
-              "odds": 2.77,
-              "best": false
-            },
-            {
-              "name": "fanduel",
-              "odds": 2.76,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 2.75,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 2.75,
-              "best": false
-            },
-            {
-              "name": "draftkings",
-              "odds": 2.7,
-              "best": false
-            },
-            {
-              "name": "betmgm",
-              "odds": 2.7,
-              "best": false
-            },
-            {
-              "name": "mybookieag",
-              "odds": 2.65,
-              "best": false
-            }
-          ]
-        }
-      ],
-      "withheld_bets": [
-        {
-          "market": "total",
-          "selection": "under_6.5",
-          "predicted_proba": 0.6524,
-          "bookmaker_odds": 2.09,
-          "edge": 0.1739,
-          "kelly_stake": 0.039,
-          "confidence": "high",
-          "model_proba": 0.6524,
-          "market_proba": 0.4674,
-          "books": [
-            {
-              "name": "betonlineag",
-              "odds": 2.09,
-              "best": true
-            },
-            {
-              "name": "lowvig",
-              "odds": 2.09,
-              "best": true
-            },
-            {
-              "name": "betmgm",
-              "odds": 2.05,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 2.05,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 2.05,
-              "best": false
-            },
-            {
-              "name": "fanduel",
-              "odds": 2.04,
-              "best": false
-            },
-            {
-              "name": "mybookieag",
-              "odds": 2.03,
-              "best": false
-            },
-            {
-              "name": "draftkings",
-              "odds": 2.02,
-              "best": false
-            },
-            {
-              "name": "betrivers",
-              "odds": 2.02,
-              "best": false
-            }
-          ],
-          "withheld_reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
-        }
-      ],
-      "form": {
-        "home": {
-          "results": [
-            "W",
-            "W",
-            "L",
-            "W",
-            "L"
-          ],
-          "wins": 3,
-          "draws": 0,
-          "losses": 2,
-          "goals_for": 26,
-          "goals_against": 17
-        },
-        "away": {
-          "results": [
-            "W",
-            "L",
-            "L",
-            "D",
-            "D"
-          ],
-          "wins": 1,
-          "draws": 2,
-          "losses": 2,
-          "goals_for": 14,
-          "goals_against": 16
-        }
-      },
-      "h2h": [
-        {
-          "date": "2026-03-24",
-          "home": "PIT",
-          "away": "COL",
-          "home_score": 2,
-          "away_score": 6,
-          "winner": "home"
-        },
-        {
-          "date": "2026-03-16",
-          "home": "COL",
-          "away": "PIT",
-          "home_score": 2,
-          "away_score": 7,
-          "winner": "away"
-        },
-        {
-          "date": "2025-03-04",
-          "home": "COL",
-          "away": "PIT",
-          "home_score": 4,
-          "away_score": 1,
-          "winner": "home"
-        },
-        {
-          "date": "2024-12-10",
-          "home": "PIT",
-          "away": "COL",
-          "home_score": 2,
-          "away_score": 6,
-          "winner": "home"
-        },
-        {
-          "date": "2024-03-24",
-          "home": "COL",
-          "away": "PIT",
-          "home_score": 5,
-          "away_score": 4,
-          "winner": "home"
-        }
-      ],
-      "factors": [
-        {
-          "feature": "diff_elo",
-          "label": "Écart Elo",
-          "value": 78.889,
-          "contribution": 0.1386,
-          "direction": "home"
-        },
-        {
-          "feature": "interaction_goalie_xgf",
-          "label": "Gardien × buts attendus",
-          "value": -0.0008,
-          "contribution": -0.0869,
-          "direction": "away"
-        },
-        {
-          "feature": "diff_xGF_season",
-          "label": "Buts attendus — saison",
-          "value": 0.0351,
-          "contribution": 0.085,
-          "direction": "home"
-        }
-      ]
-    },
-    {
-      "home": "ANA",
-      "away": "BOS",
-      "commence_time": "2026-10-17T02:10:00Z",
-      "predictions": {
-        "btts": {
-          "probabilities": {
-            "yes": 0.8828911117098394,
-            "no": 0.11710888829016064
-          },
-          "expected_value": null,
-          "confidence": "high",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 2.898289203643799,
-            "lambda_away": 2.7240641117095947,
-            "p_home_scores": 0.9448825658516302,
-            "p_away_scores": 0.9343924246438843,
-            "home_team": "ANA",
-            "away_team": "BOS"
-          }
-        },
-        "exact_score": {
-          "probabilities": {
-            "2-2": 0.12743500390494947,
-            "3-2": 0.12311449866134014,
-            "2-3": 0.11571370690434833,
-            "3-3": 0.11179059581149191,
-            "2-1": 0.09356241166069515,
-            "3-1": 0.09039030919435648,
-            "4-2": 0.08920535557054524,
-            "1-2": 0.08793808688569457,
-            "4-3": 0.08100036922733865,
-            "1-3": 0.07984966217924028
-          },
-          "expected_value": null,
-          "confidence": "high",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 2.898289203643799,
-            "lambda_away": 2.7240641117095947,
-            "top_score": "2-2",
-            "top_proba": 0.12743500390494947,
-            "top_n": 10,
-            "home_team": "ANA",
-            "away_team": "BOS"
-          }
-        },
-        "goal_intervals": {
-          "probabilities": {
-            "0-2": 0.08110157725595694,
-            "3-4": 0.25767212473180956,
-            "5-6": 0.32794062924495443,
-            "7-8": 0.21697092100969884,
-            "9+": 0.11631474775758023
-          },
-          "expected_value": 5.6223533153533936,
-          "confidence": "medium",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 2.898289203643799,
-            "lambda_away": 2.7240641117095947,
-            "lambda_total": 5.6223533153533936,
-            "modal_bucket": "5-6",
-            "modal_proba": 0.32794062924495443,
-            "home_team": "ANA",
-            "away_team": "BOS"
-          }
-        },
-        "moneyline": {
-          "probabilities": {
-            "home": 0.4937356412410736,
-            "away": 0.5062643587589264
-          },
-          "expected_value": null,
-          "confidence": "low",
-          "metadata": {
-            "home_team": "ANA",
-            "away_team": "BOS",
-            "temperature": 1.1328927367260067,
-            "best_model": "XGB",
-            "engine": "NHLMoneylineEngine"
-          }
-        },
-        "p1_btts": {
-          "probabilities": {
-            "yes": 0.3132052703528145,
-            "no": 0.6867947296471855
-          },
-          "expected_value": null,
-          "confidence": "medium",
-          "metadata": {
-            "model": "poisson_p1_independent",
-            "mode": "dedicated",
-            "lambda_p1_home": 0.8775296807289124,
-            "lambda_p1_away": 0.7681614756584167,
-            "p_p1_home_scores": 0.5841911754539314,
-            "p_p1_away_scores": 0.5361348878805744,
-            "home_team": "ANA",
-            "away_team": "BOS"
-          }
-        },
-        "p1_total": {
-          "probabilities": {
-            "over_1.5": 0.4897011877406598,
-            "under_1.5": 0.5102988122593402
-          },
-          "expected_value": 1.645691156387329,
-          "confidence": "low",
-          "metadata": {
-            "model": "poisson_p1_independent",
-            "mode": "dedicated",
-            "lambda_p1_home": 0.8775296807289124,
-            "lambda_p1_away": 0.7681614756584167,
-            "lambda_p1_total": 1.645691156387329,
-            "line_used": 1.5,
-            "home_team": "ANA",
-            "away_team": "BOS"
-          }
-        },
-        "p1_winner": {
-          "probabilities": {
-            "home_lead": 0.3576810070962556,
-            "tied": 0.34651896348680317,
-            "away_lead": 0.2958000294169412
-          },
-          "expected_value": null,
-          "confidence": "low",
-          "metadata": {
-            "model": "poisson_p1_independent",
-            "mode": "dedicated",
-            "lambda_p1_home": 0.8775296807289124,
-            "lambda_p1_away": 0.7681614756584167,
-            "home_team": "ANA",
-            "away_team": "BOS"
-          }
-        },
-        "total": {
-          "probabilities": {
-            "over_5.5": 0.4919280739709437,
-            "under_5.5": 0.5080719260290563
-          },
-          "expected_value": 5.6223533153533936,
-          "confidence": "low",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 2.898289203643799,
-            "lambda_away": 2.7240641117095947,
-            "lambda_total": 5.6223533153533936,
-            "line_used": 5.5,
-            "home_team": "ANA",
-            "away_team": "BOS"
-          }
-        }
-      },
-      "value_bets": [],
-      "withheld_bets": [
-        {
-          "market": "total",
-          "selection": "under_6.5",
-          "predicted_proba": 0.6667,
-          "bookmaker_odds": 1.93,
-          "edge": 0.1486,
-          "kelly_stake": 0.0362,
-          "confidence": "high",
-          "model_proba": 0.6667,
-          "market_proba": 0.5092,
-          "books": [
-            {
-              "name": "betonlineag",
-              "odds": 1.93,
-              "best": true
-            },
-            {
-              "name": "lowvig",
-              "odds": 1.93,
-              "best": true
-            },
-            {
-              "name": "bovada",
-              "odds": 1.89,
-              "best": false
-            },
-            {
-              "name": "mybookieag",
-              "odds": 1.88,
-              "best": false
-            },
-            {
-              "name": "draftkings",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "betmgm",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "fanduel",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "betrivers",
-              "odds": 1.8,
-              "best": false
-            }
-          ],
-          "withheld_reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
-        }
-      ],
-      "form": {
-        "home": {
-          "results": [
-            "W",
-            "W",
-            "L",
-            "W",
-            "W"
-          ],
-          "wins": 4,
-          "draws": 0,
-          "losses": 1,
-          "goals_for": 18,
-          "goals_against": 13
-        },
-        "away": {
-          "results": [
-            "W",
-            "L",
-            "L",
-            "W",
-            "W"
-          ],
-          "wins": 3,
-          "draws": 0,
-          "losses": 2,
-          "goals_for": 17,
-          "goals_against": 13
-        }
-      },
-      "h2h": [
-        {
-          "date": "2025-11-19",
-          "home": "ANA",
-          "away": "BOS",
-          "home_score": 4,
-          "away_score": 3,
-          "winner": "home"
-        },
-        {
-          "date": "2025-10-23",
-          "home": "BOS",
-          "away": "ANA",
-          "home_score": 5,
-          "away_score": 7,
-          "winner": "home"
-        },
-        {
-          "date": "2025-03-26",
-          "home": "ANA",
-          "away": "BOS",
-          "home_score": 6,
-          "away_score": 2,
-          "winner": "home"
-        },
-        {
-          "date": "2025-02-22",
-          "home": "BOS",
-          "away": "ANA",
-          "home_score": 2,
-          "away_score": 3,
-          "winner": "home"
-        },
-        {
-          "date": "2023-10-26",
-          "home": "BOS",
-          "away": "ANA",
-          "home_score": 3,
-          "away_score": 4,
-          "winner": "home"
-        }
-      ],
-      "factors": [
-        {
-          "feature": "diff_xGF_season",
-          "label": "Buts attendus — saison",
-          "value": 0.0336,
-          "contribution": 0.1584,
-          "direction": "home"
-        },
-        {
-          "feature": "diff_elo",
-          "label": "Écart Elo",
-          "value": -41.6971,
-          "contribution": -0.1334,
-          "direction": "away"
-        },
-        {
-          "feature": "diff_xGF_20",
-          "label": "Buts attendus — 20 derniers matchs",
-          "value": 0.0237,
-          "contribution": 0.0642,
-          "direction": "home"
-        }
-      ]
-    },
     {
       "home": "WSH",
       "away": "NJD",
@@ -851,31 +160,35 @@
           }
         }
       },
-      "value_bets": [],
-      "withheld_bets": [
+      "value_bets": [
         {
           "market": "total",
           "selection": "under_6.0",
           "predicted_proba": 0.5823,
-          "bookmaker_odds": 2.03,
-          "edge": 0.0897,
-          "kelly_stake": 0.0182,
+          "bookmaker_odds": 2.02,
+          "edge": 0.0873,
+          "kelly_stake": 0.0171,
           "confidence": "medium",
           "model_proba": 0.5823,
-          "market_proba": 0.4769,
+          "market_proba": 0.477,
           "books": [
             {
               "name": "lowvig",
-              "odds": 2.03,
+              "odds": 2.02,
               "best": true
             },
             {
               "name": "betonlineag",
-              "odds": 2.03,
+              "odds": 2.02,
               "best": true
             },
             {
               "name": "bovada",
+              "odds": 2.02,
+              "best": true
+            },
+            {
+              "name": "mybookieag",
               "odds": 2.0,
               "best": false
             },
@@ -889,10 +202,10 @@
               "odds": 2.0,
               "best": false
             }
-          ],
-          "withheld_reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
+          ]
         }
       ],
+      "withheld_bets": [],
       "form": {
         "home": {
           "results": [
@@ -1113,7 +426,7 @@
           "probabilities": {
             "home_lead": 0.3292589750732155,
             "tied": 0.3448593232504122,
-            "away_lead": 0.3258817016763723
+            "away_lead": 0.32588170167637226
           },
           "expected_value": null,
           "confidence": "low",
@@ -1144,27 +457,26 @@
           }
         }
       },
-      "value_bets": [],
-      "withheld_bets": [
+      "value_bets": [
         {
           "market": "total",
           "selection": "under_6.0",
           "predicted_proba": 0.5654,
-          "bookmaker_odds": 2.01,
-          "edge": 0.0679,
-          "kelly_stake": 0.013,
+          "bookmaker_odds": 2.02,
+          "edge": 0.0703,
+          "kelly_stake": 0.0135,
           "confidence": "medium",
           "model_proba": 0.5654,
-          "market_proba": 0.4818,
+          "market_proba": 0.4792,
           "books": [
             {
               "name": "lowvig",
-              "odds": 2.01,
+              "odds": 2.02,
               "best": true
             },
             {
               "name": "betonlineag",
-              "odds": 2.01,
+              "odds": 2.02,
               "best": true
             },
             {
@@ -1173,19 +485,24 @@
               "best": false
             },
             {
-              "name": "betmgm",
-              "odds": 1.98,
+              "name": "betus",
+              "odds": 2.0,
               "best": false
             },
             {
-              "name": "betus",
-              "odds": 1.95,
+              "name": "betmgm",
+              "odds": 2.0,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.96,
               "best": false
             }
-          ],
-          "withheld_reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
+          ]
         }
       ],
+      "withheld_bets": [],
       "form": {
         "home": {
           "results": [
@@ -1404,9 +721,9 @@
         },
         "p1_winner": {
           "probabilities": {
-            "home_lead": 0.43742782138176745,
+            "home_lead": 0.4374278213817675,
             "tied": 0.3204558286034943,
-            "away_lead": 0.24211635001473822
+            "away_lead": 0.24211635001473827
           },
           "expected_value": null,
           "confidence": "medium",
@@ -1438,62 +755,7 @@
         }
       },
       "value_bets": [],
-      "withheld_bets": [
-        {
-          "market": "total",
-          "selection": "under_6.5",
-          "predicted_proba": 0.5614,
-          "bookmaker_odds": 1.96,
-          "edge": 0.0511,
-          "kelly_stake": 0.0128,
-          "confidence": "medium",
-          "model_proba": 0.5614,
-          "market_proba": 0.5093,
-          "books": [
-            {
-              "name": "fanduel",
-              "odds": 1.96,
-              "best": true
-            },
-            {
-              "name": "betmgm",
-              "odds": 1.91,
-              "best": false
-            },
-            {
-              "name": "lowvig",
-              "odds": 1.88,
-              "best": false
-            },
-            {
-              "name": "betonlineag",
-              "odds": 1.88,
-              "best": false
-            },
-            {
-              "name": "draftkings",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 1.85,
-              "best": false
-            },
-            {
-              "name": "betrivers",
-              "odds": 1.8,
-              "best": false
-            }
-          ],
-          "withheld_reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
-        }
-      ],
+      "withheld_bets": [],
       "form": {
         "home": {
           "results": [
@@ -1714,7 +976,7 @@
           "probabilities": {
             "home_lead": 0.3804697099936495,
             "tied": 0.3450467273010996,
-            "away_lead": 0.274483562705251
+            "away_lead": 0.2744835627052509
           },
           "expected_value": null,
           "confidence": "low",
@@ -1747,18 +1009,61 @@
       },
       "value_bets": [
         {
+          "market": "total",
+          "selection": "under_6.0",
+          "predicted_proba": 0.6033,
+          "bookmaker_odds": 2.0,
+          "edge": 0.1033,
+          "kelly_stake": 0.0217,
+          "confidence": "medium",
+          "model_proba": 0.6033,
+          "market_proba": 0.4835,
+          "books": [
+            {
+              "name": "betmgm",
+              "odds": 2.0,
+              "best": true
+            },
+            {
+              "name": "lowvig",
+              "odds": 1.99,
+              "best": false
+            },
+            {
+              "name": "betonlineag",
+              "odds": 1.99,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.98,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 1.97,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 1.95,
+              "best": false
+            }
+          ]
+        },
+        {
           "market": "moneyline",
           "selection": "away",
           "predicted_proba": 0.4581,
           "bookmaker_odds": 2.63,
           "edge": 0.0779,
-          "kelly_stake": 0.0144,
+          "kelly_stake": 0.0146,
           "confidence": "low",
           "model_proba": 0.4581,
-          "market_proba": 0.3735,
+          "market_proba": 0.3746,
           "books": [
             {
-              "name": "betrivers",
+              "name": "bovada",
               "odds": 2.63,
               "best": true
             },
@@ -1768,7 +1073,7 @@
               "best": false
             },
             {
-              "name": "bovada",
+              "name": "betrivers",
               "odds": 2.6,
               "best": false
             },
@@ -1788,59 +1093,24 @@
               "best": false
             },
             {
-              "name": "betmgm",
-              "odds": 2.55,
+              "name": "draftkings",
+              "odds": 2.54,
               "best": false
             },
             {
-              "name": "draftkings",
+              "name": "betmgm",
               "odds": 2.54,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 2.49,
               "best": false
             }
           ]
         }
       ],
-      "withheld_bets": [
-        {
-          "market": "total",
-          "selection": "under_6.0",
-          "predicted_proba": 0.6033,
-          "bookmaker_odds": 2.0,
-          "edge": 0.1033,
-          "kelly_stake": 0.0219,
-          "confidence": "medium",
-          "model_proba": 0.6033,
-          "market_proba": 0.4841,
-          "books": [
-            {
-              "name": "betmgm",
-              "odds": 2.0,
-              "best": true
-            },
-            {
-              "name": "lowvig",
-              "odds": 1.99,
-              "best": false
-            },
-            {
-              "name": "betonlineag",
-              "odds": 1.99,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 1.97,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 1.95,
-              "best": false
-            }
-          ],
-          "withheld_reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
-        }
-      ],
+      "withheld_bets": [],
       "form": {
         "home": {
           "results": [
@@ -1962,12 +1232,12 @@
         "exact_score": {
           "probabilities": {
             "2-3": 0.12491598648046974,
-            "2-2": 0.12403658528858505,
+            "2-2": 0.12403658528858504,
             "3-3": 0.11455061713607083,
-            "3-2": 0.11374418753423328,
+            "3-2": 0.11374418753423327,
             "2-4": 0.09435121687333875,
             "1-3": 0.09081285966856864,
-            "1-2": 0.09017354248202515,
+            "1-2": 0.09017354248202514,
             "3-4": 0.08652207315410354,
             "2-1": 0.082108916686218,
             "4-3": 0.07878401469638703
@@ -2060,7 +1330,7 @@
         "p1_winner": {
           "probabilities": {
             "home_lead": 0.3238576226149672,
-            "tied": 0.3470512760522771,
+            "tied": 0.34705127605227704,
             "away_lead": 0.3290911013327557
           },
           "expected_value": null,
@@ -2092,18 +1362,17 @@
           }
         }
       },
-      "value_bets": [],
-      "withheld_bets": [
+      "value_bets": [
         {
           "market": "total",
           "selection": "under_6.5",
           "predicted_proba": 0.6428,
           "bookmaker_odds": 1.93,
           "edge": 0.1247,
-          "kelly_stake": 0.0279,
+          "kelly_stake": 0.0276,
           "confidence": "medium",
           "model_proba": 0.6428,
-          "market_proba": 0.5008,
+          "market_proba": 0.4999,
           "books": [
             {
               "name": "lowvig",
@@ -2112,11 +1381,6 @@
             },
             {
               "name": "betonlineag",
-              "odds": 1.93,
-              "best": true
-            },
-            {
-              "name": "betrivers",
               "odds": 1.93,
               "best": true
             },
@@ -2142,13 +1406,23 @@
             },
             {
               "name": "fanduel",
-              "odds": 1.85,
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "betrivers",
+              "odds": 1.89,
               "best": false
             }
-          ],
-          "withheld_reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
+          ]
         }
       ],
+      "withheld_bets": [],
       "form": {
         "home": {
           "results": [
@@ -2269,9 +1543,9 @@
         },
         "exact_score": {
           "probabilities": {
-            "2-3": 0.12581994869854632,
+            "2-3": 0.1258199486985463,
             "2-4": 0.11922624932824963,
-            "3-3": 0.10874219353485708,
+            "3-3": 0.10874219353485705,
             "3-4": 0.1030434681701427,
             "2-2": 0.09958372996528884,
             "1-3": 0.09705315527120473,
@@ -2287,7 +1561,7 @@
             "lambda_home": 2.5928049087524414,
             "lambda_away": 3.790376663208008,
             "top_score": "2-3",
-            "top_proba": 0.12581994869854632,
+            "top_proba": 0.1258199486985463,
             "top_n": 10,
             "home_team": "CHI",
             "away_team": "DAL"
@@ -2405,27 +1679,22 @@
           "market": "moneyline",
           "selection": "away",
           "predicted_proba": 0.7293,
-          "bookmaker_odds": 1.55,
-          "edge": 0.0841,
-          "kelly_stake": 0.0252,
+          "bookmaker_odds": 1.53,
+          "edge": 0.0757,
+          "kelly_stake": 0.0208,
           "confidence": "high",
           "model_proba": 0.7293,
-          "market_proba": 0.6326,
+          "market_proba": 0.6356,
           "books": [
-            {
-              "name": "fanduel",
-              "odds": 1.55,
-              "best": true
-            },
             {
               "name": "betus",
               "odds": 1.53,
-              "best": false
+              "best": true
             },
             {
-              "name": "betmgm",
+              "name": "mybookieag",
               "odds": 1.53,
-              "best": false
+              "best": true
             },
             {
               "name": "lowvig",
@@ -2438,18 +1707,28 @@
               "best": false
             },
             {
+              "name": "fanduel",
+              "odds": 1.52,
+              "best": false
+            },
+            {
               "name": "draftkings",
               "odds": 1.51,
               "best": false
             },
             {
               "name": "bovada",
-              "odds": 1.51,
+              "odds": 1.5,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 1.5,
               "best": false
             },
             {
               "name": "betrivers",
-              "odds": 1.5,
+              "odds": 1.49,
               "best": false
             }
           ]
@@ -2709,61 +1988,6 @@
       },
       "value_bets": [
         {
-          "market": "moneyline",
-          "selection": "away",
-          "predicted_proba": 0.5197,
-          "bookmaker_odds": 2.16,
-          "edge": 0.0568,
-          "kelly_stake": 0.0106,
-          "confidence": "low",
-          "model_proba": 0.5197,
-          "market_proba": 0.4517,
-          "books": [
-            {
-              "name": "lowvig",
-              "odds": 2.16,
-              "best": true
-            },
-            {
-              "name": "betonlineag",
-              "odds": 2.16,
-              "best": true
-            },
-            {
-              "name": "draftkings",
-              "odds": 2.14,
-              "best": false
-            },
-            {
-              "name": "betrivers",
-              "odds": 2.14,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 2.12,
-              "best": false
-            },
-            {
-              "name": "fanduel",
-              "odds": 2.1,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 2.1,
-              "best": false
-            },
-            {
-              "name": "betmgm",
-              "odds": 2.1,
-              "best": false
-            }
-          ]
-        }
-      ],
-      "withheld_bets": [
-        {
           "market": "total",
           "selection": "under_6.5",
           "predicted_proba": 0.6593,
@@ -2809,10 +2033,68 @@
               "odds": 1.8,
               "best": false
             }
-          ],
-          "withheld_reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
+          ]
+        },
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.5197,
+          "bookmaker_odds": 2.16,
+          "edge": 0.0568,
+          "kelly_stake": 0.011,
+          "confidence": "low",
+          "model_proba": 0.5197,
+          "market_proba": 0.4533,
+          "books": [
+            {
+              "name": "lowvig",
+              "odds": 2.16,
+              "best": true
+            },
+            {
+              "name": "betonlineag",
+              "odds": 2.16,
+              "best": true
+            },
+            {
+              "name": "betrivers",
+              "odds": 2.15,
+              "best": false
+            },
+            {
+              "name": "draftkings",
+              "odds": 2.14,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 2.12,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 2.1,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 2.1,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 2.08,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 2.05,
+              "best": false
+            }
+          ]
         }
       ],
+      "withheld_bets": [],
       "form": {
         "home": {
           "results": [
@@ -3066,21 +2348,74 @@
       },
       "value_bets": [
         {
+          "market": "total",
+          "selection": "under_6.5",
+          "predicted_proba": 0.6661,
+          "bookmaker_odds": 1.85,
+          "edge": 0.1256,
+          "kelly_stake": 0.0296,
+          "confidence": "high",
+          "model_proba": 0.6661,
+          "market_proba": 0.5239,
+          "books": [
+            {
+              "name": "draftkings",
+              "odds": 1.85,
+              "best": true
+            },
+            {
+              "name": "lowvig",
+              "odds": 1.83,
+              "best": false
+            },
+            {
+              "name": "betonlineag",
+              "odds": 1.83,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 1.83,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 1.83,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 1.83,
+              "best": false
+            },
+            {
+              "name": "betrivers",
+              "odds": 1.81,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 1.81,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.81,
+              "best": false
+            }
+          ]
+        },
+        {
           "market": "moneyline",
           "selection": "away",
           "predicted_proba": 0.5133,
           "bookmaker_odds": 2.16,
           "edge": 0.0504,
-          "kelly_stake": 0.0089,
+          "kelly_stake": 0.0097,
           "confidence": "low",
           "model_proba": 0.5133,
-          "market_proba": 0.451,
+          "market_proba": 0.4544,
           "books": [
-            {
-              "name": "betrivers",
-              "odds": 2.16,
-              "best": true
-            },
             {
               "name": "lowvig",
               "odds": 2.16,
@@ -3092,18 +2427,23 @@
               "best": true
             },
             {
+              "name": "draftkings",
+              "odds": 2.14,
+              "best": false
+            },
+            {
+              "name": "betrivers",
+              "odds": 2.12,
+              "best": false
+            },
+            {
               "name": "bovada",
-              "odds": 2.15,
+              "odds": 2.1,
               "best": false
             },
             {
               "name": "betus",
-              "odds": 2.15,
-              "best": false
-            },
-            {
-              "name": "draftkings",
-              "odds": 2.14,
+              "odds": 2.1,
               "best": false
             },
             {
@@ -3112,64 +2452,19 @@
               "best": false
             },
             {
+              "name": "mybookieag",
+              "odds": 2.08,
+              "best": false
+            },
+            {
               "name": "fanduel",
-              "odds": 2.04,
+              "odds": 2.06,
               "best": false
             }
           ]
         }
       ],
-      "withheld_bets": [
-        {
-          "market": "total",
-          "selection": "under_6.5",
-          "predicted_proba": 0.6661,
-          "bookmaker_odds": 1.85,
-          "edge": 0.1256,
-          "kelly_stake": 0.0293,
-          "confidence": "high",
-          "model_proba": 0.6661,
-          "market_proba": 0.5225,
-          "books": [
-            {
-              "name": "draftkings",
-              "odds": 1.85,
-              "best": true
-            },
-            {
-              "name": "lowvig",
-              "odds": 1.85,
-              "best": true
-            },
-            {
-              "name": "betonlineag",
-              "odds": 1.85,
-              "best": true
-            },
-            {
-              "name": "bovada",
-              "odds": 1.83,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 1.83,
-              "best": false
-            },
-            {
-              "name": "fanduel",
-              "odds": 1.82,
-              "best": false
-            },
-            {
-              "name": "betrivers",
-              "odds": 1.8,
-              "best": false
-            }
-          ],
-          "withheld_reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
-        }
-      ],
+      "withheld_bets": [],
       "form": {
         "home": {
           "results": [
@@ -3423,61 +2718,6 @@
       },
       "value_bets": [
         {
-          "market": "moneyline",
-          "selection": "away",
-          "predicted_proba": 0.5427,
-          "bookmaker_odds": 2.19,
-          "edge": 0.0861,
-          "kelly_stake": 0.0174,
-          "confidence": "low",
-          "model_proba": 0.5427,
-          "market_proba": 0.446,
-          "books": [
-            {
-              "name": "lowvig",
-              "odds": 2.19,
-              "best": true
-            },
-            {
-              "name": "betonlineag",
-              "odds": 2.19,
-              "best": true
-            },
-            {
-              "name": "betrivers",
-              "odds": 2.17,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 2.17,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 2.15,
-              "best": false
-            },
-            {
-              "name": "betmgm",
-              "odds": 2.15,
-              "best": false
-            },
-            {
-              "name": "draftkings",
-              "odds": 2.14,
-              "best": false
-            },
-            {
-              "name": "fanduel",
-              "odds": 2.08,
-              "best": false
-            }
-          ]
-        }
-      ],
-      "withheld_bets": [
-        {
           "market": "total",
           "selection": "under_6.0",
           "predicted_proba": 0.5837,
@@ -3486,7 +2726,7 @@
           "kelly_stake": 0.0197,
           "confidence": "medium",
           "model_proba": 0.5837,
-          "market_proba": 0.4769,
+          "market_proba": 0.4772,
           "books": [
             {
               "name": "lowvig",
@@ -3509,14 +2749,77 @@
               "best": false
             },
             {
+              "name": "mybookieag",
+              "odds": 1.99,
+              "best": false
+            },
+            {
               "name": "betmgm",
               "odds": 1.98,
               "best": false
             }
-          ],
-          "withheld_reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
+          ]
+        },
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.5427,
+          "bookmaker_odds": 2.14,
+          "edge": 0.0754,
+          "kelly_stake": 0.0143,
+          "confidence": "low",
+          "model_proba": 0.5427,
+          "market_proba": 0.4529,
+          "books": [
+            {
+              "name": "draftkings",
+              "odds": 2.14,
+              "best": true
+            },
+            {
+              "name": "lowvig",
+              "odds": 2.14,
+              "best": true
+            },
+            {
+              "name": "betonlineag",
+              "odds": 2.14,
+              "best": true
+            },
+            {
+              "name": "betrivers",
+              "odds": 2.14,
+              "best": true
+            },
+            {
+              "name": "fanduel",
+              "odds": 2.12,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 2.12,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 2.1,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 2.1,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 2.09,
+              "best": false
+            }
+          ]
         }
       ],
+      "withheld_bets": [],
       "form": {
         "home": {
           "results": [
@@ -3773,40 +3076,35 @@
           "market": "moneyline",
           "selection": "away",
           "predicted_proba": 0.6802,
-          "bookmaker_odds": 1.76,
-          "edge": 0.1121,
-          "kelly_stake": 0.0324,
+          "bookmaker_odds": 1.69,
+          "edge": 0.0885,
+          "kelly_stake": 0.0215,
           "confidence": "high",
           "model_proba": 0.6802,
-          "market_proba": 0.5681,
+          "market_proba": 0.5735,
           "books": [
             {
-              "name": "betrivers",
-              "odds": 1.76,
+              "name": "betus",
+              "odds": 1.69,
               "best": true
             },
             {
-              "name": "bovada",
-              "odds": 1.7,
+              "name": "draftkings",
+              "odds": 1.68,
               "best": false
             },
             {
               "name": "lowvig",
-              "odds": 1.69,
+              "odds": 1.68,
               "best": false
             },
             {
               "name": "betonlineag",
-              "odds": 1.69,
+              "odds": 1.68,
               "best": false
             },
             {
-              "name": "betus",
-              "odds": 1.69,
-              "best": false
-            },
-            {
-              "name": "draftkings",
+              "name": "betrivers",
               "odds": 1.68,
               "best": false
             },
@@ -3816,7 +3114,17 @@
               "best": false
             },
             {
+              "name": "bovada",
+              "odds": 1.67,
+              "best": false
+            },
+            {
               "name": "betmgm",
+              "odds": 1.67,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
               "odds": 1.67,
               "best": false
             }
@@ -3826,51 +3134,56 @@
           "market": "total",
           "selection": "over_5.5",
           "predicted_proba": 0.5655,
-          "bookmaker_odds": 1.95,
-          "edge": 0.0527,
-          "kelly_stake": 0.0114,
+          "bookmaker_odds": 1.98,
+          "edge": 0.0604,
+          "kelly_stake": 0.0115,
           "confidence": "medium",
           "model_proba": 0.5655,
-          "market_proba": 0.5047,
+          "market_proba": 0.4903,
           "books": [
             {
-              "name": "fanduel",
-              "odds": 1.95,
+              "name": "lowvig",
+              "odds": 1.98,
               "best": true
             },
             {
+              "name": "betonlineag",
+              "odds": 1.98,
+              "best": true
+            },
+            {
+              "name": "bovada",
+              "odds": 1.95,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 1.95,
+              "best": false
+            },
+            {
               "name": "betus",
-              "odds": 1.91,
+              "odds": 1.95,
               "best": false
             },
             {
               "name": "betmgm",
-              "odds": 1.91,
+              "odds": 1.95,
               "best": false
             },
             {
-              "name": "lowvig",
-              "odds": 1.9,
-              "best": false
-            },
-            {
-              "name": "betonlineag",
-              "odds": 1.9,
+              "name": "mybookieag",
+              "odds": 1.94,
               "best": false
             },
             {
               "name": "draftkings",
-              "odds": 1.89,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 1.89,
+              "odds": 1.93,
               "best": false
             },
             {
               "name": "betrivers",
-              "odds": 1.81,
+              "odds": 1.92,
               "best": false
             }
           ]
@@ -3997,16 +3310,16 @@
         },
         "exact_score": {
           "probabilities": {
-            "2-2": 0.12739286169320685,
-            "2-3": 0.12378670629661488,
-            "3-2": 0.11421137958850956,
-            "3-3": 0.11097835713041306,
+            "2-2": 0.12739286169320688,
+            "2-3": 0.1237867062966149,
+            "3-2": 0.11421137958850958,
+            "3-3": 0.11097835713041308,
             "1-2": 0.09473043911418483,
-            "1-3": 0.09204887062052909,
-            "2-4": 0.09021197372502479,
-            "2-1": 0.08740271442663163,
-            "3-4": 0.08087763974837274,
-            "3-1": 0.07835905765651255
+            "1-3": 0.0920488706205291,
+            "2-4": 0.09021197372502482,
+            "2-1": 0.08740271442663165,
+            "3-4": 0.08087763974837277,
+            "3-1": 0.07835905765651258
           },
           "expected_value": null,
           "confidence": "high",
@@ -4015,7 +3328,7 @@
             "lambda_home": 2.689586639404297,
             "lambda_away": 2.9150779247283936,
             "top_score": "2-2",
-            "top_proba": 0.12739286169320685,
+            "top_proba": 0.12739286169320688,
             "top_n": 10,
             "home_team": "NSH",
             "away_team": "STL"
@@ -4130,70 +3443,15 @@
       },
       "value_bets": [
         {
-          "market": "moneyline",
-          "selection": "away",
-          "predicted_proba": 0.5798,
-          "bookmaker_odds": 1.95,
-          "edge": 0.0669,
-          "kelly_stake": 0.0164,
-          "confidence": "medium",
-          "model_proba": 0.5798,
-          "market_proba": 0.5097,
-          "books": [
-            {
-              "name": "betrivers",
-              "odds": 1.95,
-              "best": true
-            },
-            {
-              "name": "fanduel",
-              "odds": 1.88,
-              "best": false
-            },
-            {
-              "name": "draftkings",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "lowvig",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "betonlineag",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "betmgm",
-              "odds": 1.87,
-              "best": false
-            }
-          ]
-        }
-      ],
-      "withheld_bets": [
-        {
           "market": "total",
           "selection": "under_6.0",
           "predicted_proba": 0.6073,
           "bookmaker_odds": 1.93,
           "edge": 0.0892,
-          "kelly_stake": 0.0184,
+          "kelly_stake": 0.0186,
           "confidence": "medium",
           "model_proba": 0.6073,
-          "market_proba": 0.5,
+          "market_proba": 0.5007,
           "books": [
             {
               "name": "lowvig",
@@ -4219,11 +3477,16 @@
               "name": "betmgm",
               "odds": 1.91,
               "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.89,
+              "best": false
             }
-          ],
-          "withheld_reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
+          ]
         }
       ],
+      "withheld_bets": [],
       "form": {
         "home": {
           "results": [
@@ -4344,8 +3607,8 @@
         },
         "exact_score": {
           "probabilities": {
-            "3-2": 0.12471719123265554,
-            "2-2": 0.12317283602706823,
+            "3-2": 0.12471719123265551,
+            "2-2": 0.12317283602706822,
             "3-3": 0.11563447907408068,
             "2-3": 0.11420259379877572,
             "4-2": 0.09471068230627097,
@@ -4362,7 +3625,7 @@
             "lambda_home": 3.037614345550537,
             "lambda_away": 2.7815206050872803,
             "top_score": "3-2",
-            "top_proba": 0.12471719123265554,
+            "top_proba": 0.12471719123265551,
             "top_n": 10,
             "home_team": "LAK",
             "away_team": "BOS"
@@ -4480,31 +3743,51 @@
           "market": "moneyline",
           "selection": "away",
           "predicted_proba": 0.5478,
-          "bookmaker_odds": 2.14,
-          "edge": 0.0805,
-          "kelly_stake": 0.0155,
+          "bookmaker_odds": 2.2,
+          "edge": 0.0933,
+          "kelly_stake": 0.0182,
           "confidence": "low",
           "model_proba": 0.5478,
-          "market_proba": 0.4528,
+          "market_proba": 0.4406,
           "books": [
             {
               "name": "draftkings",
-              "odds": 2.14,
+              "odds": 2.2,
               "best": true
             },
             {
-              "name": "fanduel",
-              "odds": 2.12,
+              "name": "betrivers",
+              "odds": 2.2,
+              "best": true
+            },
+            {
+              "name": "betonlineag",
+              "odds": 2.19,
               "best": false
             },
             {
-              "name": "betrivers",
-              "odds": 2.1,
+              "name": "lowvig",
+              "odds": 2.19,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 2.18,
               "best": false
             },
             {
               "name": "betmgm",
-              "odds": 2.1,
+              "odds": 2.18,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 2.15,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 2.14,
               "best": false
             }
           ]
@@ -4762,63 +4045,67 @@
           }
         }
       },
-      "value_bets": [],
-      "withheld_bets": [
+      "value_bets": [
         {
           "market": "total",
           "selection": "under_6.5",
           "predicted_proba": 0.6504,
-          "bookmaker_odds": 1.99,
-          "edge": 0.1479,
-          "kelly_stake": 0.0334,
+          "bookmaker_odds": 2.05,
+          "edge": 0.1626,
+          "kelly_stake": 0.0364,
           "confidence": "high",
           "model_proba": 0.6504,
-          "market_proba": 0.4876,
+          "market_proba": 0.4745,
           "books": [
             {
-              "name": "lowvig",
-              "odds": 1.99,
+              "name": "mybookieag",
+              "odds": 2.05,
               "best": true
+            },
+            {
+              "name": "lowvig",
+              "odds": 2.04,
+              "best": false
             },
             {
               "name": "betonlineag",
-              "odds": 1.99,
-              "best": true
-            },
-            {
-              "name": "fanduel",
-              "odds": 1.98,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 1.95,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 1.95,
-              "best": false
-            },
-            {
-              "name": "betmgm",
-              "odds": 1.95,
-              "best": false
-            },
-            {
-              "name": "betrivers",
-              "odds": 1.94,
+              "odds": 2.04,
               "best": false
             },
             {
               "name": "draftkings",
-              "odds": 1.93,
+              "odds": 2.02,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 2.02,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 2.0,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 2.0,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 2.0,
+              "best": false
+            },
+            {
+              "name": "betrivers",
+              "odds": 1.97,
               "best": false
             }
-          ],
-          "withheld_reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
+          ]
         }
       ],
+      "withheld_bets": [],
       "form": {
         "home": {
           "results": [
@@ -5072,75 +4359,113 @@
       },
       "value_bets": [
         {
-          "market": "moneyline",
-          "selection": "away",
-          "predicted_proba": 0.4409,
-          "bookmaker_odds": 2.98,
-          "edge": 0.1053,
-          "kelly_stake": 0.0185,
-          "confidence": "medium",
-          "model_proba": 0.4409,
-          "market_proba": 0.3284,
+          "market": "total",
+          "selection": "under_6.5",
+          "predicted_proba": 0.6563,
+          "bookmaker_odds": 1.99,
+          "edge": 0.1538,
+          "kelly_stake": 0.0345,
+          "confidence": "high",
+          "model_proba": 0.6563,
+          "market_proba": 0.4861,
           "books": [
             {
-              "name": "fanduel",
-              "odds": 2.98,
+              "name": "betonlineag",
+              "odds": 1.99,
               "best": true
             },
             {
+              "name": "lowvig",
+              "odds": 1.99,
+              "best": true
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.99,
+              "best": true
+            },
+            {
+              "name": "bovada",
+              "odds": 1.97,
+              "best": false
+            },
+            {
               "name": "draftkings",
-              "odds": 2.9,
+              "odds": 1.95,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 1.95,
               "best": false
             },
             {
               "name": "betmgm",
-              "odds": 2.9,
+              "odds": 1.95,
               "best": false
             },
             {
               "name": "betrivers",
+              "odds": 1.94,
+              "best": false
+            }
+          ]
+        },
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.4409,
+          "bookmaker_odds": 2.95,
+          "edge": 0.1019,
+          "kelly_stake": 0.0171,
+          "confidence": "medium",
+          "model_proba": 0.4409,
+          "market_proba": 0.3274,
+          "books": [
+            {
+              "name": "draftkings",
+              "odds": 2.95,
+              "best": true
+            },
+            {
+              "name": "fanduel",
+              "odds": 2.95,
+              "best": true
+            },
+            {
+              "name": "betmgm",
+              "odds": 2.95,
+              "best": true
+            },
+            {
+              "name": "betonlineag",
+              "odds": 2.95,
+              "best": true
+            },
+            {
+              "name": "lowvig",
+              "odds": 2.95,
+              "best": true
+            },
+            {
+              "name": "bovada",
+              "odds": 2.95,
+              "best": true
+            },
+            {
+              "name": "betrivers",
+              "odds": 2.9,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
               "odds": 2.88,
               "best": false
             }
           ]
         }
       ],
-      "withheld_bets": [
-        {
-          "market": "total",
-          "selection": "under_6.5",
-          "predicted_proba": 0.6563,
-          "bookmaker_odds": 1.97,
-          "edge": 0.1487,
-          "kelly_stake": 0.0323,
-          "confidence": "high",
-          "model_proba": 0.6563,
-          "market_proba": 0.4862,
-          "books": [
-            {
-              "name": "betrivers",
-              "odds": 1.97,
-              "best": true
-            },
-            {
-              "name": "fanduel",
-              "odds": 1.96,
-              "best": false
-            },
-            {
-              "name": "draftkings",
-              "odds": 1.95,
-              "best": false
-            },
-            {
-              "name": "betmgm",
-              "odds": 1.95,
-              "best": false
-            }
-          ],
-          "withheld_reason": "40 paris, tous « under », aucun dans l'autre sens : le rendement de ce marché n'est pas une mesure de sélection. Un seul pari « over » lève la retenue."
-        }
-      ],
+      "withheld_bets": [],
       "form": {
         "home": {
           "results": [
