@@ -1,6 +1,6 @@
 {
   "date": "2026-10-16",
-  "generated_at": "2026-10-17T21:59:40+00:00",
+  "generated_at": "2026-10-18T12:00:17+00:00",
   "games": [
     {
       "sport": "nhl",
@@ -257,7 +257,7 @@
       "home_name": "Memphis Grizzlies",
       "away_name": "Charlotte Hornets",
       "commence_time": "2026-10-17T00:00Z",
-      "home_score": 117,
+      "home_score": 116,
       "away_score": 98,
       "overtime": false,
       "periods": [
@@ -270,7 +270,7 @@
           "away": 18
         },
         {
-          "home": 30,
+          "home": 29,
           "away": 24
         },
         {

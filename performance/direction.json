@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-17T21:59:40+00:00",
+  "generated_at": "2026-10-18T12:00:18+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -11,17 +11,17 @@
       {
         "market": "moneyline",
         "status": "imbalanced",
-        "n": 69,
+        "n": 68,
         "counts": {
-          "away": 60,
+          "away": 59,
           "home": 9
         },
         "dominant": "away",
         "minority": 9,
         "withhold": null,
         "from": "2026-09-29",
-        "to": "2026-10-19",
-        "reason": "60 paris sur 69 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
+        "to": "2026-10-18",
+        "reason": "59 paris sur 68 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
