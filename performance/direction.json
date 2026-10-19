@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-19T14:27:16+00:00",
+  "generated_at": "2026-10-19T23:21:38+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -11,32 +11,32 @@
       {
         "market": "moneyline",
         "status": "imbalanced",
-        "n": 70,
+        "n": 75,
         "counts": {
-          "away": 61,
+          "away": 66,
           "home": 9
         },
         "dominant": "away",
         "minority": 9,
         "withhold": null,
         "from": "2026-09-29",
-        "to": "2026-10-20",
-        "reason": "61 paris sur 70 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
+        "to": "2026-10-21",
+        "reason": "66 paris sur 75 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
         "status": "imbalanced",
-        "n": 57,
+        "n": 66,
         "counts": {
-          "over": 1,
-          "under": 56
+          "over": 2,
+          "under": 64
         },
         "dominant": "under",
-        "minority": 1,
+        "minority": 2,
         "withhold": null,
         "from": "2026-09-29",
-        "to": "2026-10-20",
-        "reason": "56 paris sur 57 du même côté (« under ») : le rendement affiché dépend surtout de ce sens."
+        "to": "2026-10-21",
+        "reason": "64 paris sur 66 du même côté (« under ») : le rendement affiché dépend surtout de ce sens."
       }
     ],
     "nba": []
