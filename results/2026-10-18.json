@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-18",
+  "generated_at": "2026-10-19T14:27:15+00:00",
+  "games": [
+    {
+      "sport": "nhl",
+      "home": "MIN",
+      "away": "CBJ",
+      "home_name": "Minnesota Wild",
+      "away_name": "Columbus Blue Jackets",
+      "commence_time": "2026-10-18T22:00Z",
+      "home_score": 2,
+      "away_score": 1,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 1,
+          "away": 1
+        },
+        {
+          "home": 1,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 0
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "CGY",
+      "away": "CAR",
+      "home_name": "Calgary Flames",
+      "away_name": "Carolina Hurricanes",
+      "commence_time": "2026-10-19T00:00Z",
+      "home_score": 3,
+      "away_score": 2,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 0,
+          "away": 0
+        },
+        {
+          "home": 2,
+          "away": 2
+        },
+        {
+          "home": 1,
+          "away": 0
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    }
+  ]
+}
