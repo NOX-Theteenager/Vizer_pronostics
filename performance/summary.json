@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-10-20T12:36:35+00:00",
+  "generated_at": "2026-10-20T22:59:04+00:00",
   "min_sample": 20,
   "sports": {
     "nhl": {
-      "n_games_predicted": 151,
+      "n_games_predicted": 153,
       "n_games_settled": 140,
       "from": "2026-09-29",
       "to": "2026-10-20",
@@ -192,7 +192,7 @@
       }
     },
     "nba": {
-      "n_games_predicted": 24,
+      "n_games_predicted": 23,
       "n_games_settled": 21,
       "from": "2026-10-14",
       "to": "2026-10-17",

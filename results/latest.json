@@ -1,10 +1,41 @@
 {
-  "generated_at": "2026-10-20T12:36:33+00:00",
+  "generated_at": "2026-10-20T22:59:04+00:00",
   "window_days": 7,
   "from": "2026-10-14",
   "to": "2026-10-20",
-  "n_games": 56,
+  "n_games": 57,
   "games": [
+    {
+      "sport": "nba",
+      "home": "DET",
+      "away": "BOS",
+      "home_name": "Detroit Pistons",
+      "away_name": "Boston Celtics",
+      "commence_time": "2026-10-20T19:00Z",
+      "home_score": 121,
+      "away_score": 113,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 27,
+          "away": 28
+        },
+        {
+          "home": 18,
+          "away": 30
+        },
+        {
+          "home": 37,
+          "away": 30
+        },
+        {
+          "home": 39,
+          "away": 25
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
     {
       "sport": "nhl",
       "home": "NYR",
