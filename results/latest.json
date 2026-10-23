@@ -1,10 +1,41 @@
 {
-  "generated_at": "2026-10-23T12:30:37+00:00",
+  "generated_at": "2026-10-23T22:56:14+00:00",
   "window_days": 7,
   "from": "2026-10-17",
   "to": "2026-10-23",
-  "n_games": 61,
+  "n_games": 62,
   "games": [
+    {
+      "sport": "nba",
+      "home": "MIL",
+      "away": "CHI",
+      "home_name": "Milwaukee Bucks",
+      "away_name": "Chicago Bulls",
+      "commence_time": "2026-10-23T20:00Z",
+      "home_score": 125,
+      "away_score": 132,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 32,
+          "away": 17
+        },
+        {
+          "home": 30,
+          "away": 44
+        },
+        {
+          "home": 42,
+          "away": 41
+        },
+        {
+          "home": 21,
+          "away": 30
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
     {
       "sport": "nhl",
       "home": "BOS",
