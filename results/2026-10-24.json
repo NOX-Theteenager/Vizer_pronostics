@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-24",
+  "generated_at": "2026-10-24T22:17:23+00:00",
+  "games": [
+    {
+      "sport": "nhl",
+      "home": "PHI",
+      "away": "ANA",
+      "home_name": "Philadelphia Flyers",
+      "away_name": "Anaheim Ducks",
+      "commence_time": "2026-10-24T17:00Z",
+      "home_score": 4,
+      "away_score": 5,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 2,
+          "away": 0
+        },
+        {
+          "home": 1,
+          "away": 3
+        },
+        {
+          "home": 1,
+          "away": 2
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "NJD",
+      "away": "LAK",
+      "home_name": "New Jersey Devils",
+      "away_name": "Los Angeles Kings",
+      "commence_time": "2026-10-24T19:30Z",
+      "home_score": 3,
+      "away_score": 1,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 0,
+          "away": 0
+        },
+        {
+          "home": 1,
+          "away": 1
+        },
+        {
+          "home": 2,
+          "away": 0
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    }
+  ]
+}
