@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-25",
+  "generated_at": "2026-10-25T22:20:54+00:00",
+  "games": [
+    {
+      "sport": "nhl",
+      "home": "CHI",
+      "away": "FLA",
+      "home_name": "Chicago Blackhawks",
+      "away_name": "Florida Panthers",
+      "commence_time": "2026-10-25T19:00Z",
+      "home_score": 2,
+      "away_score": 3,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 1,
+          "away": 2
+        },
+        {
+          "home": 1,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 1
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    }
+  ]
+}
