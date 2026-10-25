@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-24T22:17:24+00:00",
+  "generated_at": "2026-10-25T12:26:11+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -26,17 +26,17 @@
       {
         "market": "total",
         "status": "imbalanced",
-        "n": 90,
+        "n": 91,
         "counts": {
           "over": 2,
-          "under": 88
+          "under": 89
         },
         "dominant": "under",
         "minority": 2,
         "withhold": null,
         "from": "2026-09-29",
         "to": "2026-10-26",
-        "reason": "88 paris sur 90 du même côté (« under ») : le rendement affiché dépend surtout de ce sens."
+        "reason": "89 paris sur 91 du même côté (« under ») : le rendement affiché dépend surtout de ce sens."
       }
     ],
     "nba": []
