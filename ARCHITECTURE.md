@@ -406,6 +406,44 @@ réactiver le marché `total` tombe exactement sur la période fraîche ; le
 un modèle sur la foi d'un chiffre, vérifier que le chiffre a été mesuré sur
 des données vivantes.
 
+### Travailler en local : ce qui marche déjà, et le piège
+
+Tout est déjà là. Les datasets sont dans `vizer_*/data/` (73 Mo + 122 Mo côté
+NHL), le notebook d'entraînement est dans `kaggle/vizer_training_notebook.py`,
+et **l'entraînement d'évaluation NHL prend 9 secondes** sur un PC ordinaire —
+la boucle locale est plus rapide que Kaggle, où chaque essai demande un push
+de kernel et plusieurs minutes d'attente.
+
+```sh
+venv-runtime/bin/python vizer_nhl/train.py --output /tmp/essai.pkl
+venv-runtime/bin/python -m vizer_core.quality_gate /tmp/essai.pkl --json /tmp/essai.json
+```
+
+Le piège est ailleurs : **l'environnement local doit correspondre aux versions
+épinglées**, sinon les chiffres mesurés en local ne transfèrent pas.
+
+| bibliothèque | `requirements-runtime.txt` | `venv/` |
+|---|---|---|
+| scikit-learn | 1.6.1 | **1.8.0** |
+| pandas | 2.3.3 | **3.0.3** |
+| numpy | 2.4.6 | 2.4.5 |
+| xgboost | 3.2.0 | 3.2.0 |
+
+`requirements-runtime.txt` prévient lui-même que « >= 1.8 : `cv='prefit'` a été
+supprimé de `CalibratedClassifierCV` ». Le venv principal est donc passé le
+point de rupture documenté, et charger un pickle de production y émet un
+`InconsistentVersionWarning` dont le texte dit « may lead to invalid results ».
+
+> **Règle : une probabilité calculée localement à partir d'un modèle de
+> production n'est fiable que dans `venv-runtime`.** `scripts/setup_local_runtime.sh`
+> le construit et vérifie chaque pin. On ne rétrograde pas `venv/`, qui sert à
+> autre chose.
+
+Ce qui reste hors de portée locale, et pourquoi : `stats.nba.com` et
+`moneypuck.com` bloquent les IP de datacenter mais pas les IP résidentielles,
+donc le PC est le **seul** point d'accès aux données brutes — c'est l'inverse
+de la situation habituelle, où le cloud peut tout et le poste rien.
+
 ### Reste à faire
 
 - **Pas de pipeline candidat → promotion** : l'entraînement écrase directement

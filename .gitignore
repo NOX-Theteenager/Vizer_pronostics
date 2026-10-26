@@ -4,6 +4,10 @@ __pycache__/
 *.pyo
 *.egg-info/
 /venv
+# Environnement local aligné sur requirements-runtime.txt
+# (cf. scripts/setup_local_runtime.sh). ~500 Mo, se reconstruit en une
+# commande — jamais commité.
+/venv-runtime
 .pytest_cache/
 
 # Projet
