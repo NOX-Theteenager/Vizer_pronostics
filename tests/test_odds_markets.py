@@ -24,7 +24,7 @@ import pytest
 
 from conftest import load
 
-oc = load('vizer_nba/src/api/odds_client.py', 'nba_odds_client')
+oc = load('vizer_nba/src/api/odds_client.py', 'nba_api.odds_client')
 
 
 # Corps d'erreur relevé en production, run #132 du 26/10/2026.

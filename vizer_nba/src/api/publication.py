@@ -14,6 +14,12 @@ from .odds_client import GameOdds
 
 _OU = re.compile(r'^(over|under)_(.+)$')
 
+# Tolérance de comparaison des lignes. La ligne vient d'un côté du nom de la
+# sélection (`under_228.5`, donc d'une chaîne) et de l'autre du JSON de l'API :
+# deux chemins de conversion pour la même valeur. Un seul seuil, partagé par
+# les deux branches, qui en avaient deux différents.
+_LINE_TOL = 0.01
+
 
 def books_for_bet(game: GameOdds, market: str, selection: str) -> list[dict[str, Any]]:
     """Cotes de tous les bookmakers pour (market, selection), triées décroissant."""
@@ -41,7 +47,13 @@ def books_for_bet(game: GameOdds, market: str, selection: str) -> list[dict[str,
     elif market == 'total' and line is not None:
         for b in game.bookmakers:
             for t in b.totals:
-                if abs(t.point - line) < 1e-6:
+                # `t.line`, pas `t.point` : `TotalsLine` n'a jamais eu de champ
+                # `point`, et la branche voisine des totals d'équipe écrivait
+                # bien `line`. La faute n'est apparue que le 26/10/2026, au
+                # premier run où des cotes NBA sont arrivées — la requête
+                # échouait en amont depuis l'ouverture de la saison, donc ce
+                # code n'avait jamais tourné.
+                if abs(t.line - line) < _LINE_TOL:
                     odds = t.over_odds if side == 'over' else t.under_odds
                     if odds:
                         rows.append((b.bookmaker, float(odds)))
@@ -50,7 +62,7 @@ def books_for_bet(game: GameOdds, market: str, selection: str) -> list[dict[str,
         team_name = game.home_full if market == 'home_team_total' else game.away_full
         for b in game.bookmakers:
             for t in b.team_totals:
-                if t.team_full_name == team_name and abs(t.line - line) < 0.01:
+                if t.team_full_name == team_name and abs(t.line - line) < _LINE_TOL:
                     odds = t.over_odds if side == 'over' else t.under_odds
                     if odds:
                         rows.append((b.bookmaker, float(odds)))
