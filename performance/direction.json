@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-26T21:33:22+00:00",
+  "generated_at": "2026-10-26T21:37:37+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -44,6 +44,39 @@
         "reason": "99 paris sur 101 du même côté (« under »), et le modèle annonce 0.51 de moins que ce qui arrive (2.4 écarts-types) : le décalage de niveau explique le sens des paris."
       }
     ],
-    "nba": []
+    "nba": [
+      {
+        "market": "moneyline",
+        "status": "insufficient",
+        "n": 3,
+        "counts": {
+          "away": 3
+        },
+        "dominant": "away",
+        "minority": 0,
+        "withhold": null,
+        "level_bias": null,
+        "level_z": null,
+        "from": "2026-10-26",
+        "to": "2026-10-27",
+        "reason": "3 paris sur la fenêtre — trop peu pour se prononcer."
+      },
+      {
+        "market": "total",
+        "status": "insufficient",
+        "n": 3,
+        "counts": {
+          "over": 3
+        },
+        "dominant": "over",
+        "minority": 0,
+        "withhold": null,
+        "level_bias": 3.797,
+        "level_z": 1.52,
+        "from": "2026-10-26",
+        "to": "2026-10-27",
+        "reason": "3 paris sur la fenêtre — trop peu pour se prononcer."
+      }
+    ]
   }
 }
