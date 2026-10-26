@@ -444,6 +444,42 @@ Ce qui reste hors de portée locale, et pourquoi : `stats.nba.com` et
 donc le PC est le **seul** point d'accès aux données brutes — c'est l'inverse
 de la situation habituelle, où le cloud peut tout et le poste rien.
 
+### Écrire pour l'écran Admin
+
+Trois règles, adoptées le 27/10/2026 après qu'un écran entier de métriques
+exactes n'ait pas réussi à signaler treize jours de données gelées.
+
+1. **Un verdict en mots avant tout chiffre.** « À jour », « perdant », « non
+   interprétable », « pas assez de paris ». Le lecteur ne doit pas avoir à
+   savoir si 0,49 de Brier est bon.
+2. **Une phrase qui dit ce que le chiffre signifie**, en matchs, en buts ou en
+   euros. `AUC 0,6161` devient « sur deux matchs au hasard, il place le
+   vainqueur devant le perdant 61 fois sur 100 » — c'est la définition exacte
+   de l'AUC, pas une analogie. `ROI −12,5 %` devient « pour 1 € misé sur
+   chacun, il en manque 0,13 € ».
+3. **Tout état anormal porte son action**, sinon il n'appelle rien. « Republier
+   le dataset depuis le PC, puis réentraîner » ; « les modèles précédents
+   restent en service, rien d'urgent » ; « rien à faire, le prochain
+   réentraînement corrigera ».
+
+Trois corollaires qui ont de l'effet :
+
+- **La phrase dépend du marché, pas seulement de la métrique.** `btts` et
+  `exact_score` partagent le moteur de buts du total : écrire « il se trompe de
+  1,87 but » sous « Les deux marquent » serait exact sur le chiffre et faux sur
+  le sens.
+- **Un écart nu ne se publie pas.** « +0,0078 » ne dit pas s'il est bon. Le
+  sens de la métrique est publié avec elle (`higher_is_better`), donc on écrit
+  « mieux que le 19/10 (0,608 → 0,616) ».
+- **Ce qui ne sert pas à décider se replie.** Version, nombre de features,
+  température de calibration. Au même rang que les mesures, ils obligent à
+  trier à chaque lecture — et trier à chaque lecture finit par ne plus rien
+  lire. C'est ainsi qu'une grille de cinq tirets a survécu des semaines.
+
+Les noms de fichiers et de champs n'ont rien à faire dans l'interface, à une
+exception près : une variable d'environnement que l'utilisateur doit définir
+lui-même se nomme exactement.
+
 ### Reste à faire
 
 - **Pas de pipeline candidat → promotion** : l'entraînement écrase directement
