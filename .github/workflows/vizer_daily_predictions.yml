@@ -228,8 +228,23 @@ jobs:
         run: |
           mkdir -p "$PREDS_DIR"
           python scripts/check_data_freshness.py --sport "$SPORT_INPUT" \
-            --out "$PREDS_DIR/freshness.json" \
-            || echo "STALE_DATA=1" >> "$GITHUB_ENV"
+            --out "$PREDS_DIR/freshness.json" || true
+
+          # Le bilan doit **nommer** les sports en retard. Un message qui dit
+          # « les prédictions reposent sur un état dépassé » quand un seul des
+          # deux sports est concerné sera ignoré dès la deuxième fois, et le
+          # jour où il sera vrai des deux il ne portera plus.
+          STALE=$(python -c "
+          import json, pathlib
+          p = pathlib.Path('$PREDS_DIR/freshness.json')
+          try:
+              print(' '.join(json.loads(p.read_text()).get('stale') or []))
+          except Exception:
+              print('')
+          ")
+          if [ -n "$STALE" ]; then
+            echo "STALE_DATA=${STALE}" >> "$GITHUB_ENV"
+          fi
 
       - name: Vérifier les features servies
         run: |
@@ -486,10 +501,10 @@ jobs:
             echo "  🧭 Verdict directionnel appliqué (run précédent)"
           fi
           if [ -n "${STALE_DATA}" ]; then
-            echo "  🗓️  Données d'entraînement en retard sur la saison"
-            echo "     Les prédictions publiées reposent sur un état du"
-            echo "     championnat dépassé — voir l'étape « Vérifier la"
-            echo "     fraîcheur des données »."
+            echo "  🗓️  Données en retard : ${STALE_DATA}"
+            echo "     Les prédictions de ce ou ces sports reposent sur un état"
+            echo "     du championnat dépassé. Les autres sont à jour."
+            echo "     Détail et rattrapage : étape « Vérifier la fraîcheur »."
           fi
           if [ -n "${FAILED_SPORTS}" ]; then
             echo "  ❌ Échec sur :${FAILED_SPORTS}"
