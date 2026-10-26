@@ -38,7 +38,7 @@ import pathlib
 import re
 import sys
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
 SPORTS = ('nhl', 'nba')
@@ -47,6 +47,21 @@ SPORTS = ('nhl', 'nba')
 # réussite sur douze matchs n'est pas une mesure, c'est du bruit — et affiché
 # sans effectif, c'est une invitation à se tromper.
 DEFAULT_MIN_SAMPLE = 20
+
+# Fenêtre du décalage de niveau **récent**, publié à côté du cumul.
+#
+# Les deux sont nécessaires et ne répondent pas à la même question. L'écran
+# Performance veut le cumul — « ce modèle a-t-il eu raison cette saison ». Le
+# garde-fou directionnel veut le récent, parce qu'il doit pouvoir **lever** sa
+# retenue : un biais cumulé depuis le début de saison garde en mémoire les
+# treize jours de données gelées du 13 au 26 octobre, et resterait
+# significatif des semaines après la correction. Une condition de sortie qui
+# ne peut pas se vérifier n'est pas une condition de sortie.
+#
+# Vingt et un jours : assez pour que les marchés principaux dépassent le seuil
+# d'échantillon (le total NHL produit ~4,4 matchs mesurables par jour), assez
+# court pour qu'un modèle corrigé le montre en trois semaines.
+DEFAULT_LEVEL_WINDOW = 21
 
 OVER_UNDER = re.compile(r'^(over|under)_(-?\d+(?:\.\d+)?)$')
 EXACT = re.compile(r'^(\d+)-(\d+)$')
@@ -415,14 +430,24 @@ class BetStats:
         }
 
 
-def analyse(root: pathlib.Path, min_sample: int) -> dict[str, Any]:
+def analyse(root: pathlib.Path, min_sample: int,
+            level_window: int = DEFAULT_LEVEL_WINDOW,
+            today: Optional[str] = None) -> dict[str, Any]:
     results = load_results(root)
     out: dict[str, Any] = {}
+    # Borne de la fenêtre récente. Calculée une fois, à partir d'aujourd'hui et
+    # non du dernier match mesuré : si les publications s'arrêtaient, la
+    # fenêtre doit se vider, pas suivre les données.
+    cutoff = (
+        (datetime.fromisoformat(today) if today else datetime.now(timezone.utc))
+        - timedelta(days=level_window)
+    ).date().isoformat()
 
     for sport in SPORTS:
         preds = last_predictions(root, sport)
         markets: dict[str, MarketStats] = defaultdict(MarketStats)
         levels: dict[str, LevelStats] = defaultdict(LevelStats)
+        levels_recent: dict[str, LevelStats] = defaultdict(LevelStats)
         bets = BetStats()
         bets_by_market: dict[str, BetStats] = defaultdict(BetStats)
         matched = 0
@@ -458,6 +483,9 @@ def analyse(root: pathlib.Path, min_sample: int) -> dict[str, Any]:
                         observed = None
                     if observed is not None:
                         levels[market].add(predicted, float(observed))
+                        day = (game.get('commence_time') or '')[:10]
+                        if day >= cutoff:
+                            levels_recent[market].add(predicted, float(observed))
 
             for vb in game.get('value_bets') or []:
                 market = vb.get('market')
@@ -499,6 +527,13 @@ def analyse(root: pathlib.Path, min_sample: int) -> dict[str, Any]:
             # modèle se trompe » de « le modèle se trompe toujours du même
             # côté », qui n'appellent pas la même correction.
             'levels': {m: s.to_dict(min_sample) for m, s in sorted(levels.items())},
+            # Même mesure, sur les `level_window` derniers jours. C'est celle
+            # que lit le garde-fou directionnel, pour que sa retenue puisse
+            # tomber quand le modèle a été corrigé.
+            'levels_recent': {
+                m: s.to_dict(min_sample) for m, s in sorted(levels_recent.items())
+            },
+            'level_window_days': level_window,
             'value_bets': bets.to_dict(min_sample),
             'value_bets_by_market': {
                 m: s.to_dict(min_sample) for m, s in sorted(bets_by_market.items())
@@ -515,6 +550,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--out', default=None,
                     help="Fichier de sortie (défaut : <root>/performance/summary.json)")
     ap.add_argument('--min-sample', type=int, default=DEFAULT_MIN_SAMPLE)
+    ap.add_argument('--level-window-days', type=int, default=DEFAULT_LEVEL_WINDOW,
+                    help="Fenêtre du décalage de niveau récent, lu par le "
+                         "garde-fou directionnel")
+    ap.add_argument('--today', default=None, help="Date de référence, pour les tests")
     args = ap.parse_args(argv)
 
     root = pathlib.Path(args.root)
@@ -524,7 +563,9 @@ def main(argv: list[str] | None = None) -> int:
     payload = {
         'generated_at': datetime.now(timezone.utc).isoformat(timespec='seconds'),
         'min_sample': args.min_sample,
-        'sports': analyse(root, args.min_sample),
+        'sports': analyse(root, args.min_sample,
+                          level_window=args.level_window_days,
+                          today=args.today),
     }
     out.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding='utf-8')
 

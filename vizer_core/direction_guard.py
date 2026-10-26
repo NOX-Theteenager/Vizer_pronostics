@@ -278,9 +278,18 @@ def levels_from_summary(path: pathlib.Path) -> dict[str, dict[str, dict]]:
     """
     Décalages de niveau par sport et marché, lus dans `performance/summary.json`.
 
-    Rendu vide si le fichier manque ou est illisible : le garde-fou retombe
-    alors sur la seule unanimité, c'est-à-dire sur son comportement d'avant
-    cette mesure. Dégradation, pas panne.
+    On prend `levels_recent` — la fenêtre glissante — et non le cumul, parce
+    que c'est la **sortie** de retenue qui en dépend. Un biais cumulé depuis le
+    début de saison garde en mémoire les treize jours de données gelées du 13
+    au 26 octobre 2026 : il resterait significatif des semaines après la
+    correction du modèle, et la retenue ne pourrait jamais tomber. Une
+    condition de sortie qui ne peut pas se vérifier n'est pas une condition de
+    sortie.
+
+    Repli sur le cumul pour les résumés produits avant l'ajout de la fenêtre,
+    puis rendu vide si le fichier manque ou est illisible : le garde-fou
+    retombe alors sur la seule unanimité, son comportement d'avant cette
+    mesure. Dégradation, pas panne.
     """
     try:
         payload = json.loads(path.read_text(encoding='utf-8'))
@@ -288,7 +297,10 @@ def levels_from_summary(path: pathlib.Path) -> dict[str, dict[str, dict]]:
         return {}
     out: dict[str, dict[str, dict]] = {}
     for sport, data in (payload.get('sports') or {}).items():
-        out[sport] = {m: v for m, v in ((data or {}).get('levels') or {}).items()
+        source = (data or {}).get('levels_recent')
+        if not isinstance(source, dict):
+            source = (data or {}).get('levels') or {}
+        out[sport] = {m: v for m, v in source.items()
                       if isinstance(v, dict) and not v.get('insufficient')}
     return out
 

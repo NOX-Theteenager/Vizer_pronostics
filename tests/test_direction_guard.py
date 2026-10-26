@@ -335,3 +335,35 @@ def test_scan_applique_les_niveaux(tmp_path):
     # Sans les niveaux, le même échantillon n'est pas retenu.
     v2 = scan(tmp_path, sports=('nhl',), today=date(2026, 10, 26))['nhl'][0]
     assert v2.status == 'imbalanced'
+
+
+def test_levels_prefere_la_fenetre_recente(tmp_path):
+    """La sortie de retenue dépend du récent, pas du cumul.
+
+    Un biais cumulé depuis le début de saison garde en mémoire la période de
+    données gelées et resterait significatif des semaines après la correction
+    — la retenue ne pourrait jamais tomber.
+    """
+    path = tmp_path / 'summary.json'
+    path.write_text(json.dumps({'sports': {'nhl': {
+        'levels': {'total': {'n': 122, 'bias': -0.508, 'z': -2.37}},
+        'levels_recent': {'total': {'n': 60, 'bias': -0.10, 'z': -0.4}},
+    }}}), encoding='utf-8')
+    out = _dg.levels_from_summary(path)
+    assert out['nhl']['total']['z'] == -0.4
+
+    # Ce qui change le verdict : même répartition de paris, modèle corrigé.
+    v = Verdict('nhl', 'total', {'under': 99, 'over': 2},
+                **{'level_bias': out['nhl']['total']['bias'],
+                   'level_z': out['nhl']['total']['z']})
+    assert v.status == 'imbalanced'
+
+
+def test_levels_repli_sur_le_cumul(tmp_path):
+    """Résumés produits avant l'ajout de la fenêtre : on lit le cumul plutôt
+    que de se comporter comme si rien n'était mesuré."""
+    path = tmp_path / 'summary.json'
+    path.write_text(json.dumps({'sports': {'nhl': {
+        'levels': {'total': {'n': 122, 'bias': -0.508, 'z': -2.37}},
+    }}}), encoding='utf-8')
+    assert _dg.levels_from_summary(path)['nhl']['total']['z'] == -2.37
