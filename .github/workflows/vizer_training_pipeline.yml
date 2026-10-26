@@ -313,6 +313,16 @@ jobs:
               "blocked": blocked,
               "verdicts": verdicts,
           }, ensure_ascii=False, indent=2), encoding="utf-8")
+          # Copie datée, à côté de `models/history/<jour>.json` qui porte le
+          # registre. Sans elle, l'écran Admin ne peut comparer que des
+          # métriques in-sample, donc des tirets : le registre du modèle
+          # déployé n'en contient aucune.
+          day = datetime.now(timezone.utc).date().isoformat()
+          hist = pathlib.Path("models/gate_history")
+          hist.mkdir(parents=True, exist_ok=True)
+          (hist / f"{day}.json").write_text(
+              pathlib.Path("models/gate.json").read_text(), encoding="utf-8")
+
           detail = ", ".join(
               f"{s} n_test={v.get('n_test')}" for s, v in verdicts.items()
           ) or "sans détail"
@@ -321,7 +331,8 @@ jobs:
           PYGATE
 
           # Commit horodaté
-          git add vizer_nhl/models/ vizer_nba/models/ models/gate.json
+          git add vizer_nhl/models/ vizer_nba/models/ models/gate.json \
+            models/gate_history/
           COMMIT_MSG="chore(models): $(date -u '+%Y-%m-%d %H:%M UTC') [sport: ${SPORT_INPUT}, run: #${{ github.run_number }}]"
           git diff --cached --quiet \
             && echo "ℹ️  Aucun changement de modèle à commiter" \

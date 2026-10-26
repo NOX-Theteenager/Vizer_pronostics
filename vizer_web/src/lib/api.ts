@@ -16,7 +16,11 @@
 import type { Sport, SportFeed } from '../types/model';
 import { normalizeFeed } from '../types/normalize';
 import { normalizeLive, type LiveGame } from '../types/live';
-import type { DirectionFile, PerformanceFile } from '../types/performance';
+import type {
+  DirectionFile,
+  FreshnessFile,
+  PerformanceFile,
+} from '../types/performance';
 import { normalizeResults, type GameResult } from '../types/results';
 import { KEYS, readJson, writeJson } from './storage';
 
@@ -298,8 +302,13 @@ export interface GateStatus {
   verdicts?: Partial<Record<Sport, GateVerdict>>;
 }
 
-export async function fetchGateStatus(): Promise<GateStatus> {
-  const url = `${MODELS_BASE}/gate.json?cb=${Math.floor(Date.now() / 300_000)}`;
+export async function fetchGateStatus(day?: string): Promise<GateStatus> {
+  // Avec `day`, la copie datée archivée par le workflow d'entraînement. C'est
+  // ce qui permet de comparer deux versions sur des **mesures** : le registre
+  // du modèle déployé, lui, ne porte aucune métrique hors échantillon.
+  const url = day
+    ? `${MODELS_BASE}/gate_history/${day}.json`
+    : `${MODELS_BASE}/gate.json?cb=${Math.floor(Date.now() / 300_000)}`;
   return (await fetchJson(url)) as GateStatus;
 }
 
@@ -329,6 +338,20 @@ export async function fetchPerformance(): Promise<PerformanceFile> {
 export async function fetchDirection(): Promise<DirectionFile> {
   const url = `${PERFORMANCE_BASE}/direction.json?cb=${Math.floor(Date.now() / 300_000)}`;
   return (await fetchJson(url)) as DirectionFile;
+}
+
+/**
+ * Les données d'entraînement suivent-elles la saison ?
+ *
+ * Le premier chiffre à regarder : un modèle nourri de données périmées
+ * continue de publier des prédictions d'apparence normale. Mesuré le
+ * 26/10/2026 — dataset NHL treize jours en retard, NBA cent quatre-vingt-seize
+ * — les paris de la période gelée ont rendu −27 % contre −7 % sur la période
+ * fraîche.
+ */
+export async function fetchFreshness(): Promise<FreshnessFile> {
+  const url = `${PERFORMANCE_BASE}/freshness.json?cb=${Math.floor(Date.now() / 300_000)}`;
+  return (await fetchJson(url)) as FreshnessFile;
 }
 
 /** Archive d'un jour donné — utilisée par l'écran Historique. */

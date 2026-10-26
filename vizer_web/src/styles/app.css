@@ -3510,6 +3510,105 @@ code {
   color: var(--text-dim);
 }
 
+/* ── Détails techniques, repliés ─────────────────────────────────────────
+   Version, features, température : utiles pour diagnostiquer, inutiles pour
+   décider. Au même rang que les mesures, ils obligent à trier à chaque
+   lecture. */
+.vz-tech {
+  margin-top: 4px;
+}
+
+.vz-tech > summary {
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 4px 0;
+  list-style: none;
+}
+
+.vz-tech > summary::before {
+  content: '▸ ';
+}
+
+.vz-tech[open] > summary::before {
+  content: '▾ ';
+}
+
+.vz-tech__body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 4px 0 2px;
+}
+
+.vz-tech__row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+}
+
+/* Évolution d'une mesure entre deux versions, en mots. */
+.vz-trend {
+  font-size: 11px;
+}
+
+.vz-trend.is-up {
+  color: var(--value);
+}
+
+.vz-trend.is-down {
+  color: var(--danger);
+}
+
+/* ── Bandeau d'état ──────────────────────────────────────────────────────
+   Première chose lue de l'écran Admin : un verdict en mots par sujet, et
+   l'action quand il y a lieu. La bordure gauche porte la gravité du pire des
+   trois, pour qu'un coup d'œil suffise. */
+.vz-health {
+  border-left: 3px solid var(--value);
+}
+
+.vz-health.is-warn {
+  border-left-color: var(--warning);
+}
+
+.vz-health.is-bad {
+  border-left-color: var(--danger);
+}
+
+.vz-health.is-unknown {
+  border-left-color: var(--text-dim);
+}
+
+.vz-health__row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.vz-health__glyph {
+  flex: none;
+  width: 18px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.vz-health__verdict {
+  display: block;
+  font-size: 13px;
+}
+
+/* L'action se distingue du constat : c'est la seule ligne sur laquelle on
+   peut agir, elle ne doit pas se fondre dans l'explication. */
+.vz-health__action {
+  display: block;
+  margin-top: 3px;
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
 /* ── Sens des paris ──────────────────────────────────────────────────────
    Collé au rendement, et non relégué ailleurs : c'est la ligne qui dit si le
    pourcentage juste à côté veut dire quelque chose. */

@@ -119,3 +119,38 @@ export interface DirectionFile {
   };
   sports: Partial<Record<Sport, DirectionVerdict[]>>;
 }
+
+
+/* ── Fraîcheur des données ────────────────────────────────────────────────── */
+
+/**
+ * Les données d'entraînement suivent-elles la saison ?
+ *
+ * Produit par `scripts/check_data_freshness.py`, qui compare la dernière date
+ * du dataset au dernier match **effectivement joué** d'après ESPN — pas au
+ * calendrier. Treize jours d'écart en pleine saison sont une panne, les mêmes
+ * en juillet ne sont rien.
+ *
+ * `unknown`   : dataset introuvable ou sans colonne de date — on ne conclut pas.
+ * `offseason` : aucun match joué depuis dix jours, rien à rattraper.
+ */
+export type FreshnessStatus = 'fresh' | 'stale' | 'offseason' | 'unknown';
+
+export interface SportFreshness {
+  sport: string;
+  status: FreshnessStatus;
+  /** Dernier match présent dans le dataset d'entraînement. */
+  last_in_data?: string;
+  /** Dernier match joué, d'après ESPN. */
+  last_played?: string;
+  lag_days?: number;
+  max_lag_days?: number;
+  detail?: string;
+}
+
+export interface FreshnessFile {
+  generated_at: string;
+  /** Sports au-delà du seuil de retard. */
+  stale: string[];
+  sports: Partial<Record<Sport, SportFreshness>>;
+}

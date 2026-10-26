@@ -1,14 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Chip, SectionLabel, SegButton, SegGroup } from '../components/Primitives';
 import { marketShortLabel } from '../data/markets';
+import { HealthBanner } from '../components/HealthBanner';
 import { IconCheck, IconDownload, IconRefresh, IconWarning, IconX } from '../components/Icons';
 import { useToast } from '../context/ToastContext';
 import { Performance } from '../components/Performance';
 import { useData } from '../context/DataContext';
 import { policyKey, savePolicy } from '../lib/marketPolicy';
-import type { DirectionFile, PerformanceFile } from '../types/performance';
+import type {
+  DirectionFile,
+  FreshnessFile,
+  PerformanceFile,
+} from '../types/performance';
 import {
   fetchDirection,
+  fetchFreshness,
   fetchGateStatus,
   fetchModelRegistry,
   fetchPerformance,
@@ -49,42 +55,19 @@ import { SPORTS, type Sport } from '../types/model';
  * fait déjà le même compromis plutôt que d'imposer une convention à des
  * fichiers qui ont la leur.
  */
-const HEADLINE: { keys: string[]; label: string; digits: number; higherIsBetter: boolean }[] = [
-  { keys: ['accuracy_test', 'test_accuracy'], label: 'Précision', digits: 3, higherIsBetter: true },
-  { keys: ['auc_test', 'test_auc'], label: 'AUC', digits: 4, higherIsBetter: true },
-  {
-    keys: ['brier_calibrated_test', 'test_brier_score'],
-    label: 'Brier calibré',
-    digits: 4,
-    higherIsBetter: false,
-  },
-  { keys: ['temperature'], label: 'Température', digits: 3, higherIsBetter: true },
-  { keys: ['n_features'], label: 'Features', digits: 0, higherIsBetter: true },
-];
-
 /**
- * Lit une métrique quelle que soit son orthographe.
+ * Chiffres de diagnostic, repliés derrière « Détails techniques ».
  *
- * Renvoie `null` si le modèle a été entraîné sur 100 % des données : ses
- * champs `*_test` existent encore mais ne mesurent rien — ils valent 0 côté
- * NHL, et recopient les valeurs d'entraînement côté NBA. Afficher
- * « AUC 0,0000 » ou « AUC 0,9236 » laisserait croire à une mesure de
- * généralisation dans les deux cas.
+ * Ils décrivent la fabrication du modèle, pas sa qualité : la température de
+ * calibration et le nombre de features n'aident à aucune décision, et les
+ * afficher au même rang que les mesures de performance oblige à trier à
+ * chaque lecture.
  */
-function metricValue(
-  metrics: Record<string, number | string | boolean> | undefined,
-  entry: (typeof HEADLINE)[number],
-  inSample: boolean,
-): number | null {
-  if (!metrics) return null;
-  const isTestMetric = entry.keys.some((k) => k.includes('test'));
-  if (inSample && isTestMetric) return null;
-  for (const k of entry.keys) {
-    const v = Number(metrics[k]);
-    if (Number.isFinite(v)) return v;
-  }
-  return null;
-}
+const TECH: { key: string; label: string; digits: number }[] = [
+  { key: 'n_features', label: 'Features utilisées', digits: 0 },
+  { key: 'temperature', label: 'Température de calibration', digits: 3 },
+  { key: 'n_train', label: 'Matchs d’entraînement', digits: 0 },
+];
 
 const ACTIONS: { key: WorkflowKey; label: string; sub: string; inputs?: Record<string, string> }[] = [
   {
@@ -160,29 +143,58 @@ function plainMetric(market: string, m: GateMetric): string {
   }
 }
 
-function GateDetail({ verdict }: { verdict: GateVerdict }) {
+/**
+ * Ce que vaut le modèle sur des matchs qu'il n'a pas vus.
+ *
+ * Les seules mesures de généralisation du pipeline. Le modèle déployé est
+ * entraîné sur 100 % des matchs et n'en porte aucune — pendant longtemps cet
+ * écran affichait donc une grille de cinq tirets suivie d'un paragraphe
+ * expliquant pourquoi elle était vide. Ces chiffres existaient : la barrière
+ * de qualité évalue un modèle entraîné avec jeu de test réservé, et son
+ * verdict était jeté à chaque entraînement réussi.
+ */
+function GateDetail({
+  verdict,
+  previous,
+  previousDay,
+}: {
+  verdict: GateVerdict;
+  previous?: GateVerdict | null;
+  previousDay?: string | null;
+}) {
   const checks = (verdict.checks ?? []).filter((c) => (c.metrics ?? []).length > 0);
   if (!checks.length) return null;
+
+  const before = new Map(
+    (previous?.checks ?? []).map((c) => [
+      c.market,
+      new Map((c.metrics ?? []).map((m) => [m.label, m.value])),
+    ]),
+  );
+
   return (
     <>
       <SectionLabel>Ce que vaut le modèle sur des matchs qu’il n’a pas vus</SectionLabel>
       <div className="vz-card vz-card--rows">
         <p className="vz-note">
           Mesuré sur <strong>{(verdict.n_test ?? 0).toLocaleString('fr-FR')} matchs</strong>{' '}
-          mis de côté avant l’entraînement. C’est la seule mesure qui dise si le
-          modèle généralise ; tout le reste de cet écran décrit le modèle déployé,
-          qui a vu tous les matchs.
+          mis de côté avant l’entraînement. C’est la seule mesure qui dise si le modèle
+          généralise : le modèle en service, lui, a vu tous les matchs.
         </p>
         {checks.map((c) => (
           <div className="vz-perf__row" key={c.market}>
             <span className="vz-f1">
               <strong>{marketShortLabel(c.market)}</strong>
-              {(c.metrics ?? []).map((m) => (
-                <small className="vz-note vz-dir" key={m.label}>
-                  {m.ok ? '' : '⚠️ '}
-                  {plainMetric(c.market, m)}
-                </small>
-              ))}
+              {(c.metrics ?? []).map((m) => {
+                const old = before.get(c.market)?.get(m.label);
+                return (
+                  <small className="vz-note vz-dir" key={m.label}>
+                    {m.ok ? '' : '⚠️ '}
+                    {plainMetric(c.market, m)}
+                    {old !== undefined && <Trend metric={m} previous={old} day={previousDay} />}
+                  </small>
+                );
+              })}
             </span>
             <span className={`vz-tx__ic ${c.verdict === 'pass' ? 'is-up' : 'is-down'}`}>
               {c.verdict === 'pass' ? <IconCheck size={14} /> : <IconX size={13} />}
@@ -191,6 +203,40 @@ function GateDetail({ verdict }: { verdict: GateVerdict }) {
         ))}
       </div>
     </>
+  );
+}
+
+/**
+ * Évolution depuis une version précédente, en mots.
+ *
+ * « +0,0078 » ne dit pas si c'est bien. Le sens de la métrique le dit, et il
+ * est publié avec elle (`higher_is_better`) — on ne le redevine pas ici.
+ */
+function Trend({
+  metric,
+  previous,
+  day,
+}: {
+  metric: GateMetric;
+  previous: number;
+  day?: string | null;
+}) {
+  const delta = metric.value - previous;
+  if (Math.abs(delta) < 1e-6) {
+    return (
+      <span className="vz-trend">
+        {' '}
+        · inchangé depuis {day ?? 'la version précédente'}
+      </span>
+    );
+  }
+  const better = metric.higher_is_better ? delta > 0 : delta < 0;
+  return (
+    <span className={`vz-trend ${better ? 'is-up' : 'is-down'}`}>
+      {' '}
+      · {better ? 'mieux' : 'moins bien'} que le {day ?? 'précédent'}{' '}
+      ({formatNumber(previous, 3)} → {formatNumber(metric.value, 3)})
+    </span>
   );
 }
 
@@ -204,13 +250,23 @@ export function Admin() {
   const [perf, setPerf] = useState<PerformanceFile | null>(null);
   /** Sens des paris par marché — se lit collé au rendement, cf. Performance. */
   const [direction, setDirection] = useState<DirectionFile | null>(null);
+  /** Les données d'entraînement suivent-elles la saison ? Première ligne du
+      bandeau d'état, et le défaut le plus coûteux qu'il ait à montrer. */
+  const [freshness, setFreshness] = useState<FreshnessFile | null>(null);
   const [policyBusy, setPolicyBusy] = useState(false);
   /** Deux lectures du même modèle : sa fiche, et ce qu'il vaut en vrai. */
   const [tab, setTab] = useState<'modele' | 'performance'>('modele');
   const [runs, setRuns] = useState<WorkflowRun[]>([]);
   const [history, setHistory] = useState<string[]>([]);
   const [compareDay, setCompareDay] = useState<string | null>(null);
-  const [comparison, setComparison] = useState<ModelRegistryFile | null>(null);
+  /**
+   * Verdict d'une version antérieure, pour comparer.
+   *
+   * On compare les **verdicts de la barrière** et non les registres : le
+   * registre du modèle déployé ne porte aucune métrique hors échantillon, donc
+   * la comparaison d'avant mettait des tirets en face de tirets.
+   */
+  const [comparisonGate, setComparisonGate] = useState<GateStatus | null>(null);
   const [adminKey, setAdminKey] = useState(() => readAdminKey());
   const [keyDraft, setKeyDraft] = useState('');
   /** Le serveur a-t-il un jeton GitHub ? Décide du message sur le quota. */
@@ -240,6 +296,13 @@ export function Admin() {
       setDirection(null);
     }
     try {
+      setFreshness(await fetchFreshness());
+    } catch {
+      // Publié par le job quotidien. Son absence vaut « non vérifié », pas
+      // « tout va bien » : le bandeau le dit ainsi.
+      setFreshness(null);
+    }
+    try {
       setGate(await fetchGateStatus());
     } catch {
       // Publié par le workflow d'entraînement ; absent tant qu'il n'a pas
@@ -267,20 +330,21 @@ export function Admin() {
 
   useEffect(() => {
     if (!compareDay) {
-      setComparison(null);
+      setComparisonGate(null);
       return;
     }
     let alive = true;
-    fetchModelRegistry(compareDay)
-      .then((r) => alive && setComparison(r))
-      .catch(() => alive && setComparison(null));
+    fetchGateStatus(compareDay)
+      .then((r) => alive && setComparisonGate(r))
+      // Les jours antérieurs à l'archivage du verdict n'en ont pas : on
+      // n'affiche alors pas de comparaison, plutôt qu'un zéro trompeur.
+      .catch(() => alive && setComparisonGate(null));
     return () => {
       alive = false;
     };
   }, [compareDay]);
 
   const model: ModelInfo | undefined = registry?.models?.[sport];
-  const previous: ModelInfo | undefined = comparison?.models?.[sport];
 
   /** Marché de référence pour les métriques affichées. */
   const headlineMarket = useMemo(() => {
@@ -341,6 +405,10 @@ export function Admin() {
       </div>
       <p className="vz-note">Pilotage des modèles et des données · {REPO}</p>
 
+      {/* Avant tout le reste, et avant même le choix du sport : l'état du
+          système ne dépend pas de l'onglet qu'on regarde. */}
+      <HealthBanner freshness={freshness} gate={gate} direction={direction} />
+
       <SegGroup label="Sport">
         {(Object.keys(SPORTS) as Sport[]).map((s) => (
           <SegButton key={s} active={sport === s} onClick={() => setSport(s)}>
@@ -371,8 +439,9 @@ export function Admin() {
         ) : (
           <div className="vz-card">
             <p className="vz-note">
-              Mesure indisponible pour ce sport. Elle est publiée une fois par jour
-              par le job de prédictions, dans <code>performance/summary.json</code>.
+              Rien à mesurer encore pour ce sport : il faut des prédictions publiées
+              <em> puis</em> des matchs joués. La mesure apparaît d’elle-même, une
+              fois par jour, dès que les deux existent.
             </p>
           </div>
         )
@@ -382,10 +451,11 @@ export function Admin() {
         <div className="vz-stopalert">
           <IconWarning size={18} />
           <div>
-            <strong>Registre des modèles indisponible</strong>
+            <strong>Fiche des modèles illisible</strong>
             <small>
-              {registryError} — il est publié par le job quotidien dans
-              <code> models/registry.json</code>.
+              {registryError}. Les prédictions, elles, peuvent continuer d’être
+              publiées — c’est seulement cette fiche qui manque. Elle est réécrite
+              à chaque publication quotidienne.
             </small>
           </div>
         </div>
@@ -418,73 +488,67 @@ export function Admin() {
 
           {model.trained_at_source === 'file_mtime' && (
             <p className="vz-note">
-              Date déduite du fichier : ce modèle est antérieur à la publication de
-              <code> trained_at</code>. Le prochain entraînement la renseignera.
+              Ce modèle est antérieur à l’enregistrement des dates d’entraînement :
+              celle affichée est celle du fichier, pas de l’entraînement. Le prochain
+              réentraînement la corrigera — rien à faire.
             </p>
           )}
 
           {model.error ? (
             <p className="vz-mk__err">{model.error}</p>
           ) : (
-            <>
-              <div className="vz-admin__grid">
-                <span>Métrique</span>
-                <span>En prod</span>
-                <span>{compareDay ?? 'Comparer'}</span>
-              </div>
-              {HEADLINE.map((m) => {
-                const cur = metricValue(
-                  model.metrics?.[headlineMarket],
-                  m,
-                  !!model.metrics_in_sample,
-                );
-                const old = metricValue(
-                  previous?.metrics?.[headlineMarket],
-                  m,
-                  !!previous?.metrics_in_sample,
-                );
-                const hasCur = cur !== null;
-                const hasOld = old !== null;
-                const delta = hasCur && hasOld ? cur - old : null;
-                const good = delta === null ? null : m.higherIsBetter ? delta > 0 : delta < 0;
+            <p className="vz-note">
+              {model.n_markets ?? 0} marché(s) entraîné(s). Ce qu’il vaut se lit
+              juste en dessous, sur des matchs qu’il n’a pas vus.
+            </p>
+          )}
+
+          {/*
+            Replié, et c'est volontaire. Version du modèle, nombre de features,
+            température de calibration : utiles pour diagnostiquer, inutiles
+            pour décider. Les laisser en évidence force à trier à chaque
+            lecture, et trier à chaque lecture finit par ne plus rien lire.
+          */}
+          <details className="vz-tech">
+            <summary>Détails techniques</summary>
+            <div className="vz-tech__body">
+              {TECH.map((t) => {
+                const raw = model.metrics?.[headlineMarket]?.[t.key];
+                const value = Number(raw);
+                if (!Number.isFinite(value)) return null;
                 return (
-                  <div className="vz-admin__grid vz-admin__row" key={m.keys[0]}>
-                    <span>{m.label}</span>
-                    <strong className="vz-num">
-                      {hasCur ? formatNumber(cur, m.digits) : '—'}
-                    </strong>
-                    <span className="vz-num">
-                      {hasOld ? formatNumber(old, m.digits) : '—'}
-                      {delta !== null && Math.abs(delta) > 1e-9 && (
-                        <small className={good ? 'is-up' : 'is-down'}>
-                          {' '}
-                          {delta > 0 ? '+' : '−'}
-                          {formatNumber(Math.abs(delta), m.digits)}
-                        </small>
-                      )}
-                    </span>
+                  <div className="vz-tech__row" key={t.key}>
+                    <span className="vz-f1">{t.label}</span>
+                    <strong className="vz-num">{formatNumber(value, t.digits)}</strong>
                   </div>
                 );
               })}
+              <div className="vz-tech__row">
+                <span className="vz-f1">Version du modèle</span>
+                <strong>{model.model_version ?? '—'}</strong>
+              </div>
+              <div className="vz-tech__row">
+                <span className="vz-f1">Marché de référence</span>
+                <strong>{headlineMarket ? marketShortLabel(headlineMarket) : '—'}</strong>
+              </div>
               <p className="vz-note">
-                Marché de référence : <strong>{headlineMarket ?? '—'}</strong> ·{' '}
-                {model.n_markets ?? 0} marché(s) entraîné(s)
+                Le modèle en service est entraîné sur 100 % des matchs : ses champs
+                « test » existent mais ne mesurent rien. Ils ne sont donc pas
+                affichés ici — c’est la section suivante qui porte les vraies
+                mesures.
               </p>
-              {model.metrics_in_sample && (
-                <p className="vz-note">
-                  Modèle de production : entraîné sur 100 % des matchs, donc sans jeu
-                  de test. Les métriques hors échantillon sont masquées plutôt que
-                  remplies avec les valeurs d’entraînement — c’est la barrière de
-                  qualité, elle, qui évalue un modèle entraîné en mode split avant
-                  d’autoriser le déploiement.
-                </p>
-              )}
-            </>
-          )}
+            </div>
+          </details>
         </div>
       )}
 
-      {gate?.verdicts?.[sport] && <GateDetail verdict={gate.verdicts[sport]!} />}
+      {gate?.verdicts?.[sport] && (
+        <GateDetail
+          verdict={gate.verdicts[sport]!}
+          previous={comparisonGate?.verdicts?.[sport] ?? null}
+          previousDay={compareDay}
+        />
+      )}
 
       {history.length > 0 && (
         <>

@@ -22,6 +22,67 @@ import type {
  */
 
 /**
+ * Nom lisible d'un côté de pari.
+ *
+ * `away`, `under`, `home_lead` sont les clés du modèle. Elles traversaient
+ * l'écran telles quelles, y compris dans des phrases destinées à être lues.
+ */
+const SIDE_LABEL: Record<string, string> = {
+  home: 'domicile',
+  away: 'extérieur',
+  over: 'au-dessus de la ligne',
+  under: 'en dessous de la ligne',
+  yes: 'oui',
+  no: 'non',
+  tied: 'égalité',
+};
+
+function sideLabel(side: string | null | undefined): string {
+  if (!side) return '—';
+  return SIDE_LABEL[side] ?? side;
+}
+
+/**
+ * « X fois sur Y », plutôt qu'un taux.
+ *
+ * 0,122 ne se lit pas ; « 1 fois sur 8 » se lit. Pour les taux proches de la
+ * moitié on garde une base de 10, qui reste plus parlante que « 1 fois sur 2 »
+ * quand la valeur est 0,56.
+ */
+function timesOutOf(rate: number): string {
+  if (rate <= 0) return 'jamais';
+  if (rate >= 1) return 'à chaque fois';
+  if (rate < 0.25) return `1 fois sur ${Math.round(1 / rate)}`;
+  return `${Math.round(rate * 10)} fois sur 10`;
+}
+
+/**
+ * Un mot de verdict avant le chiffre.
+ *
+ * Règle tenue partout dans cet écran : on ne demande pas au lecteur de savoir
+ * si 0,49 de Brier est bon. L'effectif décide d'abord — en dessous du seuil
+ * d'échantillon, aucun verdict n'est permis, et le dire est l'information
+ * utile.
+ */
+function verdictWord(kind: 'roi' | 'sample', value: number, n: number): {
+  word: string;
+  level: '' | 'is-up' | 'is-warn' | 'is-down';
+} {
+  if (kind === 'sample') {
+    return n >= 30
+      ? { word: 'mesuré', level: '' }
+      : { word: 'trop peu de matchs', level: 'is-warn' };
+  }
+  // Un rendement se juge contre zéro, et son incertitude est large : ±8 points
+  // sur 150 paris. On ne proclame donc « rentable » qu'au-delà de 5 %.
+  if (n < 30) return { word: 'pas assez de paris', level: 'is-warn' };
+  if (value > 0.05) return { word: 'rentable', level: 'is-up' };
+  if (value > -0.05) return { word: 'à l’équilibre', level: '' };
+  return { word: 'perdant', level: 'is-down' };
+}
+
+
+/**
  * Sens des paris d'un marché.
  *
  * Posé délibérément **collé au rendement**, et non dans une section à part.
@@ -38,7 +99,7 @@ function Direction({ v }: { v: DirectionVerdict }) {
   return (
     <small className={`vz-note vz-dir ${tone}`}>
       {v.status === 'withheld' ? '🛑 ' : v.status === 'imbalanced' ? '⚠️ ' : ''}
-      {sides.map(([side, n]) => `${n} ${side}`).join(' · ')}
+      {sides.map(([side, n]) => `${n} ${sideLabel(side)}`).join(' · ')}
       {v.status !== 'ok' ? ` — ${v.reason}` : ''}
     </small>
   );
@@ -115,25 +176,31 @@ function BetRow({
   toggle?: { on: boolean; busy: boolean; onChange: (v: boolean) => void; label: string };
 }) {
   const insufficient = bets.insufficient || bets.roi_flat === undefined;
+  const roi = bets.roi_flat ?? 0;
+  const verdict = direction?.status === 'withheld'
+    ? { word: 'non interprétable', level: 'is-down' as const }
+    : verdictWord('roi', roi, bets.n);
   return (
     <div className="vz-perf__row">
       <span className="vz-f1">
         <strong>{label}</strong>
         <small className="vz-note">
           {insufficient
-            ? `${bets.n} pari(s) — pas assez pour conclure`
-            : `${bets.won}/${bets.n} gagnés · edge moyen ${formatNumber((bets.avg_edge ?? 0) * 100, 1)} %`}
+            ? `${bets.n} pari(s) suivis — il en faut une trentaine pour conclure`
+            : `${bets.won} gagnés sur ${bets.n}. Pour 1 € misé sur chacun, `
+              + `${roi >= 0 ? 'il en revient' : 'il en manque'} `
+              + `${formatNumber(Math.abs(roi), 2)} €.`}
         </small>
         {direction ? <Direction v={direction} /> : null}
       </span>
       {!insufficient && (
         <span className="vz-perf__roi">
-          {/* Barré quand le marché est unanime : le chiffre reste lisible,
-              mais on ne peut plus le prendre pour une mesure. */}
+          {/* Barré quand le marché est retenu : le chiffre reste lisible, mais
+              on ne peut plus le prendre pour une mesure de sélection. */}
           <span className={direction?.status === 'withheld' ? 'vz-dir__struck' : undefined}>
-            <Signed value={bets.roi_flat!} />
+            <Signed value={roi} />
           </span>
-          <small>{direction?.status === 'withheld' ? 'non interprétable' : 'mise plate'}</small>
+          <small className={verdict.level}>{verdict.word}</small>
         </span>
       )}
       {toggle && (
@@ -281,33 +348,32 @@ export function Performance({
 
       <h3 className="vz-seclabel">Justesse par marché</h3>
       <div className="vz-card vz-card--rows">
-        <div className="vz-perf__head">
-          <span className="vz-f1">Marché</span>
-          <span>n</span>
-          <span>Justesse</span>
-          <span>Brier</span>
-        </div>
         {markets.map(([key, m]) => (
-          <div className="vz-perf__grid" key={key}>
-            <span className="vz-f1">{marketShortLabel(key)}</span>
-            <span className="vz-num">{m.n}</span>
-            {m.insufficient || m.accuracy === undefined ? (
-              <span className="vz-note" style={{ gridColumn: 'span 2' }}>
-                échantillon insuffisant
+          <div className="vz-perf__row" key={key}>
+            <span className="vz-f1">
+              <strong>{marketShortLabel(key)}</strong>
+              <small className="vz-note">
+                {m.insufficient || m.accuracy === undefined
+                  ? `${m.n} matchs mesurés — il en faut une trentaine pour conclure`
+                  : `Son issue la plus probable se produit ${timesOutOf(m.accuracy)}, `
+                    + `sur ${m.n} matchs.`}
+              </small>
+            </span>
+            {!m.insufficient && m.accuracy !== undefined && (
+              <span className="vz-perf__roi">
+                <strong className="vz-num">{formatNumber(m.accuracy * 100, 0)} %</strong>
+                <small className={verdictWord('sample', 0, m.n).level}>
+                  {verdictWord('sample', 0, m.n).word}
+                </small>
               </span>
-            ) : (
-              <>
-                <strong className="vz-num">{formatNumber(m.accuracy * 100, 1)} %</strong>
-                <span className="vz-num">{formatNumber(m.brier ?? 0, 3)}</span>
-              </>
             )}
           </div>
         ))}
         <p className="vz-note">
-          La justesse compte les fois où l’issue la plus probable s’est produite. Un
-          marché à beaucoup d’issues (score exact) a mécaniquement une justesse basse
-          sans être mauvais : le Brier, lui, est comparable d’un marché à l’autre —
-          plus il est bas, mieux c’est.
+          Un marché à beaucoup d’issues possibles — le score exact en a des dizaines —
+          tombe juste rarement sans être mauvais pour autant : il y a simplement plus
+          de façons de se tromper. Comparer deux marchés sur ce chiffre n’a donc pas
+          de sens ; comparer un marché à lui-même d’une semaine sur l’autre, oui.
         </p>
       </div>
 
