@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-26T22:01:45+00:00",
+  "generated_at": "2026-10-26T23:03:10+00:00",
   "models": {
     "nhl": {
       "sport": "nhl",
@@ -18,22 +18,22 @@
       "n_markets": 8,
       "metrics": {
         "moneyline": {
-          "n_train": 18050.0,
-          "n_val": 3185.0,
+          "n_train": 18131.0,
+          "n_val": 3199.0,
           "n_test": 0.0,
-          "auc_xgb_val": 0.599685,
-          "auc_lgb_val": 0.596748,
+          "auc_xgb_val": 0.598252,
+          "auc_lgb_val": 0.593987,
           "best_model_name": "XGB",
           "auc_test": 0.0,
           "accuracy_test": 0.0,
           "brier_raw_test": 0.0,
           "brier_calibrated_test": 0.0,
-          "temperature": 1.132893,
+          "temperature": 1.047159,
           "n_features": 16.0
         },
         "total": {
-          "n_train": 18050.0,
-          "n_val": 3185.0,
+          "n_train": 18131.0,
+          "n_val": 3199.0,
           "n_test": 0.0,
           "mae_home_test": 0.0,
           "mae_away_test": 0.0,
@@ -43,13 +43,13 @@
           "lambda_home_mean": 0.0,
           "lambda_away_mean": 0.0,
           "n_features": 16.0,
-          "best_iter_home": 363.0,
-          "best_iter_away": 405.0,
+          "best_iter_home": 449.0,
+          "best_iter_away": 245.0,
           "model_type": "poisson_xgb_independent"
         },
         "btts": {
-          "n_train": 18050.0,
-          "n_val": 3185.0,
+          "n_train": 18131.0,
+          "n_val": 3199.0,
           "n_test": 0.0,
           "mae_home_test": 0.0,
           "mae_away_test": 0.0,
@@ -59,14 +59,14 @@
           "lambda_home_mean": 0.0,
           "lambda_away_mean": 0.0,
           "n_features": 16.0,
-          "best_iter_home": 363.0,
-          "best_iter_away": 405.0,
+          "best_iter_home": 449.0,
+          "best_iter_away": 245.0,
           "model_type": "poisson_xgb_independent"
         },
         "p1_winner": {
           "mode": "dedicated",
-          "n_train": 18050.0,
-          "n_val": 3185.0,
+          "n_train": 18131.0,
+          "n_val": 3199.0,
           "n_test": 0.0,
           "mae_p1_home_test": "None",
           "mae_p1_away_test": "None",
@@ -75,13 +75,13 @@
           "lambda_p1_away_mean": 0.0,
           "p1_ratio_used": 1.0,
           "n_features": 16.0,
-          "best_iter_home": 117.0,
-          "best_iter_away": 62.0
+          "best_iter_home": 84.0,
+          "best_iter_away": 79.0
         },
         "p1_total": {
           "mode": "dedicated",
-          "n_train": 18050.0,
-          "n_val": 3185.0,
+          "n_train": 18131.0,
+          "n_val": 3199.0,
           "n_test": 0.0,
           "mae_p1_home_test": "None",
           "mae_p1_away_test": "None",
@@ -90,13 +90,13 @@
           "lambda_p1_away_mean": 0.0,
           "p1_ratio_used": 1.0,
           "n_features": 16.0,
-          "best_iter_home": 117.0,
-          "best_iter_away": 62.0
+          "best_iter_home": 84.0,
+          "best_iter_away": 79.0
         },
         "p1_btts": {
           "mode": "dedicated",
-          "n_train": 18050.0,
-          "n_val": 3185.0,
+          "n_train": 18131.0,
+          "n_val": 3199.0,
           "n_test": 0.0,
           "mae_p1_home_test": "None",
           "mae_p1_away_test": "None",
@@ -105,12 +105,12 @@
           "lambda_p1_away_mean": 0.0,
           "p1_ratio_used": 1.0,
           "n_features": 16.0,
-          "best_iter_home": 117.0,
-          "best_iter_away": 62.0
+          "best_iter_home": 84.0,
+          "best_iter_away": 79.0
         },
         "exact_score": {
-          "n_train": 18050.0,
-          "n_val": 3185.0,
+          "n_train": 18131.0,
+          "n_val": 3199.0,
           "n_test": 0.0,
           "mae_home_test": 0.0,
           "mae_away_test": 0.0,
@@ -120,13 +120,13 @@
           "lambda_home_mean": 0.0,
           "lambda_away_mean": 0.0,
           "n_features": 16.0,
-          "best_iter_home": 363.0,
-          "best_iter_away": 405.0,
+          "best_iter_home": 449.0,
+          "best_iter_away": 245.0,
           "model_type": "poisson_xgb_independent"
         },
         "goal_intervals": {
-          "n_train": 18050.0,
-          "n_val": 3185.0,
+          "n_train": 18131.0,
+          "n_val": 3199.0,
           "n_test": 0.0,
           "mae_home_test": 0.0,
           "mae_away_test": 0.0,
@@ -136,20 +136,20 @@
           "lambda_home_mean": 0.0,
           "lambda_away_mean": 0.0,
           "n_features": 16.0,
-          "best_iter_home": 363.0,
-          "best_iter_away": 405.0,
+          "best_iter_home": 449.0,
+          "best_iter_away": 245.0,
           "model_type": "poisson_xgb_independent"
         }
       },
-      "trained_at": "2026-10-26T09:51:26+00:00",
+      "trained_at": "2026-10-26T22:57:28+00:00",
       "model_version": "v2026.10.26",
       "training_mode": "full",
       "metrics_in_sample": true,
       "train_until_year": 2026,
       "test_year": null,
-      "n_games_train": 21235,
+      "n_games_train": 21330,
       "n_games_test": 0,
-      "training_duration_sec": 9.274842739105225,
+      "training_duration_sec": 8.755385637283325,
       "p1_mode": "dedicated"
     },
     "nba": {

@@ -1,17 +1,16 @@
 {
-  "generated_at": "2026-10-26T22:00:08+00:00",
+  "generated_at": "2026-10-26T23:01:34+00:00",
   "stale": [
-    "nba",
-    "nhl"
+    "nba"
   ],
   "sports": {
     "nhl": {
       "sport": "nhl",
       "max_lag_days": 3,
-      "last_in_data": "2026-10-12",
+      "last_in_data": "2026-10-25",
       "last_played": "2026-10-25",
-      "lag_days": 13,
-      "status": "stale"
+      "lag_days": 0,
+      "status": "fresh"
     },
     "nba": {
       "sport": "nba",
