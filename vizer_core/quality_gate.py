@@ -117,6 +117,14 @@ class MarketCheck:
     # distinctes et le log ne doit pas les confondre : un marché sous son
     # plancher n'a rien à voir avec un marché qui n'a pas pu s'entraîner.
     cause: str = ""
+    # Métriques mesurées hors échantillon, avec leur seuil et leur sens.
+    # Elles existaient déjà dans `reason`, sous forme de phrase — donc
+    # illisibles par autre chose qu'un humain. L'écran Admin de la PWA n'avait
+    # rien à afficher et montrait « AUC 0.0000 », parce que le modèle
+    # **déployé** est entraîné sur 100 % des matchs et ne porte aucune
+    # métrique. Le seul chiffre hors échantillon du pipeline était ici, et il
+    # était jeté.
+    metrics: list[dict[str, Any]] = field(default_factory=list)
 
     @property
     def symbol(self) -> str:
@@ -130,6 +138,7 @@ class MarketCheck:
             "floor": self.floor,
             "cause": self.cause,
             "reason": self.reason,
+            "metrics": self.metrics,
         }
 
 
@@ -255,6 +264,7 @@ def check_registry(registry: ModelRegistry, gate_cfg: dict[str, Any]) -> GateRes
 
         measured: list[str] = []
         breaches: list[str] = []
+        detail: list[dict[str, Any]] = []
         missing = 0
         for rule in rules:
             value, ok = rule.verdict(metrics)
@@ -262,6 +272,13 @@ def check_registry(registry: ModelRegistry, gate_cfg: dict[str, Any]) -> GateRes
                 missing += 1
                 continue
             measured.append(f"{rule.label}={value:.4f}")
+            detail.append({
+                "label": rule.label,
+                "value": round(value, 6),
+                "bound": rule.bound,
+                "higher_is_better": rule.higher_is_better,
+                "ok": ok,
+            })
             if not ok:
                 sense = "sous" if rule.higher_is_better else "au-dessus de"
                 breaches.append(f"{rule.label} {value:.4f} {sense} {rule.bound:.4f}")
@@ -277,11 +294,12 @@ def check_registry(registry: ModelRegistry, gate_cfg: dict[str, Any]) -> GateRes
             result.checks.append(MarketCheck(
                 market, "fail", auc, floor,
                 "; ".join(breaches),
-                cause="below_floor",
+                cause="below_floor", metrics=detail,
             ))
         else:
             result.checks.append(MarketCheck(
-                market, "pass", auc, floor, " · ".join(measured), cause="ok"))
+                market, "pass", auc, floor, " · ".join(measured),
+                cause="ok", metrics=detail))
 
     return result
 

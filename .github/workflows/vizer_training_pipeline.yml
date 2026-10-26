@@ -291,6 +291,19 @@ jobs:
                   blocked = {"_": {"cause": "marker_unreadable",
                                    "headline": "marqueur illisible"}}
 
+          # Verdicts détaillés : métriques mesurées hors échantillon, seuil et
+          # sens, par sport et par marché. C'est le seul endroit du pipeline où
+          # ces chiffres existent — le modèle déployé est entraîné sur 100 %
+          # des matchs et n'en porte aucun, d'où l'« AUC 0.0000 » qu'affichait
+          # l'écran Admin. Le notebook les jetait à chaque run réussi.
+          verdicts = {}
+          vpath = pathlib.Path("/tmp/kaggle_outputs/gate_verdicts.json")
+          if vpath.exists():
+              try:
+                  verdicts = json.loads(vpath.read_text())
+              except ValueError:
+                  print("  ⚠️  gate_verdicts.json illisible — publié sans détail")
+
           pathlib.Path("models/gate.json").write_text(json.dumps({
               "checked_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
               "run_number": os.environ.get("GITHUB_RUN_NUMBER"),
@@ -298,8 +311,13 @@ jobs:
               "sport": os.environ.get("SPORT_INPUT"),
               "passed": not blocked,
               "blocked": blocked,
+              "verdicts": verdicts,
           }, ensure_ascii=False, indent=2), encoding="utf-8")
-          print(f"  ✓ models/gate.json — {'accepté' if not blocked else 'refusé: ' + ', '.join(blocked)}")
+          detail = ", ".join(
+              f"{s} n_test={v.get('n_test')}" for s, v in verdicts.items()
+          ) or "sans détail"
+          print(f"  ✓ models/gate.json — "
+                f"{'accepté' if not blocked else 'refusé: ' + ', '.join(blocked)} · {detail}")
           PYGATE
 
           # Commit horodaté

@@ -101,6 +101,13 @@ def run(cmd: str, cwd: Path | None = None) -> None:
         )
 
 
+# Verdicts de la barrière par sport, remplis par `quality_gate_passes()` et
+# publiés dans les sorties du kernel. Ils portent les métriques mesurées hors
+# échantillon, les seuls chiffres du pipeline qui disent ce que valent les
+# modèles sur des matchs qu'ils n'ont pas vus.
+GATE_VERDICTS: dict[str, dict] = {}
+
+
 def quality_gate_passes(sport: str, pkg_dir: Path) -> dict | None:
     """Évalue le sport en mode split et vérifie l'AUC contre le plancher.
 
@@ -133,14 +140,22 @@ def quality_gate_passes(sport: str, pkg_dir: Path) -> dict | None:
         f"python -m vizer_core.quality_gate {eval_path} --json {verdict_path}",
         shell=True, cwd=str(pkg_dir),
     ).returncode
-    if code == 0:
-        return None
 
+    # Le verdict est lu **dans les deux cas**, et c'est le changement. Il ne
+    # l'était qu'en cas de refus, si bien que les seules métriques hors
+    # échantillon du pipeline — AUC 0,6083 sur 852 matchs de test pour le
+    # moneyline NHL — étaient jetées à chaque run réussi. Le modèle déployé,
+    # lui, est entraîné sur 100 % des matchs et n'en porte aucune : l'écran
+    # Admin de la PWA affichait donc « AUC 0.0000 ».
     import json as _json
     try:
         verdict = _json.loads(verdict_path.read_text())
     except (OSError, ValueError):
         verdict = {}
+    GATE_VERDICTS[sport] = verdict
+
+    if code == 0:
+        return None
 
     headline = verdict.get("headline") or (
         "AUC sous le plancher" if code == 1
@@ -549,6 +564,21 @@ print(f"  Taille   : {size_mb:.1f} MB")
 print(f"  Fichiers : {len(files_added)} ajoutés")
 if errors:
     print(f"  ⚠️  Sports échoués (absents de l'archive) : {', '.join(errors)}")
+
+# Verdicts complets de la barrière, publiés qu'elle passe ou non : ce sont les
+# seules métriques hors échantillon du pipeline, et l'écran Admin les affiche
+# pour dire ce que vaut le modèle sur des matchs qu'il n'a pas vus.
+verdicts_path = OUT_DIR / "gate_verdicts.json"
+if GATE_VERDICTS:
+    import json as _json
+    verdicts_path.write_text(
+        _json.dumps(GATE_VERDICTS, ensure_ascii=False, indent=2))
+    for _sport, _v in GATE_VERDICTS.items():
+        _n = _v.get("n_test")
+        print(f"  ✓ verdict {_sport} — {_n} matchs de test, "
+              f"{len(_v.get('checks') or [])} marché(s) évalué(s)")
+elif verdicts_path.exists():
+    verdicts_path.unlink()
 
 # Marqueur lu par le workflow : un déploiement bloqué doit rendre le job rouge.
 # On ne fait pas échouer le kernel lui-même — les modèles du sport qui a passé

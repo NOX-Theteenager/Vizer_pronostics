@@ -252,6 +252,41 @@ export interface GateRefusal {
   checks?: { market?: string; verdict?: string; auc?: number; floor?: number; reason?: string }[];
 }
 
+/** Une métrique mesurée hors échantillon, avec son seuil et son sens. */
+export interface GateMetric {
+  label: string;
+  value: number;
+  bound: number;
+  higher_is_better: boolean;
+  ok: boolean;
+}
+
+/** Ce que la barrière a mesuré pour un marché. */
+export interface GateCheck {
+  market: string;
+  verdict: 'pass' | 'fail' | 'skip';
+  reason?: string;
+  cause?: string;
+  metrics?: GateMetric[];
+}
+
+/**
+ * Verdict détaillé d'un sport : métriques mesurées sur des matchs que le
+ * modèle n'a pas vus.
+ *
+ * Ce sont les **seuls** chiffres hors échantillon du pipeline. Le modèle
+ * déployé est entraîné sur 100 % des matchs et n'en porte aucun, d'où les
+ * tirets de la grille au-dessus. La barrière, elle, évalue un modèle entraîné
+ * avec jeu de test réservé — et jusqu'ici son verdict était jeté à chaque run
+ * réussi.
+ */
+export interface GateVerdict {
+  passed?: boolean;
+  n_test?: number;
+  headline?: string;
+  checks?: GateCheck[];
+}
+
 export interface GateStatus {
   checked_at: string;
   run_number?: string;
@@ -259,6 +294,8 @@ export interface GateStatus {
   sport?: string;
   passed: boolean;
   blocked: Record<string, GateRefusal>;
+  /** Absent des verdicts publiés avant la mise en place de ce détail. */
+  verdicts?: Partial<Record<Sport, GateVerdict>>;
 }
 
 export async function fetchGateStatus(): Promise<GateStatus> {

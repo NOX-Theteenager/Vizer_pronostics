@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Chip, SectionLabel, SegButton, SegGroup } from '../components/Primitives';
+import { marketShortLabel } from '../data/markets';
 import { IconCheck, IconDownload, IconRefresh, IconWarning, IconX } from '../components/Icons';
 import { useToast } from '../context/ToastContext';
 import { Performance } from '../components/Performance';
@@ -11,7 +12,9 @@ import {
   fetchGateStatus,
   fetchModelRegistry,
   fetchPerformance,
+  type GateMetric,
   type GateStatus,
+  type GateVerdict,
   type ModelInfo,
   type ModelRegistryFile,
 } from '../lib/api';
@@ -97,6 +100,99 @@ const ACTIONS: { key: WorkflowKey; label: string; sub: string; inputs?: Record<s
   },
   { key: 'web', label: 'Redéployer la PWA', sub: 'Build et mise en ligne' },
 ];
+
+/**
+ * Règle d'écriture tenue ici : **le verdict d'abord, puis une phrase qui dit
+ * ce que le chiffre signifie en matchs ou en buts.** Un AUC de 0,6083 ne dit
+ * rien à personne ; « sur deux matchs au hasard, il place le vainqueur devant
+ * le perdant 61 fois sur 100 » dit exactement la même chose et se lit.
+ *
+ * La phrase dépend du marché, pas seulement de la métrique. Plusieurs marchés
+ * partagent le moteur de buts du `total` et sont donc jugés sur l'erreur de
+ * total — écrire « il se trompe de 1,87 but » sous « Les deux marquent »
+ * serait exact sur le chiffre et faux sur le sens.
+ */
+
+/** Ce que l'erreur moyenne mesure, pour ce marché. */
+const MAE_SUBJECT: Record<string, string> = {
+  total: 'le total de buts d’un match',
+  p1_total: 'le total de la première période',
+  home_team_total: 'les buts de l’équipe à domicile',
+  away_team_total: 'les buts de l’équipe à l’extérieur',
+};
+
+/** Marchés jugés sur l'erreur du total parce qu'ils en partagent le moteur. */
+const SHARES_TOTAL_ENGINE = new Set(['btts', 'exact_score', 'goal_intervals', 'p1_btts']);
+
+function plainMetric(market: string, m: GateMetric): string {
+  const pct = (x: number) => Math.round(x * 100);
+  switch (m.label) {
+    case 'AUC':
+      // Lecture exacte de l'AUC, pas une analogie : c'est la probabilité que
+      // le modèle classe un vainqueur au-dessus d'un perdant tirés au hasard.
+      return `Sur deux matchs au hasard, il place le vainqueur devant le perdant `
+        + `${pct(m.value)} fois sur 100. En dessous de ${pct(m.bound)} sur 100, `
+        + `le déploiement est refusé.`;
+    case 'MAE': {
+      const subject = MAE_SUBJECT[market];
+      if (subject) {
+        return `Il se trompe en moyenne de ${formatNumber(m.value, 2)} but sur `
+          + `${subject}. La limite est à ${formatNumber(m.bound, 2)}.`;
+      }
+      if (SHARES_TOTAL_ENGINE.has(market)) {
+        return `Jugé sur le moteur de buts qu’il partage avec le total : `
+          + `${formatNumber(m.value, 2)} but d’erreur moyenne, limite `
+          + `${formatNumber(m.bound, 2)}. Ce marché n’a pas de mesure propre.`;
+      }
+      return `Erreur moyenne ${formatNumber(m.value, 2)}, limite `
+        + `${formatNumber(m.bound, 2)}.`;
+    }
+    case 'R²':
+      return m.value >= 0
+        ? `Il explique ${pct(m.value)} % de l’écart d’un match à l’autre ; `
+          + `au-dessous de ${pct(m.bound)} %, autant annoncer la moyenne.`
+        : `Il fait un peu moins bien que d’annoncer toujours la moyenne. C’est `
+          + `attendu sur un total de buts — presque tout y est irréductible — et `
+          + `la limite est posée en négatif pour l’accepter sans le laisser empirer.`;
+    default:
+      return `${m.label} ${formatNumber(m.value, 3)} · limite `
+        + `${formatNumber(m.bound, 3)}.`;
+  }
+}
+
+function GateDetail({ verdict }: { verdict: GateVerdict }) {
+  const checks = (verdict.checks ?? []).filter((c) => (c.metrics ?? []).length > 0);
+  if (!checks.length) return null;
+  return (
+    <>
+      <SectionLabel>Ce que vaut le modèle sur des matchs qu’il n’a pas vus</SectionLabel>
+      <div className="vz-card vz-card--rows">
+        <p className="vz-note">
+          Mesuré sur <strong>{(verdict.n_test ?? 0).toLocaleString('fr-FR')} matchs</strong>{' '}
+          mis de côté avant l’entraînement. C’est la seule mesure qui dise si le
+          modèle généralise ; tout le reste de cet écran décrit le modèle déployé,
+          qui a vu tous les matchs.
+        </p>
+        {checks.map((c) => (
+          <div className="vz-perf__row" key={c.market}>
+            <span className="vz-f1">
+              <strong>{marketShortLabel(c.market)}</strong>
+              {(c.metrics ?? []).map((m) => (
+                <small className="vz-note vz-dir" key={m.label}>
+                  {m.ok ? '' : '⚠️ '}
+                  {plainMetric(c.market, m)}
+                </small>
+              ))}
+            </span>
+            <span className={`vz-tx__ic ${c.verdict === 'pass' ? 'is-up' : 'is-down'}`}>
+              {c.verdict === 'pass' ? <IconCheck size={14} /> : <IconX size={13} />}
+            </span>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
 
 export function Admin() {
   const { showToast } = useToast();
@@ -387,6 +483,8 @@ export function Admin() {
           )}
         </div>
       )}
+
+      {gate?.verdicts?.[sport] && <GateDetail verdict={gate.verdicts[sport]!} />}
 
       {history.length > 0 && (
         <>
