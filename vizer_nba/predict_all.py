@@ -90,10 +90,18 @@ def main():
 
     # ── Récupérer les cotes Odds API (pour les value bets + fallback détection) ──
     print("📡 Récupération des cotes NBA (Odds API)...", file=sys.stderr)
-    client = OddsAPIClient(api_key=api_key, sport_key='basketball_nba')
+    # `config.yaml` déclarait déjà `markets: ['h2h', 'totals']` — la bonne
+    # liste — mais personne ne la lisait : l'appel sans argument laissait le
+    # défaut Python l'emporter, et ce défaut contenait `team_totals`. Un
+    # réglage qui existe, a l'air juste, et n'est pas branché.
+    odds_cfg = (config.get('apis', {}) or {}).get('odds_api') or config.get('odds_api') or {}
+    sport_key = odds_cfg.get('sport') or odds_cfg.get('sport_key') or 'basketball_nba'
+    client = OddsAPIClient(api_key=api_key, sport_key=sport_key)
+    odds_markets = odds_cfg.get('markets') or None
     odds_games: list = []
     try:
-        odds_games = client.get_odds(force_refresh=args.force_refresh)
+        odds_games = client.get_odds(markets=odds_markets,
+                                     force_refresh=args.force_refresh)
     except OddsAPIError as e:
         print(f"⚠️  Odds API indisponible : {e}", file=sys.stderr)
 

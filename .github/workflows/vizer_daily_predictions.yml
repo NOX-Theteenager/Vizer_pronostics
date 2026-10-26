@@ -14,6 +14,10 @@
 #   performance/summary.json               ← ce que valent les prédictions
 #   performance/direction.json             ← marchés qui ne parient que d'un côté
 #
+# Deux contrôles rendent le run rouge sans empêcher la publication : la
+# fraîcheur des données (step 4 bis·0) et les features servies (4 bis). Des
+# prédictions dégradées valent mieux qu'une app vide, mais pas en silence.
+#
 # Sources au runtime :
 #   - Code       : branche main
 #   - Modèles    : branche models-artifacts (poussés par le training hebdo),
@@ -206,6 +210,24 @@ jobs:
       # 398 points au service contre 231 à l'entraînement, parce que le dataset
       # de la saison 2025-26 comptait 1 780 matchs deux fois et que le
       # dédoublonnage n'existait que du côté entraînement.
+      # ── 4 bis·0. Les données suivent-elles la saison ? ──────────────────────
+      # Les datasets sont préparés par un PC à IP résidentielle et publiés par
+      # un cron du dimanche soir. Le crontab prévient lui-même qu'un dimanche
+      # manqué ne se rattrape pas « et rien ne prévient ». C'est arrivé : au
+      # 26/10/2026 la NHL avait 13 jours de retard et la NBA 196 — aucun match
+      # de sa saison en cours. Pendant ce temps la NHL est passée de 6,10 à
+      # 6,43 buts par match et le modèle de 5,73 à 5,75 : il ne pouvait pas
+      # suivre, et le marché `total` est passé de +11,6 % à −22,0 %.
+      #
+      # Le contrôle compare la dernière date du dataset au dernier match
+      # **effectivement joué** d'après ESPN, pas au calendrier : treize jours
+      # d'écart en pleine saison sont une panne, les mêmes en juillet ne sont
+      # rien.
+      - name: Vérifier la fraîcheur des données
+        run: |
+          python scripts/check_data_freshness.py --sport "$SPORT_INPUT" \
+            || echo "STALE_DATA=1" >> "$GITHUB_ENV"
+
       - name: Vérifier les features servies
         run: |
           SKEW=""
@@ -401,6 +423,10 @@ jobs:
           # d'un seul résultat : le sens d'un pari est connu à la publication.
           # C'est ce qui rend ce contrôle rapide là où le ROI met des semaines
           # à révéler le même défaut.
+          # Après `export_performance.py`, et c'est nécessaire : le verdict
+          # lit les décalages de niveau que celui-ci vient d'écrire. Un
+          # marché déséquilibré n'est retenu que si le modèle se trompe
+          # significativement dans le sens de ses paris.
           python "$GITHUB_WORKSPACE/scripts/check_market_direction.py" --root . \
             || echo "⚠️  Verdict directionnel non recalculé"
 
@@ -445,11 +471,17 @@ jobs:
           if [ -f /tmp/guard/performance/direction.json ]; then
             echo "  🧭 Verdict directionnel appliqué (run précédent)"
           fi
+          if [ -n "${STALE_DATA}" ]; then
+            echo "  🗓️  Données d'entraînement en retard sur la saison"
+            echo "     Les prédictions publiées reposent sur un état du"
+            echo "     championnat dépassé — voir l'étape « Vérifier la"
+            echo "     fraîcheur des données »."
+          fi
           if [ -n "${FAILED_SPORTS}" ]; then
             echo "  ❌ Échec sur :${FAILED_SPORTS}"
             exit 1
           fi
-          if [ -n "${SERVING_SKEW}" ]; then
+          if [ -n "${SERVING_SKEW}" ] || [ -n "${STALE_DATA}" ]; then
             exit 1
           fi
           echo "  ✅ Tout est passé"

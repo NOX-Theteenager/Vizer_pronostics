@@ -56,8 +56,12 @@ def test_unanimite_retenue():
     v = Verdict('nhl', 'total', {'under': 39})
     assert v.status == 'withheld'
     assert v.to_dict()['withhold'] == 'under'
-    # Le motif doit nommer la preuve qui lèverait la retenue.
-    assert 'over' in v.reason
+    # Le motif énonce le fait, sans promettre de condition de sortie : celle
+    # d'origine — « un seul pari à contre-courant lève la retenue » — s'est
+    # révélée fausse, un `over` perdant sur 101 ayant relâché un marché qui a
+    # ensuite perdu 21 %.
+    assert 'aucun dans l\'autre sens' in v.reason
+    assert 'lève la retenue' not in v.reason
 
 
 def test_desequilibre_avertit_sans_retenir():
@@ -225,3 +229,109 @@ def test_fichier_corrompu_inerte(tmp_path):
     path = tmp_path / 'direction.json'
     path.write_text('pas du json', encoding='utf-8')
     assert not DirectionGuard.load(path, 'nhl')
+
+
+# ── Sortie de retenue : le cas réel qui a échappé ───────────────────────────
+#
+# Chiffres relevés sur l'archive publiée. À la mise en service, la retenue
+# tombait dès qu'un seul pari à contre-courant apparaissait : un `over`
+# perdant, le 17/10, sur 101 paris, a relâché le marché, qui a ensuite perdu
+# 21,3 % sur 50 paris. Ces tests figent la règle corrigée.
+
+def test_un_seul_pari_contraire_ne_suffit_plus(tmp_path):
+    """Le 26/10 : 99 `under`, 2 `over`, et un décalage de niveau de 0,61 but à
+    2,5 écarts-types. Le marché doit être retenu."""
+    v = Verdict('nhl', 'total', {'under': 99, 'over': 2},
+                level_bias=-0.615, level_z=-2.53)
+    assert v.status == 'withheld'
+    assert v.to_dict()['withhold'] == 'under'
+    assert 'écarts-types' in v.reason
+
+
+def test_sans_mesure_de_niveau_on_ne_retient_pas():
+    """Dégradation assumée : sans `performance/summary.json`, le garde-fou
+    retombe sur la seule unanimité. Il ne faut pas qu'une mesure absente se
+    comporte comme une mesure favorable — ni défavorable."""
+    v = Verdict('nhl', 'total', {'under': 99, 'over': 2})
+    assert v.status == 'imbalanced'
+    assert v.to_dict()['withhold'] is None
+
+
+def test_biais_du_mauvais_signe_ne_retient_pas():
+    """Un modèle qui annonce *trop* de buts ne peut pas expliquer une série de
+    paris `under`. Le signe doit concorder, sinon on retiendrait sur une
+    coïncidence."""
+    v = Verdict('nhl', 'total', {'under': 99, 'over': 2},
+                level_bias=+0.615, level_z=+2.53)
+    assert v.status == 'imbalanced'
+
+
+def test_biais_insignifiant_ne_retient_pas():
+    """Le 17/10, le biais valait −0,31 à 0,76 écart-type. La règle corrigée
+    n'aurait pas retenu ce jour-là non plus — elle se réarme quand le décalage
+    devient mesurable, pas avant. C'est une limite, pas un oubli."""
+    v = Verdict('nhl', 'total', {'under': 37, 'over': 1},
+                level_bias=-0.312, level_z=-0.76)
+    assert v.status == 'imbalanced'
+
+
+def test_paris_equilibres_malgre_un_biais():
+    """Un décalage de niveau sans déséquilibre des paris n'est pas l'affaire de
+    ce garde-fou : il surveille le sens des paris, pas la qualité du modèle."""
+    v = Verdict('nhl', 'p1_total', {'under': 30, 'over': 28},
+                level_bias=-0.329, level_z=-2.58)
+    assert v.status == 'ok'
+
+
+def test_biais_positif_retient_les_over():
+    """Symétrie : un modèle qui surestime (cas NBA mesuré, +3,8 points) et
+    parie `over` doit être retenu du côté `over`."""
+    v = Verdict('nba', 'total', {'over': 30, 'under': 4},
+                level_bias=+3.797, level_z=+2.4)
+    assert v.status == 'withheld'
+    assert v.to_dict()['withhold'] == 'over'
+
+
+def test_marche_sans_grandeur_comparable():
+    """Le vainqueur n'a pas de niveau mesurable : aucune grandeur à comparer.
+    La répartition s'affiche, rien n'est retenu."""
+    v = Verdict('nhl', 'moneyline', {'away': 69, 'home': 9})
+    assert v.status == 'imbalanced'
+
+
+# ── Lecture des niveaux ─────────────────────────────────────────────────────
+def test_levels_from_summary(tmp_path):
+    path = tmp_path / 'summary.json'
+    path.write_text(json.dumps({'sports': {'nhl': {'levels': {
+        'total': {'n': 122, 'bias': -0.508, 'z': -2.37},
+        'p1_total': {'n': 5, 'insufficient': True},
+    }}}}), encoding='utf-8')
+    out = _dg.levels_from_summary(path)
+    assert out['nhl']['total']['z'] == -2.37
+    # Un échantillon insuffisant ne doit pas servir à retenir un marché.
+    assert 'p1_total' not in out['nhl']
+
+
+@pytest.mark.parametrize("content", ['pas du json', '{}', '{"sports": null}'])
+def test_levels_illisibles(tmp_path, content):
+    path = tmp_path / 'summary.json'
+    path.write_text(content, encoding='utf-8')
+    assert _dg.levels_from_summary(path) in ({}, {'nhl': {}}, {})
+
+
+def test_levels_fichier_absent(tmp_path):
+    assert _dg.levels_from_summary(tmp_path / 'absent.json') == {}
+
+
+def test_scan_applique_les_niveaux(tmp_path):
+    _write(tmp_path, '2026-10-26', 'nhl',
+           [_game(f'H{j}', f'A{j}', '2026-10-26', [_bet('total', 'under_6.5')])
+            for j in range(20)]
+           + [_game('X', 'Y', '2026-10-26', [_bet('total', 'over_6.5')])])
+    levels = {'nhl': {'total': {'bias': -0.6, 'z': -2.5}}}
+    v = scan(tmp_path, sports=('nhl',), today=date(2026, 10, 26), levels=levels)['nhl'][0]
+    assert v.counts == {'under': 20, 'over': 1}
+    assert v.status == 'withheld'
+    # Sans les niveaux, le même échantillon n'est pas retenu.
+    v2 = scan(tmp_path, sports=('nhl',), today=date(2026, 10, 26))['nhl'][0]
+    assert v2.status == 'imbalanced'

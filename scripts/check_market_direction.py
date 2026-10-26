@@ -39,7 +39,8 @@ from datetime import date, datetime, timezone
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 from vizer_core.direction_guard import (  # noqa: E402
-    MIN_SAMPLE, MIN_SAMPLE_IMBALANCE, MINORITY_SHARE, WINDOW_DAYS, scan,
+    LEVEL_Z, MIN_SAMPLE, MIN_SAMPLE_IMBALANCE, MINORITY_SHARE, WINDOW_DAYS,
+    levels_from_summary, scan,
 )
 
 SPORTS = ('nhl', 'nba')
@@ -60,6 +61,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--out', default=None,
                     help="Fichier de sortie (défaut : <root>/performance/direction.json)")
     ap.add_argument('--window-days', type=int, default=WINDOW_DAYS)
+    ap.add_argument('--levels', default=None,
+                    help="performance/summary.json, d'où viennent les décalages "
+                         "de niveau (défaut : <root>/performance/summary.json)")
     ap.add_argument('--today', default=None, help="Date de référence (YYYY-MM-DD), pour les tests")
     ap.add_argument('--json', action='store_true', help="Verdict sur stdout, sans écrire")
     ap.add_argument('--fail-on-withheld', action='store_true',
@@ -68,7 +72,20 @@ def main(argv: list[str] | None = None) -> int:
 
     root = pathlib.Path(args.root)
     today = date.fromisoformat(args.today) if args.today else None
-    verdicts = scan(root, sports=SPORTS, window_days=args.window_days, today=today)
+
+    # Les décalages de niveau décident de la **sortie** de retenue : un marché
+    # déséquilibré n'est retenu que si le modèle se trompe significativement
+    # dans le sens de ses paris. Fichier absent = on retombe sur la seule
+    # unanimité, le comportement d'avant cette mesure.
+    levels_path = (pathlib.Path(args.levels) if args.levels
+                   else root / 'performance' / 'summary.json')
+    levels = levels_from_summary(levels_path)
+    if not levels:
+        print(f"  ℹ️  pas de décalages de niveau exploitables ({levels_path})",
+              file=sys.stderr)
+
+    verdicts = scan(root, sports=SPORTS, window_days=args.window_days,
+                    today=today, levels=levels)
 
     payload = {
         'generated_at': datetime.now(timezone.utc).isoformat(timespec='seconds'),
@@ -77,6 +94,7 @@ def main(argv: list[str] | None = None) -> int:
             'min_sample': MIN_SAMPLE,
             'min_sample_imbalance': MIN_SAMPLE_IMBALANCE,
             'minority_share': MINORITY_SHARE,
+            'level_z': LEVEL_Z,
         },
         'sports': {s: [v.to_dict() for v in vs] for s, vs in verdicts.items()},
     }

@@ -357,6 +357,55 @@ Deux propriétés de ce contrôle méritent d'être retenues :
   trouve autant d'occasions des deux côtés. L'unanimité, elle, ne demande
   aucune référence — elle énonce ce qu'on ne peut pas conclure.
 
+### Un modèle ne vaut que la fraîcheur de ses données
+
+Quatrième piège de la même famille, et le plus coûteux mesuré à ce jour. Les
+deux fournisseurs bloquent les IP de datacenter, donc les datasets sont
+préparés par un PC à IP résidentielle et publiés sur Kaggle par un cron du
+dimanche soir. Le crontab énonce lui-même le risque : « un cron ne rattrape
+pas une exécution manquée : PC éteint le dimanche soir = rien ne se passe, et
+rien ne prévient. »
+
+C'est arrivé. Au 26/10/2026 : dataset NHL arrêté au **13 octobre** (13 jours),
+dataset NBA au **27 mai** — aucun match de la saison en cours, ouverte le 21
+octobre.
+
+Ce que ça a produit, mesuré :
+
+| | avant le 13/10 | après |
+|---|---|---|
+| buts réellement marqués (NHL) | 6,10 / match | **6,43** |
+| buts annoncés par le modèle | 5,73 | **5,75** |
+| ROI du marché `total` | +11,6 % (n=28) | **−22,0 %** (n=58) |
+| biais de niveau `total` | −0,31 (0,8 σ) | **−0,62 (2,5 σ)** |
+| biais de niveau `p1_total` | −0,005 (0,05 σ) | **−0,33 (2,6 σ)** |
+
+La ligue a pris un tiers de but par match ; le modèle a bougé de deux
+centièmes. Il ne pouvait pas suivre, ses fenêtres glissantes s'arrêtant au 13.
+`p1_total` est la preuve décisive : **aucun** biais avant le gel, un biais
+significatif après. Un défaut de modèle n'apparaît pas à une date ; un gel de
+données, si.
+
+Le piège n'est pas le cron manqué — c'est que tout en aval restait vert. Le
+job quotidien publiait, la barrière de qualité passait (elle évalue sur les
+mêmes données gelées, donc elle ne voit pas la dérive), et l'AUC de test
+restait à 0,6083 d'un réentraînement à l'autre, à la quatrième décimale près.
+
+> **Règle : la fraîcheur se mesure contre le terrain, pas contre le
+> calendrier.** `scripts/check_data_freshness.py` compare la dernière date du
+> dataset au dernier match **effectivement joué** d'après ESPN. Treize jours
+> d'écart en pleine saison sont une panne, les mêmes en juillet ne sont rien,
+> et cette comparaison fait la différence sans table de saisons à maintenir.
+> Le contrôle tourne dans le job quotidien, ne bloque pas la publication, et
+> rend le run rouge.
+
+Corollaire sur la mesure : **une métrique de performance calculée pendant un
+gel de données ne mesure pas le modèle.** Le +11,6 % qui avait servi à
+réactiver le marché `total` tombe exactement sur la période fraîche ; le
+−22,0 % qui l'a suivi tombe exactement sur la période gelée. Avant de corriger
+un modèle sur la foi d'un chiffre, vérifier que le chiffre a été mesuré sur
+des données vivantes.
+
 ### Reste à faire
 
 - **Pas de pipeline candidat → promotion** : l'entraînement écrase directement

@@ -54,8 +54,12 @@ jobs:
         with:
           python-version: '3.11'
 
+      # `requests` et rien d'autre en plus de l'outillage : le client de cotes
+      # l'importe au chargement du module. Simuler une bibliothèque HTTP
+      # ferait passer le test contre une fiction ; les appels réseau, eux,
+      # sont bien remplacés dans le test.
       - name: Installer ruff et pytest
-        run: pip install --quiet "ruff~=0.17" "pytest~=8.3"
+        run: pip install --quiet "ruff~=0.17" "pytest~=8.3" "requests~=2.32"
 
       # F821 seul : on ne veut pas imposer un style à un code existant, on veut
       # empêcher un NameError de partir en production. Les notebooks Kaggle sont
@@ -65,8 +69,9 @@ jobs:
           ruff check --select F821 --output-format=concise \
             vizer_core/ vizer_nba/ vizer_nhl/ scripts/ kaggle/
 
-      # `tests/` ne dépend que de la bibliothèque standard : pas de pandas, pas
-      # de modèle à charger, quelques dixièmes de seconde.
+      # `tests/` ne charge ni pandas, ni scikit-learn, ni le moindre modèle :
+      # les modules testés sont chargés par chemin (cf. tests/conftest.py), et
+      # la suite tourne en quelques dixièmes de seconde.
       - name: Tester les décisions de publication
         run: python -m pytest tests/ -q
 

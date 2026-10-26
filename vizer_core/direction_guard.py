@@ -27,16 +27,36 @@ Ce que ce module décide
 Deux niveaux, parce que « déséquilibré » et « unanime » n'autorisent pas la
 même conclusion.
 
-`WITHHELD` — **unanimité.** Le côté minoritaire n'est jamais apparu sur
-    l'échantillon. On n'a donc aucune preuve que le marché *puisse* parier de
-    l'autre côté : son historique est compatible avec un simple décalage de
-    niveau. Les paris du côté dominant sont retenus ; ceux du côté minoritaire
-    passent, et c'est voulu — le premier pari à contre-courant est exactement
-    la preuve qui lève le verdict.
+`WITHHELD` — deux chemins y mènent.
 
-`IMBALANCED` — **déséquilibre marqué** sans unanimité. Le côté minoritaire
-    existe, donc le marché n'est pas bloqué dans un sens ; mais la répartition
-    mérite d'être affichée à côté du ROI. On avertit, on ne retient rien.
+    **Unanimité.** Le côté minoritaire n'est jamais apparu sur l'échantillon.
+    On n'a donc aucune preuve que le marché *puisse* parier de l'autre côté :
+    son historique est compatible avec un simple décalage de niveau.
+
+    **Déséquilibre marqué *et* décalage de niveau mesuré dans ce sens.** Ici
+    on ne raisonne plus par défaut de preuve : on a la preuve. Le modèle
+    annonce significativement moins (ou plus) que ce qui arrive, et ses paris
+    penchent du côté que ce décalage produit.
+
+    Dans les deux cas, seuls les paris du côté dominant sont retenus.
+
+`IMBALANCED` — déséquilibre marqué **sans** décalage de niveau significatif,
+    ou sur un marché dont le niveau n'est pas mesurable (vainqueur, BTTS :
+    aucune grandeur à comparer). On affiche à côté du ROI, on ne retient rien.
+
+Correction du 26/10/2026 : la condition de sortie était trop faible
+-------------------------------------------------------------------
+À la mise en service, la retenue tombait dès qu'**un seul** pari à
+contre-courant apparaissait. C'était délibéré, et c'était faux. Mesuré :
+
+- 14→16/10 : marché `total` retenu, 12 paris `under` écartés (−2,1 %) ;
+- 17/10 : **un** pari `over`, perdant, sur 101 — la retenue tombe ;
+- 17→26/10 : 50 paris `under` publiés, 40 % de réussite, **−21,3 %**.
+
+Un pari sur cent ne prouve pas qu'un marché sait parier des deux côtés. La
+sortie demande maintenant que le décalage de niveau ne soit plus significatif
+— c'est-à-dire que la maladie ait disparu, pas seulement qu'un symptôme ait
+cligné.
 
 Pourquoi pas un test statistique
 --------------------------------
@@ -89,6 +109,11 @@ MIN_SAMPLE = 12
 MIN_SAMPLE_IMBALANCE = 20
 MINORITY_SHARE = 0.25
 
+# Significativité du biais de niveau, en erreurs-types. Deux est la
+# convention usuelle, et surtout c'est le seuil que l'écran Performance
+# affiche déjà : un seul nombre à retenir.
+LEVEL_Z = 2.0
+
 # Fenêtre glissante. Assez longue pour qu'un marché peu fréquent atteigne
 # `MIN_SAMPLE`, assez courte pour qu'un modèle réentraîné ne traîne pas
 # indéfiniment le comportement du précédent.
@@ -132,6 +157,12 @@ class Verdict:
     counts: dict[str, int] = field(default_factory=dict)
     window_from: Optional[str] = None
     window_to: Optional[str] = None
+    # Décalage de niveau du marché, repris de `performance/summary.json`.
+    # `None` quand il n'est pas mesurable (vainqueur, BTTS) ou pas encore
+    # mesuré. Prédit − observé : négatif = le modèle annonce moins que la
+    # réalité, ce qui pousse ses paris vers `under`.
+    level_bias: Optional[float] = None
+    level_z: Optional[float] = None
 
     @property
     def n(self) -> int:
@@ -147,22 +178,57 @@ class Verdict:
         return self.n - max(self.counts.values()) if self.counts else 0
 
     @property
+    def one_sided(self) -> bool:
+        """Déséquilibre marqué, sans aller jusqu'à l'unanimité."""
+        return (self.n >= MIN_SAMPLE_IMBALANCE
+                and self.minority / self.n < MINORITY_SHARE)
+
+    @property
+    def level_explains_direction(self) -> bool:
+        """
+        Le décalage de niveau mesuré produit-il le côté dominant ?
+
+        Un modèle qui annonce trop peu de buts (biais négatif) parie
+        mécaniquement `under`. Si le signe ne correspond pas, le décalage
+        n'explique pas la répartition et ne doit pas servir à retenir.
+        """
+        if self.level_z is None or self.level_bias is None:
+            return False
+        if abs(self.level_z) < LEVEL_Z:
+            return False
+        expected = 'under' if self.level_bias < 0 else 'over'
+        return self.dominant == expected
+
+    @property
     def status(self) -> Status:
         if self.n < MIN_SAMPLE:
             return 'insufficient'
         if self.minority == 0:
             return 'withheld'
-        if self.n >= MIN_SAMPLE_IMBALANCE and self.minority / self.n < MINORITY_SHARE:
+        # Déséquilibre marqué **et** décalage de niveau mesuré dans ce sens :
+        # ici on ne raisonne plus par défaut de preuve, on a la preuve.
+        if self.one_sided and self.level_explains_direction:
+            return 'withheld'
+        if self.one_sided:
             return 'imbalanced'
         return 'ok'
 
     @property
     def reason(self) -> str:
-        if self.status == 'withheld':
+        if self.status == 'withheld' and self.minority == 0:
             return (
-                f"{self.n} paris, tous « {self.dominant} », aucun dans l'autre sens : "
-                f"le rendement de ce marché n'est pas une mesure de sélection. "
-                f"Un seul pari « {self._other()} » lève la retenue."
+                f"{self.n} paris, tous « {self.dominant} », aucun dans l'autre "
+                f"sens : le rendement de ce marché n'est pas une mesure de "
+                f"sélection."
+            )
+        if self.status == 'withheld':
+            moins = 'moins' if (self.level_bias or 0) < 0 else 'plus'
+            return (
+                f"{self.counts.get(self.dominant, 0)} paris sur {self.n} du même "
+                f"côté (« {self.dominant} »), et le modèle annonce "
+                f"{abs(self.level_bias or 0):.2f} de {moins} que ce qui arrive "
+                f"({abs(self.level_z or 0):.1f} écarts-types) : le décalage de "
+                f"niveau explique le sens des paris."
             )
         if self.status == 'imbalanced':
             return (
@@ -194,6 +260,8 @@ class Verdict:
             # Côté retenu à la publication, s'il y a lieu. C'est le champ que
             # lit le filtre : il évite au consommateur de redéduire la règle.
             'withhold': self.dominant if self.status == 'withheld' else None,
+            'level_bias': self.level_bias,
+            'level_z': self.level_z,
             'from': self.window_from,
             'to': self.window_to,
             'reason': self.reason,
@@ -206,11 +274,31 @@ def _game_key(sport: str, game: dict) -> str:
     return f"{sport}-{game.get('away')}@{game.get('home')}-{(game.get('commence_time') or '')[:10]}"
 
 
+def levels_from_summary(path: pathlib.Path) -> dict[str, dict[str, dict]]:
+    """
+    Décalages de niveau par sport et marché, lus dans `performance/summary.json`.
+
+    Rendu vide si le fichier manque ou est illisible : le garde-fou retombe
+    alors sur la seule unanimité, c'est-à-dire sur son comportement d'avant
+    cette mesure. Dégradation, pas panne.
+    """
+    try:
+        payload = json.loads(path.read_text(encoding='utf-8'))
+    except (ValueError, OSError):
+        return {}
+    out: dict[str, dict[str, dict]] = {}
+    for sport, data in (payload.get('sports') or {}).items():
+        out[sport] = {m: v for m, v in ((data or {}).get('levels') or {}).items()
+                      if isinstance(v, dict) and not v.get('insufficient')}
+    return out
+
+
 def scan(
     root: pathlib.Path,
     sports: Iterable[str] = ('nhl', 'nba'),
     window_days: int = WINDOW_DAYS,
     today: Optional[date] = None,
+    levels: Optional[dict[str, dict[str, dict]]] = None,
 ) -> dict[str, list[Verdict]]:
     """
     Compte les sens des paris publiés, par sport et par marché.
@@ -263,6 +351,7 @@ def scan(
                 counts[market][side] += 1
                 dates[market].append(played_on)
 
+        sport_levels = (levels or {}).get(sport, {})
         out[sport] = [
             Verdict(
                 sport=sport,
@@ -270,6 +359,8 @@ def scan(
                 counts=dict(sides),
                 window_from=min(dates[market]) if dates[market] else None,
                 window_to=max(dates[market]) if dates[market] else None,
+                level_bias=sport_levels.get(market, {}).get('bias'),
+                level_z=sport_levels.get(market, {}).get('z'),
             )
             for market, sides in sorted(counts.items())
         ]

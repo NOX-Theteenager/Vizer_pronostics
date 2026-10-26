@@ -257,6 +257,31 @@ class GameOdds:
                 max(unders) if unders else None)
 
 
+def _unsupported_markets(body: str) -> set[str]:
+    """
+    Marchés que l'API vient de refuser, extraits de son corps d'erreur.
+
+    Forme observée :
+        {"message": "Markets not supported by this endpoint: team_totals",
+         "error_code": "INVALID_MARKET", ...}
+
+    On ne se fie pas au seul texte du message : `error_code` doit valoir
+    `INVALID_MARKET`, sinon un 422 pour une autre raison verrait des noms de
+    marchés là où il n'y en a pas, et on rejouerait une requête identique.
+    """
+    try:
+        payload = json.loads(body)
+    except (ValueError, TypeError):
+        return set()
+    if payload.get("error_code") != "INVALID_MARKET":
+        return set()
+    message = str(payload.get("message") or "")
+    if ':' not in message:
+        return set()
+    names = message.rsplit(':', 1)[1]
+    return {m.strip() for m in names.split(',') if m.strip()}
+
+
 class OddsAPIError(Exception):
     """Erreur lors d'un appel The-Odds API."""
 
@@ -288,9 +313,19 @@ class OddsAPIClient:
         self.cache_ttl = timedelta(minutes=cache_ttl_minutes)
 
     # ================================================================ API
+    # Marchés demandés par défaut à l'endpoint groupé `/sports/{key}/odds`.
+    #
+    # `team_totals` n'y est **pas** servi par The-Odds API : il n'existe que
+    # sur l'endpoint par évènement. Le demander ici renvoyait un 422 qui
+    # faisait échouer **toute** la requête — donc h2h et totals avec lui. La
+    # NBA n'a ainsi reçu aucune cote de l'ouverture de la saison au 26/10, et
+    # n'a produit aucun value bet, alors que ses prédictions tournaient et se
+    # mesuraient normalement (justesse 0,632 sur 57 matchs).
+    DEFAULT_MARKETS = ("h2h", "totals")
+
     def get_odds(
         self,
-        markets: list[str] = ("h2h", "totals", "team_totals"),
+        markets: list[str] | None = None,
         regions: str = "us",
         force_refresh: bool = False,
     ) -> list[GameOdds]:
@@ -305,6 +340,7 @@ class OddsAPIClient:
         Returns:
             Liste de GameOdds (1 par match upcoming/live).
         """
+        markets = list(markets) if markets else list(self.DEFAULT_MARKETS)
         cache_path = self._cache_path()
         if not force_refresh and self._is_cache_fresh(cache_path):
             print(f"📋 Cotes lues depuis cache : {cache_path}", file=sys.stderr)
@@ -312,7 +348,7 @@ class OddsAPIClient:
                 payload = json.load(f)
         else:
             try:
-                payload = self._fetch_api(markets=list(markets), regions=regions)
+                payload = self._fetch_api(markets=markets, regions=regions)
                 with cache_path.open("w", encoding="utf-8") as f:
                     json.dump(payload, f, ensure_ascii=False, indent=2)
                 print(f"💾 Cotes sauvegardées : {cache_path}", file=sys.stderr)
@@ -385,6 +421,20 @@ class OddsAPIClient:
             raise OddsAPIError("Clé API invalide (401)")
         if r.status_code == 429:
             raise OddsAPIError("Quota dépassé (429). Voir https://the-odds-api.com/account/")
+        # Un marché non servi par cet endpoint fait répondre 422 et emporte
+        # **tous** les autres avec lui. On retire le fautif et on rejoue une
+        # fois : des cotes partielles valent infiniment mieux qu'aucune cote.
+        # C'est ce défaut qui a rendu la NBA muette pendant toute l'ouverture
+        # de saison, pour un seul nom de marché mal placé.
+        if r.status_code == 422:
+            rejected = _unsupported_markets(r.text)
+            kept = [m for m in markets if m not in rejected]
+            if rejected and kept:
+                print(f"⚠️  Marché(s) refusé(s) par l'API : {', '.join(sorted(rejected))}"
+                      f" — nouvelle tentative avec {', '.join(kept)}", file=sys.stderr)
+                return self._fetch_api(markets=kept, regions=regions)
+            raise OddsAPIError(f"HTTP 422 : {r.text[:200]}")
+
         if r.status_code != 200:
             raise OddsAPIError(f"HTTP {r.status_code} : {r.text[:200]}")
 
