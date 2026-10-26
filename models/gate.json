@@ -1,8 +1,127 @@
 {
-  "checked_at": "2026-10-26T09:55:20+00:00",
-  "run_number": "34",
-  "run_id": "40302618454",
-  "sport": "both",
+  "checked_at": "2026-10-26T22:59:49+00:00",
+  "run_number": "35",
+  "run_id": "40416141685",
+  "sport": "nhl",
   "passed": true,
-  "blocked": {}
+  "blocked": {},
+  "verdicts": {
+    "nhl": {
+      "passed": true,
+      "enabled": true,
+      "n_test": 947,
+      "headline": "barrière franchie",
+      "checks": [
+        {
+          "market": "moneyline",
+          "verdict": "pass",
+          "auc": 0.6160850483046538,
+          "floor": 0.55,
+          "cause": "ok",
+          "reason": "AUC=0.6161",
+          "metrics": [
+            {
+              "label": "AUC",
+              "value": 0.616085,
+              "bound": 0.55,
+              "higher_is_better": true,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "market": "total",
+          "verdict": "pass",
+          "auc": null,
+          "floor": 0.0,
+          "cause": "ok",
+          "reason": "MAE=1.8707 · R²=-0.0566",
+          "metrics": [
+            {
+              "label": "MAE",
+              "value": 1.870657,
+              "bound": 2.25,
+              "higher_is_better": false,
+              "ok": true
+            },
+            {
+              "label": "R²",
+              "value": -0.056619,
+              "bound": -0.15,
+              "higher_is_better": true,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "market": "p1_total",
+          "verdict": "pass",
+          "auc": null,
+          "floor": 0.0,
+          "cause": "ok",
+          "reason": "MAE=0.9294",
+          "metrics": [
+            {
+              "label": "MAE",
+              "value": 0.929356,
+              "bound": 1.2,
+              "higher_is_better": false,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "market": "btts",
+          "verdict": "pass",
+          "auc": null,
+          "floor": 0.0,
+          "cause": "ok",
+          "reason": "MAE=1.8707",
+          "metrics": [
+            {
+              "label": "MAE",
+              "value": 1.870657,
+              "bound": 2.25,
+              "higher_is_better": false,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "market": "goal_intervals",
+          "verdict": "pass",
+          "auc": null,
+          "floor": 0.0,
+          "cause": "ok",
+          "reason": "MAE=1.8707",
+          "metrics": [
+            {
+              "label": "MAE",
+              "value": 1.870657,
+              "bound": 2.25,
+              "higher_is_better": false,
+              "ok": true
+            }
+          ]
+        },
+        {
+          "market": "exact_score",
+          "verdict": "pass",
+          "auc": null,
+          "floor": 0.0,
+          "cause": "ok",
+          "reason": "MAE=1.8707",
+          "metrics": [
+            {
+              "label": "MAE",
+              "value": 1.870657,
+              "bound": 2.25,
+              "higher_is_better": false,
+              "ok": true
+            }
+          ]
+        }
+      ]
+    }
+  }
 }
