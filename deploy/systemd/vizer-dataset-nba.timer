@@ -1,0 +1,34 @@
+# =============================================================================
+# Cadence de publication du dataset NBA (stats.nba.com)
+# =============================================================================
+# Deux changements par rapport au cron hebdomadaire qu'il remplace, et chacun
+# répond à une panne constatée le 26/10/2026 :
+#
+#   Persistent=true  — si la machine était éteinte à l'heure prévue, le service
+#                      tourne au prochain démarrage. Un cron, non : « PC éteint
+#                      le dimanche soir = rien ne se passe », et c'est
+#                      exactement ce qui s'est produit, sans que rien n'avertisse.
+#
+#   OnCalendar=daily — un oubli coûte un jour au lieu de sept. Les scripts ne
+#                      publient que s'il existe des matchs plus récents, donc
+#                      hors saison une exécution quotidienne ne fait rien.
+#
+# Le filet côté cloud reste indispensable : 🗓️  Fraîcheur des données — NHL
+  dataset jusqu'au 2026-10-12 (gameDate_home) · dernier match joué le 2026-10-25 · retard 13 jour(s)
+🗓️  Fraîcheur des données — NBA
+  dataset jusqu'au 2026-04-12 (GAME_DATE) · dernier match joué le 2026-10-25 · retard 196 jour(s)
+# compare chaque jour la dernière date du dataset au dernier match joué, et le
+# cron Vercel pousse une notification tant que le retard dure. Un timer local
+# ne peut pas signaler une machine éteinte.
+[Unit]
+Description=Vizer — dataset NBA (stats.nba.com) (quotidien, rattrapage activé)
+
+[Timer]
+OnCalendar=*-*-* 21:00
+Persistent=true
+# Évite de démarrer pile à l'heure après un réveil, le temps que le réseau
+# s'établisse.
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

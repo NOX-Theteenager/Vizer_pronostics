@@ -13,6 +13,7 @@
 #   results/YYYY-MM-DD.json                ← un fichier par jour (backtest)
 #   performance/summary.json               ← ce que valent les prédictions
 #   performance/direction.json             ← marchés qui ne parient que d'un côté
+#   performance/freshness.json             ← les données suivent-elles la saison
 #
 # Deux contrôles rendent le run rouge sans empêcher la publication : la
 # fraîcheur des données (step 4 bis·0) et les features servies (4 bis). Des
@@ -225,7 +226,9 @@ jobs:
       # rien.
       - name: Vérifier la fraîcheur des données
         run: |
+          mkdir -p "$PREDS_DIR"
           python scripts/check_data_freshness.py --sport "$SPORT_INPUT" \
+            --out "$PREDS_DIR/freshness.json" \
             || echo "STALE_DATA=1" >> "$GITHUB_ENV"
 
       - name: Vérifier les features servies
@@ -371,7 +374,9 @@ jobs:
           # registry.json n'est pas une prédiction : il va dans models/.
           if ls "$PREDS_DIR"/*.json >/dev/null 2>&1; then
             for f in "$PREDS_DIR"/*.json; do
-              [ "$(basename "$f")" = "registry.json" ] && continue
+              case "$(basename "$f")" in
+                registry.json|freshness.json) continue ;;
+              esac
               cp "$f" predictions/latest/
               cp "$f" "predictions/archive/${TODAY}/"
             done
@@ -387,6 +392,15 @@ jobs:
           python "$GITHUB_WORKSPACE/scripts/publish_results.py" \
             --out results --days 3 --window 7 \
             || echo "⚠️  Résultats non mis à jour (source indisponible)"
+
+          # Verdict de fraîcheur : publié parce que l'alerte doit venir du
+          # cloud. La panne surveillée est « le PC était éteint le dimanche »,
+          # et un PC éteint ne peut pas prévenir qu'il l'était. C'est le cron
+          # Vercel qui lit ce fichier et pousse la notification.
+          mkdir -p performance
+          if [ -f "$PREDS_DIR/freshness.json" ]; then
+            cp "$PREDS_DIR/freshness.json" performance/freshness.json
+          fi
 
           if [ -f "$PREDS_DIR/registry.json" ]; then
             cp "$PREDS_DIR/registry.json" models/registry.json

@@ -1,0 +1,27 @@
+# =============================================================================
+# Préparation et publication du dataset NHL (Moneypuck) vers Kaggle
+# =============================================================================
+# Remplace une ligne de crontab. La raison du changement est dans le timer :
+# un cron ne rattrape pas une exécution manquée, et c'est ce qui a laissé le
+# dataset NHL treize jours en retard et le dataset NBA cent quatre-vingt-seize.
+#
+# Les deux fournisseurs bloquent les IP de datacenter — stats.nba.com bloque
+# GitHub Actions et Kaggle, moneypuck.com bloque all_teams.csv depuis Kaggle.
+# Cette machine a une IP résidentielle : elle est le seul point d'accès.
+[Unit]
+Description=Vizer — dataset NHL (Moneypuck) vers Kaggle
+Documentation=file:///home/noxtheteenager/Documents/Projets/Vizer_pronostics/ARCHITECTURE.md
+# Sans réseau le script échouerait immédiatement ; mieux vaut attendre.
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/noxtheteenager/Documents/Projets/Vizer_pronostics/vizer_nhl
+ExecStart=/home/noxtheteenager/Documents/Projets/Vizer_pronostics/venv/bin/python scripts/push_dataset_to_kaggle.py
+# Même journal que la version cron, pour que l'historique reste continu.
+StandardOutput=append:/home/noxtheteenager/Documents/Projets/Vizer_pronostics/vizer_nhl/logs/push_dataset.log
+StandardError=append:/home/noxtheteenager/Documents/Projets/Vizer_pronostics/vizer_nhl/logs/push_dataset.log
+# L'upload NHL prend ~8 min, le fetch NBA jusqu'à une heure. Large, mais pas
+# illimité : un script bloqué ne doit pas empêcher le run du lendemain.
+TimeoutStartSec=3h

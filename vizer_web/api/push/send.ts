@@ -46,6 +46,44 @@ interface RawGame {
 
 const SPORTS = ['nhl', 'nba'] as const;
 
+/** Verdict de fraîcheur publié par le job quotidien. */
+interface Freshness {
+  stale?: string[];
+  sports?: Record<string, { lag_days?: number; status?: string }>;
+}
+
+const DATA_ROOT = (): string => {
+  const repo = env('VIZER_REPO') ?? 'NOX-Theteenager/Vizer_pronostics';
+  const branch = env('VIZER_BRANCH') ?? 'models-artifacts';
+  return `https://raw.githubusercontent.com/${repo}/${branch}`;
+};
+
+/**
+ * Les données d'entraînement suivent-elles la saison ?
+ *
+ * Cette alerte doit venir du cloud, et c'est tout son intérêt : la panne
+ * surveillée est « le PC qui prépare les datasets était éteint », et un PC
+ * éteint ne peut pas prévenir qu'il l'était. Le job quotidien publie le
+ * verdict, ce cron le lit.
+ *
+ * Mesuré le 26/10/2026 : dataset NHL arrêté depuis 13 jours, NBA depuis 196.
+ * Pendant ce temps l'application a continué de proposer des paris, et ceux de
+ * la période gelée ont rendu −27,2 % contre −6,8 % sur la période fraîche.
+ */
+async function fetchFreshness(): Promise<Freshness | null> {
+  try {
+    const res = await fetch(`${DATA_ROOT()}/performance/freshness.json`, {
+      headers: { 'user-agent': 'vizer-push' },
+    });
+    if (!res.ok) return null;
+    return (await res.json()) as Freshness;
+  } catch {
+    // Verdict indisponible : on notifie les paris comme avant. Une alerte
+    // manquée vaut mieux qu'une notification perdue.
+    return null;
+  }
+}
+
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -61,12 +99,10 @@ function json(body: unknown, status = 200): Response {
  * panne et un cache là où on veut la donnée fraîche.
  */
 async function fetchBets(): Promise<{ sport: string; game: RawGame; bet: RawBet }[]> {
-  const repo = env('VIZER_REPO') ?? 'NOX-Theteenager/Vizer_pronostics';
-  const branch = env('VIZER_BRANCH') ?? 'models-artifacts';
   const out: { sport: string; game: RawGame; bet: RawBet }[] = [];
 
   for (const sport of SPORTS) {
-    const url = `https://raw.githubusercontent.com/${repo}/${branch}/predictions/latest/${sport}.json`;
+    const url = `${DATA_ROOT()}/predictions/latest/${sport}.json`;
     try {
       const res = await fetch(url, { headers: { 'user-agent': 'vizer-push' } });
       if (!res.ok) continue;
@@ -105,8 +141,17 @@ export async function GET(request: Request): Promise<Response> {
   // aussi. Sans sujet, certains services de push refusent la requête.
   webpush.setVapidDetails(env('VAPID_SUBJECT') ?? 'mailto:contact@vizer.app', publicKey, privateKey);
 
+  const freshness = await fetchFreshness();
+  const stale = (freshness?.stale ?? []).filter((s) => SPORTS.includes(s as 'nhl' | 'nba'));
+
   const candidates = await fetchBets();
-  if (candidates.length === 0) return json({ ok: true, sent: 0, reason: 'aucun value bet' });
+  // Données en retard : on alerte **au lieu** de proposer un pari. Ce n'est
+  // pas un choix de priorité, c'est le seul message honnête — les paris du
+  // jour sont calculés sur un état du championnat dépassé, et c'est
+  // exactement la situation où il ne faut pas les suivre.
+  if (stale.length === 0 && candidates.length === 0) {
+    return json({ ok: true, sent: 0, reason: 'aucun value bet' });
+  }
 
   const subs: StoredSub[] = [];
   for (const entry of await smembers(SUBS_KEY)) {
@@ -122,29 +167,59 @@ export async function GET(request: Request): Promise<Response> {
   let skipped = 0;
   let dropped = 0;
 
-  for (const sub of subs) {
-    // Le meilleur pari au-dessus du seuil de cet abonné, et lui seul : une
-    // notification par jour vaut mieux que dix, qu'on désactive après deux.
-    const eligible = candidates
-      .filter((c) => (c.bet.edge ?? 0) * 100 >= sub.threshold)
-      .sort((a, b) => (b.bet.edge ?? 0) - (a.bet.edge ?? 0));
-    const best = eligible[0];
-    if (!best) continue;
+  // Message d'alerte, identique pour tous les abonnés : il ne dépend pas de
+  // leur seuil d'edge, puisqu'il dit précisément de ne pas se fier aux edges.
+  const alert = stale.length
+    ? (() => {
+        const detail = stale
+          .map((s) => `${s.toUpperCase()} ${freshness?.sports?.[s]?.lag_days ?? '?'} j`)
+          .join(' · ');
+        return {
+          // La clé de déduplication porte le jour : l'alerte revient chaque
+          // jour tant que le retard dure. C'est voulu — elle doit insister
+          // jusqu'à ce que le dataset soit republié.
+          dedupe: `stale:${new Date().toISOString().slice(0, 10)}:${stale.join(',')}`,
+          payload: JSON.stringify({
+            title: '⚠️ Données en retard',
+            body: `Les modèles tournent sur des données dépassées (${detail}). `
+              + `Les paris du jour ne sont pas fiables — republier le dataset.`,
+            count: stale.length,
+          }),
+        };
+      })()
+    : null;
 
-    const key = `vizer:push:done:${sub.endpoint.slice(-24)}:${betId(best.sport, best.game, best.bet)}`;
+  for (const sub of subs) {
+    let dedupe: string;
+    let payload: string;
+
+    if (alert) {
+      ({ dedupe, payload } = alert);
+    } else {
+      // Le meilleur pari au-dessus du seuil de cet abonné, et lui seul : une
+      // notification par jour vaut mieux que dix, qu'on désactive après deux.
+      const eligible = candidates
+        .filter((c) => (c.bet.edge ?? 0) * 100 >= sub.threshold)
+        .sort((a, b) => (b.bet.edge ?? 0) - (a.bet.edge ?? 0));
+      const best = eligible[0];
+      if (!best) continue;
+
+      const edgePct = Math.round((best.bet.edge ?? 0) * 1000) / 10;
+      dedupe = betId(best.sport, best.game, best.bet);
+      payload = JSON.stringify({
+        title: `Value bet · ${best.sport.toUpperCase()}`,
+        body: `${best.game.away} @ ${best.game.home} — ${best.bet.selection} @ ${best.bet.bookmaker_odds} (edge ${edgePct} %)`,
+        // Le service worker ouvre le match concerné au clic.
+        gameId: `${best.sport}-${best.game.away}@${best.game.home}-${(best.game.commence_time ?? '').slice(0, 10)}`,
+        count: eligible.length,
+      });
+    }
+
+    const key = `vizer:push:done:${sub.endpoint.slice(-24)}:${dedupe}`;
     if (!(await setIfAbsent(key, 20 * 3600))) {
       skipped += 1;
       continue;
     }
-
-    const edgePct = Math.round((best.bet.edge ?? 0) * 1000) / 10;
-    const payload = JSON.stringify({
-      title: `Value bet · ${best.sport.toUpperCase()}`,
-      body: `${best.game.away} @ ${best.game.home} — ${best.bet.selection} @ ${best.bet.bookmaker_odds} (edge ${edgePct} %)`,
-      // Le service worker ouvre le match concerné au clic.
-      gameId: `${best.sport}-${best.game.away}@${best.game.home}-${(best.game.commence_time ?? '').slice(0, 10)}`,
-      count: eligible.length,
-    });
 
     try {
       await webpush.sendNotification(
@@ -163,5 +238,9 @@ export async function GET(request: Request): Promise<Response> {
     }
   }
 
-  return json({ ok: true, subscribers: subs.length, sent, skipped, dropped });
+  return json({
+    ok: true, subscribers: subs.length, sent, skipped, dropped,
+    kind: alert ? 'stale-data' : 'value-bet',
+    stale,
+  });
 }

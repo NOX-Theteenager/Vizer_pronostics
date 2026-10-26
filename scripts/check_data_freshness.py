@@ -43,9 +43,10 @@ Usage :
 from __future__ import annotations
 
 import argparse
+import json
 import pathlib
 import sys
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
@@ -113,37 +114,47 @@ def last_played(sport: str, today: date, lookback: int = LOOKBACK_DAYS) -> date 
     return None
 
 
-def check(sport: str, repo: pathlib.Path, today: date, max_lag: int) -> int:
+def check(sport: str, repo: pathlib.Path, today: date,
+          max_lag: int) -> tuple[int, dict]:
+    """Retourne (code de sortie, verdict publiable)."""
     print(f"🗓️  Fraîcheur des données — {sport.upper()}")
+    verdict: dict = {'sport': sport, 'max_lag_days': max_lag}
 
     last_in_data, note = dataset_last_game(sport, repo)
     if last_in_data is None:
         print(f"  ⚠️  Impossible de conclure : {note}", file=sys.stderr)
-        return 0   # une absence de données n'est pas un retard : on ne bloque pas
+        # Une absence de données n'est pas un retard : on ne bloque pas, et on
+        # ne crie pas une panne qu'on n'a pas constatée.
+        return 0, {**verdict, 'status': 'unknown', 'detail': note}
 
+    verdict['last_in_data'] = last_in_data.isoformat()
     played = last_played(sport, today)
     if played is None:
         print(f"  ✓ dataset au {last_in_data} · aucun match joué depuis "
               f"{LOOKBACK_DAYS} jours — hors-saison, rien à rattraper")
-        return 0
+        return 0, {**verdict, 'status': 'offseason'}
 
     lag = (played - last_in_data).days
+    verdict.update({'last_played': played.isoformat(), 'lag_days': lag})
     print(f"  dataset jusqu'au {last_in_data} ({note}) · dernier match joué "
           f"le {played} · retard {lag} jour(s)")
 
     if lag <= max_lag:
         print("  ✅ à jour")
-        return 0
+        return 0, {**verdict, 'status': 'fresh'}
 
     print(f"\n❌ {sport.upper()} : {lag} jours de retard sur le terrain.",
           file=sys.stderr)
     print("   Le modèle décide sur un état du championnat qui n'existe plus,\n"
           "   et ses fenêtres glissantes ne voient pas les matchs récents.\n"
-          "   Le dataset Kaggle est publié par le cron du dimanche soir sur le\n"
-          "   PC (crontab -l). Un dimanche manqué ne se rattrape pas tout seul :\n"
-          f"   relancer à la main `vizer_{sport}/scripts/push_dataset_to_kaggle.py`.",
+          "   Le dataset est publié par le PC à IP résidentielle — seul point\n"
+          "   d'accès, les deux fournisseurs bloquant les IP de datacenter.\n"
+          "   Rattrapage immédiat :\n"
+          f"     systemctl --user start vizer-dataset-{sport}\n"
+          f"   ou à la main : vizer_{sport}/scripts/push_dataset_to_kaggle.py\n"
+          "   Mise en place des timers : deploy/systemd/README.md",
           file=sys.stderr)
-    return 1
+    return 1, {**verdict, 'status': 'stale'}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -152,13 +163,36 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--sport', default='both', choices=['nhl', 'nba', 'both'])
     ap.add_argument('--max-lag-days', type=int, default=DEFAULT_MAX_LAG)
     ap.add_argument('--today', default=None, help="Date de référence (YYYY-MM-DD)")
+    ap.add_argument('--out', default=None,
+                    help="Écrit le verdict en JSON (pour performance/freshness.json)")
     args = ap.parse_args(argv)
 
     repo = pathlib.Path(__file__).resolve().parent.parent
     today = date.fromisoformat(args.today) if args.today else date.today()
     sports = ('nhl', 'nba') if args.sport == 'both' else (args.sport,)
 
-    stale = [s for s in sports if check(s, repo, today, args.max_lag_days)]
+    verdicts: dict[str, dict] = {}
+    stale: list[str] = []
+    for sport in sports:
+        code, verdict = check(sport, repo, today, args.max_lag_days)
+        verdicts[sport] = verdict
+        if code:
+            stale.append(sport)
+
+    # Le verdict est publié parce que l'alerte doit venir du cloud : la panne
+    # qu'on surveille est « le PC était éteint », et un PC éteint ne peut pas
+    # prévenir qu'il l'était. C'est le cron Vercel qui lit ce fichier et
+    # pousse la notification.
+    if args.out:
+        out = pathlib.Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps({
+            'generated_at': datetime.now(timezone.utc).isoformat(timespec='seconds'),
+            'stale': sorted(stale),
+            'sports': verdicts,
+        }, ensure_ascii=False, indent=2), encoding='utf-8')
+        print(f"✅ {out}", file=sys.stderr)
+
     if stale:
         print(f"\n🛑 Données en retard : {', '.join(s.upper() for s in stale)}",
               file=sys.stderr)
