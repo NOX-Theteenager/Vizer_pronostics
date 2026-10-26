@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-26T23:03:12+00:00",
+  "generated_at": "2026-10-26T23:37:42+00:00",
   "min_sample": 20,
   "sports": {
     "nhl": {
@@ -161,6 +161,29 @@
           "z": -2.37
         }
       },
+      "levels_recent": {
+        "p1_total": {
+          "n": 148,
+          "mean_predicted": 1.682,
+          "mean_actual": 1.858,
+          "bias": -0.176,
+          "mae": 0.978,
+          "sd": 1.177,
+          "stderr": 0.097,
+          "z": -1.82
+        },
+        "total": {
+          "n": 86,
+          "mean_predicted": 5.751,
+          "mean_actual": 6.279,
+          "bias": -0.528,
+          "mae": 1.784,
+          "sd": 2.103,
+          "stderr": 0.227,
+          "z": -2.33
+        }
+      },
+      "level_window_days": 21,
       "value_bets": {
         "n": 147,
         "won": 58,
@@ -192,7 +215,7 @@
       }
     },
     "nba": {
-      "n_games_predicted": 66,
+      "n_games_predicted": 64,
       "n_games_settled": 57,
       "from": "2026-10-14",
       "to": "2026-10-26",
@@ -332,6 +355,39 @@
           "z": 1.52
         }
       },
+      "levels_recent": {
+        "away_team_total": {
+          "n": 57,
+          "mean_predicted": 115.398,
+          "mean_actual": 113.281,
+          "bias": 2.117,
+          "mae": 10.207,
+          "sd": 11.871,
+          "stderr": 1.572,
+          "z": 1.35
+        },
+        "home_team_total": {
+          "n": 57,
+          "mean_predicted": 117.285,
+          "mean_actual": 115.474,
+          "bias": 1.811,
+          "mae": 10.601,
+          "sd": 12.705,
+          "stderr": 1.683,
+          "z": 1.08
+        },
+        "total": {
+          "n": 57,
+          "mean_predicted": 232.551,
+          "mean_actual": 228.754,
+          "bias": 3.797,
+          "mae": 15.598,
+          "sd": 18.864,
+          "stderr": 2.499,
+          "z": 1.52
+        }
+      },
+      "level_window_days": 21,
       "value_bets": {
         "n": 0,
         "insufficient": true
