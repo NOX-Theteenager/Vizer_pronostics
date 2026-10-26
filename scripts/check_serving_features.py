@@ -39,12 +39,38 @@ from collections import Counter
 from pathlib import Path
 
 # Matchups de contrôle : des équipes stables, présentes dans l'historique.
+#
+# Six ne suffisaient pas, et ça produisait de faux avertissements. Trois
+# features NHL étaient signalées « constamment nulles » depuis douze jours ;
+# mesurées sur soixante affiches, elles sortent 8 à 17 fois. Elles ne sont pas
+# mortes — six tirages sur une feature qui se déclenche une fois sur quatre
+# tombent tous à zéro une fois sur cinq. Un contrôle qui crie à tort finit
+# ignoré, ce qui est pire que pas de contrôle.
 PROBES = {
     'nhl': [('TOR', 'MTL'), ('BOS', 'NYR'), ('COL', 'DAL'),
             ('EDM', 'LAK'), ('VGK', 'SJS'), ('FLA', 'TBL')],
     'nba': [('LAL', 'BOS'), ('GSW', 'DEN'), ('MIL', 'PHI'),
             ('NYK', 'MIA'), ('OKC', 'DAL'), ('PHX', 'SAC')],
 }
+
+# Les matchups fixes sont complétés par des affiches tirées parmi les équipes
+# que le modèle connaît, pour que « constamment nulle » veuille dire quelque
+# chose. Graine fixe : deux exécutions consécutives doivent être comparables.
+TARGET_PROBES = 40
+PROBE_SEED = 1
+
+
+def probe_pairs(sport: str, teams: list[str]) -> list[tuple[str, str]]:
+    """Matchups de contrôle : les fixes, puis des tirages reproductibles."""
+    import itertools
+    import random
+
+    pairs = list(PROBES.get(sport, []))
+    seen = set(pairs)
+    pool = [p for p in itertools.permutations(sorted(teams), 2) if p not in seen]
+    random.Random(PROBE_SEED).shuffle(pool)
+    pairs.extend(pool[:max(0, TARGET_PROBES - len(pairs))])
+    return pairs
 
 
 def check_nhl(verbose: bool) -> int:
@@ -59,7 +85,7 @@ def check_nhl(verbose: bool) -> int:
     zeros: Counter[str] = Counter()
     missing: set[str] = set()
     probed = 0
-    for home, away in PROBES['nhl']:
+    for home, away in probe_pairs('nhl', list(predictor.meta.get('team_elos', {}))):
         if not (predictor.has_team(home) and predictor.has_team(away)):
             continue
         row = predictor._prepare_features(home, away)
@@ -144,7 +170,13 @@ def check_nba(verbose: bool) -> int:
     invented: set[str] = set()
     values: dict[str, set[float]] = {f: set() for f in expected}
     probed = 0
-    for home, away in PROBES['nba']:
+    try:
+        import pandas as pd
+        nba_teams = list(pd.read_csv('data/NBA_TEAMS.csv')['abbreviation'])
+    except Exception:
+        nba_teams = []
+    probed = 0
+    for home, away in probe_pairs('nba', nba_teams):
         try:
             row = predictor._prepare_game_features(home, away)
         except (ValueError, KeyError) as e:
