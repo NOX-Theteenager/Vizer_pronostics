@@ -169,6 +169,13 @@ def check_nba(verbose: bool) -> int:
 
     invented: set[str] = set()
     values: dict[str, set[float]] = {f: set() for f in expected}
+    # Probabilités de victoire annoncées, pour vérifier qu'aucune ne prétend à
+    # la certitude. La calibration isotonique recopie aux extrémités la valeur
+    # du palier d'entraînement, qui peut valoir exactement 0 ou 1 : mesuré le
+    # 27/10/2026, 41 affiches sur 870 annonçaient 0 % ou 100 %, et une telle
+    # prédiction avait déjà été publiée. `moneyline.py` les borne désormais ;
+    # ce contrôle vérifie que la borne tient.
+    win_probas: list[tuple[str, str, float]] = []
     probed = 0
     try:
         import pandas as pd
@@ -184,6 +191,11 @@ def check_nba(verbose: bool) -> int:
                   file=sys.stderr)
             continue
         probed += 1
+        try:
+            win_probas.append(
+                (home, away, float(predictor.predict_win(home, away)['home_win_proba'])))
+        except Exception:
+            pass   # un marché absent n'est pas l'objet de ce contrôle
         for market_cols in (getattr(predictor, 'last_invented_features', {}) or {}).values():
             invented |= set(market_cols)
         for feature in expected:
@@ -218,6 +230,27 @@ def check_nba(verbose: bool) -> int:
               "saison, repos hors-saison plafonné).")
         print("      À revoir une fois la saison lancée : une feature "
               "constante ne porte aucune information.")
+
+    # Une probabilité de 0 ou 1 sur un match de NBA n'existe pas, et elle
+    # ferait voir au calcul de mise un pari sans risque. C'est un échec et non
+    # un avertissement : contrairement à une feature nulle, aucune lecture
+    # légitime ne la rend acceptable.
+    certain = [(h, a, v) for h, a, v in win_probas if v <= 0.001 or v >= 0.999]
+    if win_probas and not certain:
+        lo = min(v for _, _, v in win_probas)
+        hi = max(v for _, _, v in win_probas)
+        distinct = len(set(round(v, 6) for _, _, v in win_probas))
+        print(f"  probabilités de victoire : {lo:.3f} → {hi:.3f} · "
+              f"{distinct} valeurs distinctes sur {len(win_probas)} affiches")
+    if certain:
+        print(f"\n❌ {len(certain)} affiche(s) à probabilité certaine :",
+              file=sys.stderr)
+        for h, a, v in certain[:5]:
+            print(f"     {a} @ {h} : {v:.4f}", file=sys.stderr)
+        print("\n   Aucun match n'est certain. Les bornes sont dans\n"
+              "   vizer_nba/src/models/markets/moneyline.py "
+              "(PROBA_FLOOR / PROBA_CEIL).", file=sys.stderr)
+        return 1
 
     if invented:
         print(f"\n❌ {len(invented)} feature(s) inventée(s) à zéro au service :",

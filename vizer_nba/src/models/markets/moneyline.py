@@ -16,6 +16,33 @@ from vizer_core import MarketBase, MarketPrediction
 from src.models.win_predictor import NBAMatchPredictor
 
 
+# Bornes au-delà desquelles on refuse d'annoncer une probabilité.
+#
+# La calibration isotonique produit des paliers, et aux extrémités elle recopie
+# la valeur du palier d'entraînement — qui peut valoir exactement 0 ou 1.
+# Mesuré le 27/10/2026 sur le modèle en service : **41 affiches sur 870
+# annonçaient 0 % ou 100 %**, et une telle prédiction a déjà été publiée (une
+# entrée sur 45 depuis l'ouverture de la saison). Aucun match de NBA n'est
+# certain ; les affiches les plus déséquilibrées se négocient autour de 95 %.
+#
+# Ce n'est pas une correction du modèle — son classement reste inchangé — mais
+# un refus d'énoncer une certitude qui n'existe pas. Deux effets concrets :
+# l'application n'affiche plus « 100 % de chances », et le calcul de Kelly ne
+# peut plus voir un pari sans risque. Le plafond de désaccord avec le marché
+# écartait déjà ces cas en pratique, mais il les écartait par accident — rien
+# ne garantissait qu'il reste en place, ni qu'il couvre les autres marchés.
+#
+# Le NHL n'a pas ce défaut (min 0,20, max 0,76 sur 2 772 prédictions
+# publiées), d'où une borne posée ici et non dans `vizer_core`.
+PROBA_FLOOR = 0.02
+PROBA_CEIL = 0.98
+
+
+def _no_certainty(p: float) -> float:
+    """Ramène une probabilité dans les bornes du dicible."""
+    return min(max(p, PROBA_FLOOR), PROBA_CEIL)
+
+
 class MoneylineMarket(MarketBase):
     """
     Marché Moneyline : prédit le vainqueur d'un match.
@@ -86,8 +113,9 @@ class MoneylineMarket(MarketBase):
         probas = self._predictor.predict_proba(row)
         # XGBClassifier renvoie [proba_classe_0, proba_classe_1]
         # Classe 1 = HOME_WIN (cf. win_predictor.prepare_features → y = HOME_WIN)
-        p_away = float(probas[0][0])
-        p_home = float(probas[0][1])
+        # Borné : la calibration isotonique peut rendre exactement 0 ou 1.
+        p_home = _no_certainty(float(probas[0][1]))
+        p_away = 1.0 - p_home
 
         # Confidence : marge par rapport à 50/50
         margin = abs(p_home - 0.5)
