@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-27T07:40:55+00:00",
+  "generated_at": "2026-10-27T13:03:23+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -64,19 +64,18 @@
       {
         "market": "total",
         "status": "insufficient",
-        "n": 5,
+        "n": 4,
         "counts": {
-          "over": 4,
-          "under": 1
+          "over": 4
         },
         "dominant": "over",
-        "minority": 1,
+        "minority": 0,
         "withhold": null,
         "level_bias": 4.156,
         "level_z": 1.8,
         "from": "2026-10-26",
         "to": "2026-10-28",
-        "reason": "5 paris sur la fenêtre — trop peu pour se prononcer."
+        "reason": "4 paris sur la fenêtre — trop peu pour se prononcer."
       }
     ]
   }
