@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-27T13:03:23+00:00",
+  "generated_at": "2026-10-27T23:32:30+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -12,9 +12,9 @@
       {
         "market": "moneyline",
         "status": "imbalanced",
-        "n": 81,
+        "n": 82,
         "counts": {
-          "away": 71,
+          "away": 72,
           "home": 10
         },
         "dominant": "away",
@@ -24,15 +24,15 @@
         "level_z": null,
         "from": "2026-09-29",
         "to": "2026-10-28",
-        "reason": "71 paris sur 81 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
+        "reason": "72 paris sur 82 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
         "status": "withheld",
-        "n": 101,
+        "n": 105,
         "counts": {
           "over": 2,
-          "under": 99
+          "under": 103
         },
         "dominant": "under",
         "minority": 2,
@@ -40,8 +40,8 @@
         "level_bias": -0.654,
         "level_z": -2.78,
         "from": "2026-09-29",
-        "to": "2026-10-28",
-        "reason": "99 paris sur 101 du même côté (« under »), et le modèle annonce 0.65 de moins que ce qui arrive (2.8 écarts-types) : le décalage de niveau explique le sens des paris."
+        "to": "2026-10-29",
+        "reason": "103 paris sur 105 du même côté (« under »), et le modèle annonce 0.65 de moins que ce qui arrive (2.8 écarts-types) : le décalage de niveau explique le sens des paris."
       }
     ],
     "nba": [
@@ -64,9 +64,9 @@
       {
         "market": "total",
         "status": "insufficient",
-        "n": 4,
+        "n": 2,
         "counts": {
-          "over": 4
+          "over": 2
         },
         "dominant": "over",
         "minority": 0,
@@ -74,8 +74,8 @@
         "level_bias": 4.156,
         "level_z": 1.8,
         "from": "2026-10-26",
-        "to": "2026-10-28",
-        "reason": "4 paris sur la fenêtre — trop peu pour se prononcer."
+        "to": "2026-10-27",
+        "reason": "2 paris sur la fenêtre — trop peu pour se prononcer."
       }
     ]
   }
