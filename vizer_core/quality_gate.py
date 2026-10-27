@@ -156,8 +156,27 @@ class GateResult:
     def passed(self) -> bool:
         return not self.failed
 
+    @property
+    def judged(self) -> bool:
+        """
+        La barrière a-t-elle réellement vérifié quelque chose ?
+
+        « Franchie » et « rien à vérifier » rendent tous deux `passed = True`,
+        et c'est le piège. Au changement de saison le jeu de test se réduit aux
+        quelques matchs déjà joués : chaque marché part en abstention et le
+        modèle se déploie sans qu'aucun seuil ne soit contrôlé. Constaté le
+        27/10/2026 — la NBA entrait dans sa saison avec 43 matchs de test
+        contre 300 requis, et le log annonçait « ACCEPTÉ ».
+        """
+        return any(c.verdict != "skip" for c in self.checks)
+
     def headline(self) -> str:
-        """Une phrase qui nomme la vraie cause du refus, pour les logs de CI."""
+        """Une phrase qui nomme la vraie cause du verdict, pour les logs de CI."""
+        if self.passed and not self.judged:
+            return (
+                f"aucun seuil vérifié : {self.n_test:,} matchs de test, "
+                f"tous les marchés en abstention"
+            )
         if self.passed:
             return "barrière franchie"
         low = [c for c in self.failed if c.cause == "below_floor"]
@@ -178,6 +197,8 @@ class GateResult:
     def to_dict(self) -> dict[str, Any]:
         return {
             "passed": self.passed,
+            # Distinct de `passed` : un modèle peut passer sans avoir été jugé.
+            "judged": self.judged,
             "enabled": self.enabled,
             "n_test": self.n_test,
             "headline": self.headline(),

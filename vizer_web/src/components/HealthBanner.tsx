@@ -89,7 +89,16 @@ function dataRow(freshness: FreshnessFile | null): Row {
   };
 }
 
-/** Le dernier entraînement a-t-il été accepté ? */
+/**
+ * Le dernier entraînement a-t-il été accepté — et a-t-il seulement été jugé ?
+ *
+ * « Accepté » et « pas assez de matchs pour juger » donnent tous deux un
+ * `passed: true`, et c'est le piège. Au changement de saison, le jeu de test
+ * se réduit aux quelques matchs déjà joués : la barrière s'abstient sur chaque
+ * marché et laisse passer. Constaté le 27/10/2026 — la NBA entrait dans sa
+ * saison avec 43 matchs de test contre 300 requis, et le modèle se déployait
+ * sans qu'aucun seuil ne soit vérifié, sous un écran annonçant « accepté ».
+ */
 function modelRow(gate: GateStatus | null): Row {
   if (!gate) {
     return {
@@ -111,6 +120,29 @@ function modelRow(gate: GateStatus | null): Row {
       action: 'Les modèles précédents restent en service — rien d’urgent à faire.',
     };
   }
+
+  // Un sport dont *tous* les marchés sont en abstention n'a pas été jugé.
+  const unjudged = Object.entries(gate.verdicts ?? {}).filter(([, v]) => {
+    const checks = v?.checks ?? [];
+    return checks.length > 0 && checks.every((c) => c.verdict === 'skip');
+  });
+
+  if (unjudged.length) {
+    return {
+      level: 'warn',
+      topic: 'Modèles',
+      verdict: 'Déployés sans avoir été jugés',
+      detail: unjudged
+        .map(([s, v]) => `${sportName(s)} : ${v?.n_test ?? 0} matchs de test, `
+          + `trop peu pour vérifier un seuil`)
+        .join(' · '),
+      action:
+        'Normal en début de saison : le jeu de test se remplit avec les matchs '
+        + 'joués. En attendant, c’est la mesure sur les prédictions publiées qui '
+        + 'fait foi — onglet Performance réelle.',
+    };
+  }
+
   return {
     level: 'ok',
     topic: 'Modèles',
