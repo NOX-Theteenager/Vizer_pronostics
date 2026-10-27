@@ -1,0 +1,27 @@
+{
+  "checked_at": "2026-10-27T07:34:39+00:00",
+  "run_number": "36",
+  "run_id": "40467319595",
+  "sport": "nba",
+  "passed": true,
+  "blocked": {},
+  "verdicts": {
+    "nba": {
+      "passed": true,
+      "enabled": true,
+      "n_test": 43,
+      "headline": "barrière franchie",
+      "checks": [
+        {
+          "market": "moneyline",
+          "verdict": "skip",
+          "auc": 0.6630434782608696,
+          "floor": 0.58,
+          "cause": "too_few_test_games",
+          "reason": "abstention : 43 matchs de test < 300 requis, mesure trop bruitée pour décider",
+          "metrics": []
+        }
+      ]
+    }
+  }
+}
