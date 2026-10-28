@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-27T23:32:30+00:00",
+  "generated_at": "2026-10-28T13:55:03+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -12,9 +12,9 @@
       {
         "market": "moneyline",
         "status": "imbalanced",
-        "n": 82,
+        "n": 84,
         "counts": {
-          "away": 72,
+          "away": 74,
           "home": 10
         },
         "dominant": "away",
@@ -23,8 +23,8 @@
         "level_bias": null,
         "level_z": null,
         "from": "2026-09-29",
-        "to": "2026-10-28",
-        "reason": "72 paris sur 82 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
+        "to": "2026-10-29",
+        "reason": "74 paris sur 84 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
@@ -37,45 +37,47 @@
         "dominant": "under",
         "minority": 2,
         "withhold": "under",
-        "level_bias": -0.654,
-        "level_z": -2.78,
+        "level_bias": -0.519,
+        "level_z": -2.24,
         "from": "2026-09-29",
         "to": "2026-10-29",
-        "reason": "103 paris sur 105 du même côté (« under »), et le modèle annonce 0.65 de moins que ce qui arrive (2.8 écarts-types) : le décalage de niveau explique le sens des paris."
+        "reason": "103 paris sur 105 du même côté (« under »), et le modèle annonce 0.52 de moins que ce qui arrive (2.2 écarts-types) : le décalage de niveau explique le sens des paris."
       }
     ],
     "nba": [
       {
         "market": "moneyline",
         "status": "insufficient",
-        "n": 4,
+        "n": 9,
         "counts": {
-          "away": 4
+          "away": 6,
+          "home": 3
         },
         "dominant": "away",
-        "minority": 0,
+        "minority": 3,
         "withhold": null,
         "level_bias": null,
         "level_z": null,
         "from": "2026-10-26",
-        "to": "2026-10-28",
-        "reason": "4 paris sur la fenêtre — trop peu pour se prononcer."
+        "to": "2026-10-29",
+        "reason": "9 paris sur la fenêtre — trop peu pour se prononcer."
       },
       {
         "market": "total",
         "status": "insufficient",
-        "n": 2,
+        "n": 5,
         "counts": {
-          "over": 2
+          "over": 4,
+          "under": 1
         },
         "dominant": "over",
-        "minority": 0,
+        "minority": 1,
         "withhold": null,
-        "level_bias": 4.156,
-        "level_z": 1.8,
+        "level_bias": 3.301,
+        "level_z": 1.45,
         "from": "2026-10-26",
-        "to": "2026-10-27",
-        "reason": "2 paris sur la fenêtre — trop peu pour se prononcer."
+        "to": "2026-10-29",
+        "reason": "5 paris sur la fenêtre — trop peu pour se prononcer."
       }
     ]
   }
