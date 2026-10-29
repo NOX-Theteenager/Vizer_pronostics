@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-28T23:55:41+00:00",
+  "generated_at": "2026-10-29T14:01:09+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -37,20 +37,20 @@
         "dominant": "under",
         "minority": 3,
         "withhold": "under",
-        "level_bias": -0.519,
-        "level_z": -2.24,
+        "level_bias": -0.54,
+        "level_z": -2.39,
         "from": "2026-09-29",
         "to": "2026-10-30",
-        "reason": "110 paris sur 113 du même côté (« under »), et le modèle annonce 0.52 de moins que ce qui arrive (2.2 écarts-types) : le décalage de niveau explique le sens des paris."
+        "reason": "110 paris sur 113 du même côté (« under »), et le modèle annonce 0.54 de moins que ce qui arrive (2.4 écarts-types) : le décalage de niveau explique le sens des paris."
       }
     ],
     "nba": [
       {
         "market": "moneyline",
         "status": "insufficient",
-        "n": 5,
+        "n": 6,
         "counts": {
-          "away": 5
+          "away": 6
         },
         "dominant": "away",
         "minority": 0,
@@ -58,24 +58,25 @@
         "level_bias": null,
         "level_z": null,
         "from": "2026-10-26",
-        "to": "2026-10-29",
-        "reason": "5 paris sur la fenêtre — trop peu pour se prononcer."
+        "to": "2026-10-30",
+        "reason": "6 paris sur la fenêtre — trop peu pour se prononcer."
       },
       {
         "market": "total",
         "status": "insufficient",
-        "n": 3,
+        "n": 4,
         "counts": {
-          "over": 3
+          "over": 3,
+          "under": 1
         },
         "dominant": "over",
-        "minority": 0,
+        "minority": 1,
         "withhold": null,
-        "level_bias": 2.868,
-        "level_z": 1.17,
+        "level_bias": 4.682,
+        "level_z": 1.91,
         "from": "2026-10-26",
-        "to": "2026-10-29",
-        "reason": "3 paris sur la fenêtre — trop peu pour se prononcer."
+        "to": "2026-10-30",
+        "reason": "4 paris sur la fenêtre — trop peu pour se prononcer."
       }
     ]
   }
