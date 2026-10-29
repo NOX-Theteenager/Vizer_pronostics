@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T14:01:05+00:00",
+  "generated_at": "2026-10-29T23:50:30+00:00",
   "n_games": 3,
   "detection_source": "ESPN",
   "models_trained_at": "2026-10-27T07:31:49+00:00",
@@ -149,108 +149,58 @@
           "market": "moneyline",
           "selection": "away",
           "predicted_proba": 0.4314,
-          "bookmaker_odds": 3.0,
-          "implied_proba": 0.3333,
-          "edge": 0.098,
+          "bookmaker_odds": 3.06,
+          "implied_proba": 0.3268,
+          "edge": 0.1046,
           "kelly_stake": 0.0183,
-          "expected_value_per_unit": 0.2941,
+          "expected_value_per_unit": 0.32,
           "confidence": "low",
           "model_proba": 0.4314,
-          "market_proba": 0.3332,
+          "market_proba": 0.3209,
           "books": [
+            {
+              "name": "MyBookie.ag",
+              "odds": 3.06,
+              "best": true
+            },
+            {
+              "name": "LowVig.ag",
+              "odds": 3.02,
+              "best": false
+            },
+            {
+              "name": "BetOnline.ag",
+              "odds": 3.0,
+              "best": false
+            },
+            {
+              "name": "BetRivers",
+              "odds": 3.0,
+              "best": false
+            },
             {
               "name": "Bovada",
               "odds": 3.0,
-              "best": true
-            },
-            {
-              "name": "LowVig.ag",
-              "odds": 2.95,
               "best": false
             },
             {
               "name": "BetUS",
+              "odds": 3.0,
+              "best": false
+            },
+            {
+              "name": "FanDuel",
+              "odds": 2.98,
+              "best": false
+            },
+            {
+              "name": "DraftKings",
               "odds": 2.95,
               "best": false
             },
             {
-              "name": "BetOnline.ag",
-              "odds": 2.92,
-              "best": false
-            },
-            {
-              "name": "MyBookie.ag",
-              "odds": 2.92,
-              "best": false
-            },
-            {
-              "name": "DraftKings",
-              "odds": 2.9,
-              "best": false
-            },
-            {
-              "name": "FanDuel",
-              "odds": 2.8,
-              "best": false
-            },
-            {
               "name": "BetMGM",
-              "odds": 2.8,
-              "best": false
-            },
-            {
-              "name": "BetRivers",
-              "odds": 2.7,
-              "best": false
-            }
-          ]
-        },
-        {
-          "market": "total",
-          "selection": "under_236.5",
-          "predicted_proba": 0.5824,
-          "bookmaker_odds": 1.93,
-          "implied_proba": 0.5181,
-          "edge": 0.0643,
-          "kelly_stake": 0.0124,
-          "expected_value_per_unit": 0.1241,
-          "confidence": "medium",
-          "model_proba": 0.5824,
-          "market_proba": 0.5017,
-          "books": [
-            {
-              "name": "LowVig.ag",
-              "odds": 1.93,
-              "best": true
-            },
-            {
-              "name": "FanDuel",
-              "odds": 1.91,
-              "best": false
-            },
-            {
-              "name": "BetOnline.ag",
-              "odds": 1.91,
-              "best": false
-            },
-            {
-              "name": "BetMGM",
-              "odds": 1.91,
-              "best": false
-            },
-            {
-              "name": "BetUS",
-              "odds": 1.91,
-              "best": false
-            },
-            {
-              "name": "DraftKings",
-              "odds": 1.89,
-              "best": false
-            },
-            {
-              "name": "BetRivers",
-              "odds": 1.88,
+              "odds": 2.95,
               "best": false
             }
           ]
