@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-30T13:56:03+00:00",
+  "generated_at": "2026-10-30T23:30:08+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -12,9 +12,9 @@
       {
         "market": "moneyline",
         "status": "imbalanced",
-        "n": 88,
+        "n": 92,
         "counts": {
-          "away": 76,
+          "away": 80,
           "home": 12
         },
         "dominant": "away",
@@ -23,25 +23,25 @@
         "level_bias": null,
         "level_z": null,
         "from": "2026-09-29",
-        "to": "2026-10-30",
-        "reason": "76 paris sur 88 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
+        "to": "2026-10-31",
+        "reason": "80 paris sur 92 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
         "status": "withheld",
-        "n": 116,
+        "n": 123,
         "counts": {
-          "over": 3,
-          "under": 113
+          "over": 5,
+          "under": 118
         },
         "dominant": "under",
-        "minority": 3,
+        "minority": 5,
         "withhold": "under",
         "level_bias": -0.652,
         "level_z": -2.95,
         "from": "2026-09-29",
-        "to": "2026-10-31",
-        "reason": "113 paris sur 116 du même côté (« under »), et le modèle annonce 0.65 de moins que ce qui arrive (3.0 écarts-types) : le décalage de niveau explique le sens des paris."
+        "to": "2026-11-01",
+        "reason": "118 paris sur 123 du même côté (« under »), et le modèle annonce 0.65 de moins que ce qui arrive (3.0 écarts-types) : le décalage de niveau explique le sens des paris."
       }
     ],
     "nba": [
@@ -50,16 +50,15 @@
         "status": "insufficient",
         "n": 7,
         "counts": {
-          "away": 6,
-          "home": 1
+          "away": 7
         },
         "dominant": "away",
-        "minority": 1,
+        "minority": 0,
         "withhold": null,
         "level_bias": null,
         "level_z": null,
         "from": "2026-10-26",
-        "to": "2026-10-30",
+        "to": "2026-10-31",
         "reason": "7 paris sur la fenêtre — trop peu pour se prononcer."
       },
       {
