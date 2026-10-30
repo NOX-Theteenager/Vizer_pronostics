@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T23:50:34+00:00",
+  "generated_at": "2026-10-30T13:56:03+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -37,45 +37,46 @@
         "dominant": "under",
         "minority": 3,
         "withhold": "under",
-        "level_bias": -0.54,
-        "level_z": -2.39,
+        "level_bias": -0.652,
+        "level_z": -2.95,
         "from": "2026-09-29",
         "to": "2026-10-31",
-        "reason": "113 paris sur 116 du même côté (« under »), et le modèle annonce 0.54 de moins que ce qui arrive (2.4 écarts-types) : le décalage de niveau explique le sens des paris."
+        "reason": "113 paris sur 116 du même côté (« under »), et le modèle annonce 0.65 de moins que ce qui arrive (3.0 écarts-types) : le décalage de niveau explique le sens des paris."
       }
     ],
     "nba": [
       {
         "market": "moneyline",
         "status": "insufficient",
-        "n": 6,
+        "n": 7,
         "counts": {
-          "away": 6
+          "away": 6,
+          "home": 1
         },
         "dominant": "away",
-        "minority": 0,
+        "minority": 1,
         "withhold": null,
         "level_bias": null,
         "level_z": null,
         "from": "2026-10-26",
         "to": "2026-10-30",
-        "reason": "6 paris sur la fenêtre — trop peu pour se prononcer."
+        "reason": "7 paris sur la fenêtre — trop peu pour se prononcer."
       },
       {
         "market": "total",
         "status": "insufficient",
-        "n": 3,
+        "n": 4,
         "counts": {
-          "over": 3
+          "over": 4
         },
         "dominant": "over",
         "minority": 0,
         "withhold": null,
-        "level_bias": 3.797,
-        "level_z": 1.58,
+        "level_bias": 3.605,
+        "level_z": 1.55,
         "from": "2026-10-26",
-        "to": "2026-10-29",
-        "reason": "3 paris sur la fenêtre — trop peu pour se prononcer."
+        "to": "2026-10-31",
+        "reason": "4 paris sur la fenêtre — trop peu pour se prononcer."
       }
     ]
   }
