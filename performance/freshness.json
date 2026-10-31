@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-31T13:26:02+00:00",
+  "generated_at": "2026-10-31T23:06:48+00:00",
   "stale": [
     "nba",
     "nhl"
@@ -9,16 +9,16 @@
       "sport": "nhl",
       "max_lag_days": 3,
       "last_in_data": "2026-10-25",
-      "last_played": "2026-10-30",
-      "lag_days": 5,
+      "last_played": "2026-10-31",
+      "lag_days": 6,
       "status": "stale"
     },
     "nba": {
       "sport": "nba",
       "max_lag_days": 3,
       "last_in_data": "2026-10-25",
-      "last_played": "2026-10-30",
-      "lag_days": 5,
+      "last_played": "2026-10-31",
+      "lag_days": 6,
       "status": "stale"
     }
   }
