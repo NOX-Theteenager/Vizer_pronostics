@@ -33,6 +33,11 @@ TEMP_PATH = 'data/NBA_PLAYER_GAMES_TEMP.csv'
 # dans les heures qui suivent, jamais après plusieurs jours.
 TEMP_MAX_AGE_HOURS = 36
 
+# Au-delà de ce nombre d'échecs API consécutifs, stats.nba.com ne répond plus
+# (blocage d'IP ou quota) et insister ne sert qu'à perdre du temps : le fetch
+# complet dure 30-60 min, autant s'arrêter dès que la cause est établie.
+MAX_CONSECUTIVE_FAILURES = 15
+
 
 def _load_resume_state(resume: bool):
     """Relit la sauvegarde intermédiaire. Retourne (frames, ids_déjà_faits).
@@ -93,6 +98,7 @@ def fetch_player_games(seasons=None, active_only=True, resume=True):
     all_games, already_done = _load_resume_state(resume)
     errors = []
     skipped = 0
+    consecutive_failures = 0
     
     total_players = len(player_list)
     
@@ -107,6 +113,7 @@ def fetch_player_games(seasons=None, active_only=True, resume=True):
         print(f"[{idx}/{total_players}] {player_name}...", end=" ", flush=True)
         
         player_games = []
+        player_failed = False
         
         for season in seasons:
             try:
@@ -128,13 +135,30 @@ def fetch_player_games(seasons=None, active_only=True, resume=True):
             except Exception as e:
                 if "not found" not in str(e).lower():
                     errors.append(f"{player_name} ({season}): {str(e)}")
+                    player_failed = True
                 continue
-        
+
         if player_games:
             combined = pd.concat(player_games, ignore_index=True)
             all_games.append(combined)
             print(f"✓ {len(combined)} matchs")
+            consecutive_failures = 0
+        elif player_failed:
+            # Distinct d'un joueur sans match : ici l'API n'a pas répondu.
+            # Confondre les deux rend un blocage de stats.nba.com indétectable.
+            consecutive_failures += 1
+            print(f"✗ erreur API ({consecutive_failures} d'affilée)")
+            if consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
+                print(f"\n🛑 {consecutive_failures} échecs API consécutifs — "
+                      f"stats.nba.com ne répond plus (blocage ou quota).")
+                print("   Arrêt immédiat : continuer les "
+                      f"{total_players - idx} joueurs restants ne produirait "
+                      "que des erreurs.")
+                for err in errors[-5:]:
+                    print(f"   • {err}")
+                return None
         else:
+            consecutive_failures = 0
             print("⊘ Aucun match")
         
         # Sauvegarde intermédiaire tous les 50 joueurs
@@ -148,6 +172,13 @@ def fetch_player_games(seasons=None, active_only=True, resume=True):
 
     if not all_games:
         print("\n✗ Aucune donnée récupérée!")
+        # Les erreurs étaient jusqu'ici affichées APRÈS ce retour, donc jamais
+        # dans le seul cas où elles comptent. Le 2026-11-08, les 530 joueurs ont
+        # renvoyé « Aucun match » sans qu'une seule cause soit visible.
+        if errors:
+            print(f"  {len(errors)} erreur(s) d'API. Premières :")
+            for err in errors[:5]:
+                print(f"   • {err}")
         return None
     
     # Combiner toutes les données
