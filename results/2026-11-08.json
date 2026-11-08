@@ -1,0 +1,91 @@
+{
+  "date": "2026-11-08",
+  "generated_at": "2026-11-08T23:39:42+00:00",
+  "games": [
+    {
+      "sport": "nhl",
+      "home": "BOS",
+      "away": "FLA",
+      "home_name": "Boston Bruins",
+      "away_name": "Florida Panthers",
+      "commence_time": "2026-11-08T18:00Z",
+      "home_score": 4,
+      "away_score": 1,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 3,
+          "away": 1
+        },
+        {
+          "home": 0,
+          "away": 0
+        },
+        {
+          "home": 1,
+          "away": 0
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
+    {
+      "sport": "nhl",
+      "home": "BUF",
+      "away": "VGK",
+      "home_name": "Buffalo Sabres",
+      "away_name": "Vegas Golden Knights",
+      "commence_time": "2026-11-08T20:30Z",
+      "home_score": 1,
+      "away_score": 4,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 0,
+          "away": 0
+        },
+        {
+          "home": 0,
+          "away": 2
+        },
+        {
+          "home": 1,
+          "away": 2
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nba",
+      "home": "CHI",
+      "away": "PHI",
+      "home_name": "Chicago Bulls",
+      "away_name": "Philadelphia 76ers",
+      "commence_time": "2026-11-08T20:30Z",
+      "home_score": 121,
+      "away_score": 127,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 33,
+          "away": 34
+        },
+        {
+          "home": 28,
+          "away": 34
+        },
+        {
+          "home": 32,
+          "away": 31
+        },
+        {
+          "home": 28,
+          "away": 28
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    }
+  ]
+}
