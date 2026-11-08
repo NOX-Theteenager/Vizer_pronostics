@@ -144,7 +144,7 @@ jobs:
           pip install --quiet -r requirements-runtime.txt
           pip install --quiet \
             pyyaml requests python-dateutil nba_api \
-            "kaggle~=2.2"
+            "kaggle~=2.2" six   # six : cf. commentaire dans le training pipeline
           pip install --quiet -e .
           # Versions tracées dans les logs : un écart avec celles du notebook
           # Kaggle est la première chose à regarder si les probas dérivent.

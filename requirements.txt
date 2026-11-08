@@ -28,6 +28,12 @@ pyyaml>=6.0                     # Lecture config.yaml dans toute la chaîne
 # Actions), donc les deux côtés doivent avoir exactement la même.
 -r requirements-runtime.txt
 
+# ------------------------------ CLI Kaggle -----------------------------------
+# kaggle n'est pas listé ici : les workflows l'installent eux-mêmes, épinglé.
+# six l'est, parce que la CLI l'importe sans le déclarer et que les scripts
+# push_dataset_to_kaggle.py des deux sports s'appuient dessus depuis le PC.
+six>=1.16.0
+
 # ------------------------------ APIs externes --------------------------------
 nba_api>=1.5.2                  # NBA : scores, scoreboard, box scores (incl. Q1 à venir)
 requests>=2.32.0                # The-Odds API (cotes), Moneypuck CSVs, NHL Web API

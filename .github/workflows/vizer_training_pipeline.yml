@@ -107,7 +107,13 @@ jobs:
       # Version épinglée : la CLI a déjà cassé le pipeline deux fois en changeant
       # son mécanisme d'auth (v1.6 puis v2.x). Monter de version = test manuel.
       - name: Installer la CLI Kaggle
-        run: pip install --quiet "kaggle~=2.2"
+        run: |
+          # six : la CLI Kaggle l'importe (kaggle/models/upload_file.py)
+          # sans le déclarer en dépendance. Il arrivait jusqu'ici par une
+          # dépendance transitive qui a cessé de le tirer — la CLI plante
+          # alors à l'import, avant toute requête réseau. Vérifié le
+          # 2026-11-09 : 2.2.4 et 2.2.5 échouent toutes deux sans lui.
+          pip install --quiet "kaggle~=2.2" six
 
       - name: Configurer les credentials Kaggle
         run: |
