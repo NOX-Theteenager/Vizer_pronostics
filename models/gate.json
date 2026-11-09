@@ -1,8 +1,8 @@
 {
-  "checked_at": "2026-11-08T23:53:41+00:00",
-  "run_number": "39",
-  "run_id": "42536996473",
-  "sport": "nhl",
+  "checked_at": "2026-11-09T00:27:34+00:00",
+  "run_number": "40",
+  "run_id": "42539755890",
+  "sport": "both",
   "passed": true,
   "blocked": {},
   "verdicts": {
@@ -121,6 +121,24 @@
               "ok": true
             }
           ]
+        }
+      ]
+    },
+    "nba": {
+      "passed": true,
+      "judged": false,
+      "enabled": true,
+      "n_test": 140,
+      "headline": "aucun seuil vérifié : 140 matchs de test, tous les marchés en abstention",
+      "checks": [
+        {
+          "market": "moneyline",
+          "verdict": "skip",
+          "auc": 0.7179330065359477,
+          "floor": 0.58,
+          "cause": "too_few_test_games",
+          "reason": "abstention : 140 matchs de test < 300 requis, mesure trop bruitée pour décider",
+          "metrics": []
         }
       ]
     }
