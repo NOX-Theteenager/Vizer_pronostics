@@ -1,25 +1,22 @@
 {
-  "generated_at": "2026-11-08T23:38:02+00:00",
-  "stale": [
-    "nba",
-    "nhl"
-  ],
+  "generated_at": "2026-11-09T00:30:07+00:00",
+  "stale": [],
   "sports": {
     "nhl": {
       "sport": "nhl",
       "max_lag_days": 3,
-      "last_in_data": "2026-10-25",
+      "last_in_data": "2026-11-07",
       "last_played": "2026-11-08",
-      "lag_days": 14,
-      "status": "stale"
+      "lag_days": 1,
+      "status": "fresh"
     },
     "nba": {
       "sport": "nba",
       "max_lag_days": 3,
-      "last_in_data": "2026-10-25",
+      "last_in_data": "2026-11-08",
       "last_played": "2026-11-08",
-      "lag_days": 14,
-      "status": "stale"
+      "lag_days": 0,
+      "status": "fresh"
     }
   }
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-08T23:39:43+00:00",
+  "generated_at": "2026-11-09T00:31:49+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -12,36 +12,36 @@
       {
         "market": "moneyline",
         "status": "imbalanced",
-        "n": 96,
+        "n": 94,
         "counts": {
-          "away": 83,
-          "home": 13
+          "away": 82,
+          "home": 12
         },
         "dominant": "away",
-        "minority": 13,
+        "minority": 12,
         "withhold": null,
         "level_bias": null,
         "level_z": null,
         "from": "2026-09-29",
         "to": "2026-11-10",
-        "reason": "83 paris sur 96 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
+        "reason": "82 paris sur 94 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
         "status": "withheld",
         "n": 133,
         "counts": {
-          "over": 6,
-          "under": 127
+          "over": 7,
+          "under": 126
         },
         "dominant": "under",
-        "minority": 6,
+        "minority": 7,
         "withhold": "under",
-        "level_bias": -0.817,
-        "level_z": -3.46,
+        "level_bias": -0.834,
+        "level_z": -3.4,
         "from": "2026-09-29",
         "to": "2026-11-10",
-        "reason": "127 paris sur 133 du même côté (« under »), et le modèle annonce 0.82 de moins que ce qui arrive (3.5 écarts-types) : le décalage de niveau explique le sens des paris."
+        "reason": "126 paris sur 133 du même côté (« under »), et le modèle annonce 0.83 de moins que ce qui arrive (3.4 écarts-types) : le décalage de niveau explique le sens des paris."
       }
     ],
     "nba": [

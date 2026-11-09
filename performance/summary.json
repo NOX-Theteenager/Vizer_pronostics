@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-08T23:39:43+00:00",
+  "generated_at": "2026-11-09T00:31:49+00:00",
   "min_sample": 20,
   "sports": {
     "nhl": {
@@ -163,24 +163,24 @@
       },
       "levels_recent": {
         "p1_total": {
-          "n": 92,
+          "n": 87,
           "mean_predicted": 1.651,
-          "mean_actual": 1.891,
-          "bias": -0.24,
-          "mae": 0.938,
-          "sd": 1.193,
-          "stderr": 0.124,
-          "z": -1.93
+          "mean_actual": 1.862,
+          "bias": -0.211,
+          "mae": 0.934,
+          "sd": 1.205,
+          "stderr": 0.129,
+          "z": -1.63
         },
         "total": {
-          "n": 92,
-          "mean_predicted": 5.726,
-          "mean_actual": 6.543,
-          "bias": -0.817,
-          "mae": 2.002,
-          "sd": 2.267,
-          "stderr": 0.236,
-          "z": -3.46
+          "n": 87,
+          "mean_predicted": 5.73,
+          "mean_actual": 6.563,
+          "bias": -0.834,
+          "mae": 2.01,
+          "sd": 2.285,
+          "stderr": 0.245,
+          "z": -3.4
         }
       },
       "level_window_days": 21,
@@ -215,7 +215,7 @@
       }
     },
     "nba": {
-      "n_games_predicted": 97,
+      "n_games_predicted": 105,
       "n_games_settled": 80,
       "from": "2026-10-14",
       "to": "2026-10-31",
