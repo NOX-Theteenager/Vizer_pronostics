@@ -148,12 +148,42 @@ def fetch_all_games(incremental=True):
     return combined_df
 
 
+def _canonical_keys(df):
+    """
+    Clé (match, équipe) comparable, quelle que soit la forme du `GAME_ID`.
+
+    C'est le cœur du défaut. `stats.nba.com` renvoie `GAME_ID` sous forme de
+    texte avec ses zéros de gauche — `"0022600001"` — tandis qu'un aller-retour
+    par le CSV le relit en entier `22600001`. Au moment de fusionner, la colonne
+    mélange donc les deux formes, `drop_duplicates` les voit différentes et
+    conserve les deux lignes. Le CSV écrit les deux, et la lecture suivante les
+    ramène au même entier : le doublon n'apparaît qu'**après** le contrôle qui
+    devait l'empêcher.
+
+    Mesuré deux fois : 1 780 lignes en saison 2025-26 (découvert le 14/10/2026,
+    responsable d'un `SEASON_AVG_TOTAL` de 398 points au lieu de 231) et 86 en
+    saison 2026-27 le 09/11. Le correctif d'octobre, qui ajoutait le
+    dédoublonnage sur un chemin de retour oublié, était réel mais ne traitait
+    qu'un mécanisme secondaire — celui-ci survivait au dédoublonnage lui-même.
+    """
+    return (
+        pd.to_numeric(df['GAME_ID'], errors='coerce'),
+        pd.to_numeric(df['TEAM_ID'], errors='coerce'),
+    )
+
+
 def _dedupe(df):
-    """Une ligne par (match, équipe). Appliqué sur **tous** les chemins de
-    retour : c'est l'oubli d'un seul d'entre eux qui a laissé passer 1 780
-    doublons."""
+    """Une ligne par (match, équipe), sur des clés canonicalisées.
+
+    Appliqué sur **tous** les chemins de retour : c'est l'oubli d'un seul
+    d'entre eux qui avait laissé passer les doublons de la saison précédente.
+    """
     before = len(df)
-    df = df.drop_duplicates(subset=['GAME_ID', 'TEAM_ID'], keep='last')
+    gid, tid = _canonical_keys(df)
+    df = df[~pd.DataFrame({'g': gid, 't': tid}).duplicated(keep='last')]
+    # La colonne est aussi normalisée à l'écriture, pour que le fichier ne
+    # porte plus deux formes du même identifiant.
+    df = df.assign(GAME_ID=gid)
     if len(df) != before:
         print(f"🧹 {before - len(df)} doublons supprimés")
     return df

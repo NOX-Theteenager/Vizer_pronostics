@@ -59,7 +59,16 @@ def _dedupe_games(df: pd.DataFrame, label: str) -> pd.DataFrame:
     if len(keys) < 2:
         return df
     before = len(df)
-    df = df.drop_duplicates(subset=keys)
+    # Clés canonicalisées, et c'est indispensable : `stats.nba.com` renvoie
+    # `GAME_ID` en texte avec ses zéros de gauche (« 0022600001 ») là où un
+    # aller-retour par le CSV le relit en entier (22600001). Une colonne qui
+    # mélange les deux formes fait voir deux lignes différentes là où il n'y a
+    # qu'un match — c'est exactement comment 1 780 doublons ont traversé le
+    # dédoublonnage amont en saison 2025-26, puis 86 en 2026-27.
+    df = df[~pd.DataFrame({
+        'g': pd.to_numeric(df['GAME_ID'], errors='coerce'),
+        't': pd.to_numeric(df['TEAM_ID'], errors='coerce'),
+    }).duplicated(keep='last')]
     removed = before - len(df)
     if removed:
         print(f"  ⚠️  {label} : {removed} ligne(s) dupliquée(s) sur {before} "
