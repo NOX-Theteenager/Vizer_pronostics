@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-10T02:35:21+00:00",
+  "generated_at": "2026-11-10T15:29:31+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -12,9 +12,9 @@
       {
         "market": "moneyline",
         "status": "imbalanced",
-        "n": 98,
+        "n": 97,
         "counts": {
-          "away": 85,
+          "away": 84,
           "home": 13
         },
         "dominant": "away",
@@ -24,7 +24,7 @@
         "level_z": null,
         "from": "2026-09-29",
         "to": "2026-11-11",
-        "reason": "85 paris sur 98 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
+        "reason": "84 paris sur 97 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
@@ -37,11 +37,11 @@
         "dominant": "under",
         "minority": 6,
         "withhold": "under",
-        "level_bias": -0.883,
-        "level_z": -3.59,
+        "level_bias": -0.808,
+        "level_z": -3.34,
         "from": "2026-09-29",
         "to": "2026-11-11",
-        "reason": "134 paris sur 140 du même côté (« under »), et le modèle annonce 0.88 de moins que ce qui arrive (3.6 écarts-types) : le décalage de niveau explique le sens des paris."
+        "reason": "134 paris sur 140 du même côté (« under »), et le modèle annonce 0.81 de moins que ce qui arrive (3.3 écarts-types) : le décalage de niveau explique le sens des paris."
       }
     ],
     "nba": [
@@ -64,20 +64,20 @@
       },
       {
         "market": "total",
-        "status": "ok",
-        "n": 12,
+        "status": "insufficient",
+        "n": 11,
         "counts": {
-          "over": 10,
+          "over": 9,
           "under": 2
         },
         "dominant": "over",
         "minority": 2,
         "withhold": null,
-        "level_bias": 5.102,
-        "level_z": 2.19,
+        "level_bias": 4.736,
+        "level_z": 2.15,
         "from": "2026-10-26",
         "to": "2026-11-11",
-        "reason": "12 paris, répartition over 10 / under 2."
+        "reason": "11 paris sur la fenêtre — trop peu pour se prononcer."
       }
     ]
   }
