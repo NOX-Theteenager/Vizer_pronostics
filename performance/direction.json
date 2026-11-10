@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-09T17:17:21+00:00",
+  "generated_at": "2026-11-10T02:35:21+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -29,55 +29,55 @@
       {
         "market": "total",
         "status": "withheld",
-        "n": 139,
+        "n": 140,
         "counts": {
           "over": 6,
-          "under": 133
+          "under": 134
         },
         "dominant": "under",
         "minority": 6,
         "withhold": "under",
-        "level_bias": -0.817,
-        "level_z": -3.43,
+        "level_bias": -0.883,
+        "level_z": -3.59,
         "from": "2026-09-29",
         "to": "2026-11-11",
-        "reason": "133 paris sur 139 du même côté (« under »), et le modèle annonce 0.82 de moins que ce qui arrive (3.4 écarts-types) : le décalage de niveau explique le sens des paris."
+        "reason": "134 paris sur 140 du même côté (« under »), et le modèle annonce 0.88 de moins que ce qui arrive (3.6 écarts-types) : le décalage de niveau explique le sens des paris."
       }
     ],
     "nba": [
       {
         "market": "moneyline",
         "status": "ok",
-        "n": 12,
+        "n": 15,
         "counts": {
-          "away": 9,
-          "home": 3
+          "away": 10,
+          "home": 5
         },
         "dominant": "away",
-        "minority": 3,
+        "minority": 5,
         "withhold": null,
         "level_bias": null,
         "level_z": null,
         "from": "2026-10-26",
-        "to": "2026-11-10",
-        "reason": "12 paris, répartition away 9 / home 3."
+        "to": "2026-11-11",
+        "reason": "15 paris, répartition away 10 / home 5."
       },
       {
         "market": "total",
-        "status": "insufficient",
-        "n": 10,
+        "status": "ok",
+        "n": 12,
         "counts": {
-          "over": 8,
+          "over": 10,
           "under": 2
         },
         "dominant": "over",
         "minority": 2,
         "withhold": null,
-        "level_bias": 5.582,
-        "level_z": 2.35,
+        "level_bias": 5.102,
+        "level_z": 2.19,
         "from": "2026-10-26",
-        "to": "2026-11-10",
-        "reason": "10 paris sur la fenêtre — trop peu pour se prononcer."
+        "to": "2026-11-11",
+        "reason": "12 paris, répartition over 10 / under 2."
       }
     ]
   }
