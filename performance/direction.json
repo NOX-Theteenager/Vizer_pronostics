@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-10T15:29:31+00:00",
+  "generated_at": "2026-11-11T00:27:20+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -23,61 +23,61 @@
         "level_bias": null,
         "level_z": null,
         "from": "2026-09-29",
-        "to": "2026-11-11",
+        "to": "2026-11-12",
         "reason": "84 paris sur 97 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
         "status": "withheld",
-        "n": 140,
+        "n": 144,
         "counts": {
           "over": 6,
-          "under": 134
+          "under": 138
         },
         "dominant": "under",
         "minority": 6,
         "withhold": "under",
-        "level_bias": -0.808,
-        "level_z": -3.34,
+        "level_bias": -0.76,
+        "level_z": -2.97,
         "from": "2026-09-29",
-        "to": "2026-11-11",
-        "reason": "134 paris sur 140 du même côté (« under »), et le modèle annonce 0.81 de moins que ce qui arrive (3.3 écarts-types) : le décalage de niveau explique le sens des paris."
+        "to": "2026-11-12",
+        "reason": "138 paris sur 144 du même côté (« under »), et le modèle annonce 0.76 de moins que ce qui arrive (3.0 écarts-types) : le décalage de niveau explique le sens des paris."
       }
     ],
     "nba": [
       {
         "market": "moneyline",
         "status": "ok",
-        "n": 15,
+        "n": 17,
         "counts": {
           "away": 10,
-          "home": 5
+          "home": 7
         },
         "dominant": "away",
-        "minority": 5,
+        "minority": 7,
         "withhold": null,
         "level_bias": null,
         "level_z": null,
         "from": "2026-10-26",
-        "to": "2026-11-11",
-        "reason": "15 paris, répartition away 10 / home 5."
+        "to": "2026-11-12",
+        "reason": "17 paris, répartition away 10 / home 7."
       },
       {
         "market": "total",
-        "status": "insufficient",
-        "n": 11,
+        "status": "ok",
+        "n": 12,
         "counts": {
-          "over": 9,
+          "over": 10,
           "under": 2
         },
         "dominant": "over",
         "minority": 2,
         "withhold": null,
-        "level_bias": 4.736,
-        "level_z": 2.15,
+        "level_bias": 4.526,
+        "level_z": 2.04,
         "from": "2026-10-26",
-        "to": "2026-11-11",
-        "reason": "11 paris sur la fenêtre — trop peu pour se prononcer."
+        "to": "2026-11-12",
+        "reason": "12 paris, répartition over 10 / under 2."
       }
     ]
   }

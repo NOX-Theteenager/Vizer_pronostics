@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-11-10T15:29:31+00:00",
+  "generated_at": "2026-11-11T00:27:19+00:00",
   "min_sample": 20,
   "sports": {
     "nhl": {
-      "n_games_predicted": 244,
+      "n_games_predicted": 251,
       "n_games_settled": 228,
       "from": "2026-09-29",
       "to": "2026-11-10",
@@ -163,24 +163,24 @@
       },
       "levels_recent": {
         "p1_total": {
-          "n": 89,
-          "mean_predicted": 1.65,
-          "mean_actual": 1.865,
-          "bias": -0.215,
-          "mae": 0.921,
-          "sd": 1.192,
-          "stderr": 0.126,
-          "z": -1.7
+          "n": 83,
+          "mean_predicted": 1.651,
+          "mean_actual": 1.795,
+          "bias": -0.145,
+          "mae": 0.902,
+          "sd": 1.18,
+          "stderr": 0.13,
+          "z": -1.12
         },
         "total": {
-          "n": 89,
-          "mean_predicted": 5.72,
-          "mean_actual": 6.528,
-          "bias": -0.808,
-          "mae": 2.002,
-          "sd": 2.279,
-          "stderr": 0.242,
-          "z": -3.34
+          "n": 83,
+          "mean_predicted": 5.722,
+          "mean_actual": 6.482,
+          "bias": -0.76,
+          "mae": 2.028,
+          "sd": 2.331,
+          "stderr": 0.256,
+          "z": -2.97
         }
       },
       "level_window_days": 21,
@@ -215,7 +215,7 @@
       }
     },
     "nba": {
-      "n_games_predicted": 111,
+      "n_games_predicted": 121,
       "n_games_settled": 93,
       "from": "2026-10-14",
       "to": "2026-11-10",
@@ -357,34 +357,34 @@
       },
       "levels_recent": {
         "away_team_total": {
-          "n": 72,
-          "mean_predicted": 115.193,
-          "mean_actual": 112.681,
-          "bias": 2.512,
-          "mae": 10.653,
-          "sd": 12.445,
-          "stderr": 1.467,
-          "z": 1.71
+          "n": 71,
+          "mean_predicted": 115.281,
+          "mean_actual": 112.775,
+          "bias": 2.506,
+          "mae": 10.761,
+          "sd": 12.533,
+          "stderr": 1.487,
+          "z": 1.68
         },
         "home_team_total": {
-          "n": 72,
-          "mean_predicted": 117.118,
-          "mean_actual": 114.5,
-          "bias": 2.618,
-          "mae": 10.738,
-          "sd": 12.704,
-          "stderr": 1.497,
-          "z": 1.75
+          "n": 71,
+          "mean_predicted": 117.158,
+          "mean_actual": 114.704,
+          "bias": 2.454,
+          "mae": 10.688,
+          "sd": 12.718,
+          "stderr": 1.509,
+          "z": 1.63
         },
         "total": {
-          "n": 72,
-          "mean_predicted": 231.917,
-          "mean_actual": 227.181,
-          "bias": 4.736,
-          "mae": 15.747,
-          "sd": 18.663,
-          "stderr": 2.199,
-          "z": 2.15
+          "n": 71,
+          "mean_predicted": 232.005,
+          "mean_actual": 227.479,
+          "bias": 4.526,
+          "mae": 15.692,
+          "sd": 18.709,
+          "stderr": 2.22,
+          "z": 2.04
         }
       },
       "level_window_days": 21,
