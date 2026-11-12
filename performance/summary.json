@@ -1,72 +1,72 @@
 {
-  "generated_at": "2026-11-12T01:50:20+00:00",
+  "generated_at": "2026-11-12T15:52:08+00:00",
   "min_sample": 20,
   "sports": {
     "nhl": {
       "n_games_predicted": 261,
-      "n_games_settled": 235,
+      "n_games_settled": 241,
       "from": "2026-09-29",
-      "to": "2026-11-11",
+      "to": "2026-11-12",
       "markets": {
         "btts": {
-          "n": 235,
-          "accuracy": 0.9106,
-          "brier": 0.1649,
-          "log_loss": 0.3063,
+          "n": 241,
+          "accuracy": 0.9129,
+          "brier": 0.1615,
+          "log_loss": 0.3019,
           "calibration": [
             {
               "from": 0.8,
               "to": 0.9,
-              "n": 231,
-              "actual": 0.9134
+              "n": 237,
+              "actual": 0.9156
             }
           ]
         },
         "exact_score": {
-          "n": 52,
-          "accuracy": 0.1154,
-          "brier": 0.9013,
-          "log_loss": 2.3086,
+          "n": 54,
+          "accuracy": 0.1111,
+          "brier": 0.9026,
+          "log_loss": 2.3158,
           "calibration": [
             {
               "from": 0.1,
               "to": 0.2,
-              "n": 52,
-              "actual": 0.1154
+              "n": 54,
+              "actual": 0.1111
             }
           ]
         },
         "goal_intervals": {
-          "n": 180,
-          "accuracy": 0.3556,
-          "brier": 0.7498,
-          "log_loss": 1.4622,
+          "n": 184,
+          "accuracy": 0.3533,
+          "brier": 0.7508,
+          "log_loss": 1.4643,
           "calibration": [
             {
               "from": 0.3,
               "to": 0.4,
-              "n": 179,
-              "actual": 0.352
+              "n": 183,
+              "actual": 0.3497
             }
           ]
         },
         "moneyline": {
-          "n": 235,
-          "accuracy": 0.5872,
-          "brier": 0.482,
-          "log_loss": 0.6752,
+          "n": 241,
+          "accuracy": 0.5975,
+          "brier": 0.4797,
+          "log_loss": 0.6729,
           "calibration": [
             {
               "from": 0.5,
               "to": 0.6,
-              "n": 164,
-              "actual": 0.5488
+              "n": 169,
+              "actual": 0.5621
             },
             {
               "from": 0.6,
               "to": 0.7,
-              "n": 64,
-              "actual": 0.6719
+              "n": 65,
+              "actual": 0.6769
             },
             {
               "from": 0.7,
@@ -77,44 +77,44 @@
           ]
         },
         "p1_btts": {
-          "n": 235,
-          "accuracy": 0.6298,
-          "brier": 0.473,
-          "log_loss": 0.6666,
+          "n": 241,
+          "accuracy": 0.6307,
+          "brier": 0.4725,
+          "log_loss": 0.6662,
           "calibration": [
             {
               "from": 0.6,
               "to": 0.7,
-              "n": 235,
-              "actual": 0.6298
+              "n": 241,
+              "actual": 0.6307
             }
           ]
         },
         "p1_total": {
-          "n": 235,
+          "n": 241,
           "accuracy": 0.4979,
-          "brier": 0.5001,
-          "log_loss": 0.6932,
+          "brier": 0.5003,
+          "log_loss": 0.6935,
           "calibration": [
             {
               "from": 0.5,
               "to": 0.6,
-              "n": 235,
+              "n": 241,
               "actual": 0.4979
             }
           ]
         },
         "p1_winner": {
-          "n": 235,
-          "accuracy": 0.3745,
-          "brier": 0.6634,
-          "log_loss": 1.0939,
+          "n": 241,
+          "accuracy": 0.3776,
+          "brier": 0.6632,
+          "log_loss": 1.0936,
           "calibration": [
             {
               "from": 0.3,
               "to": 0.4,
-              "n": 206,
-              "actual": 0.3689
+              "n": 212,
+              "actual": 0.3726
             },
             {
               "from": 0.4,
@@ -125,83 +125,83 @@
           ]
         },
         "total": {
-          "n": 173,
-          "accuracy": 0.5318,
-          "brier": 0.5018,
-          "log_loss": 0.695,
+          "n": 179,
+          "accuracy": 0.514,
+          "brier": 0.5031,
+          "log_loss": 0.6964,
           "calibration": [
             {
               "from": 0.5,
               "to": 0.6,
-              "n": 170,
-              "actual": 0.5353
+              "n": 176,
+              "actual": 0.517
             }
           ]
         }
       },
       "levels": {
         "p1_total": {
-          "n": 235,
-          "mean_predicted": 1.68,
-          "mean_actual": 1.791,
-          "bias": -0.111,
-          "mae": 0.939,
-          "sd": 1.159,
-          "stderr": 0.076,
-          "z": -1.47
+          "n": 241,
+          "mean_predicted": 1.679,
+          "mean_actual": 1.776,
+          "bias": -0.097,
+          "mae": 0.937,
+          "sd": 1.157,
+          "stderr": 0.075,
+          "z": -1.3
         },
         "total": {
-          "n": 173,
-          "mean_predicted": 5.734,
-          "mean_actual": 6.254,
-          "bias": -0.521,
-          "mae": 1.902,
-          "sd": 2.365,
-          "stderr": 0.18,
-          "z": -2.9
+          "n": 179,
+          "mean_predicted": 5.729,
+          "mean_actual": 6.263,
+          "bias": -0.533,
+          "mae": 1.904,
+          "sd": 2.367,
+          "stderr": 0.177,
+          "z": -3.01
         }
       },
       "levels_recent": {
         "p1_total": {
-          "n": 82,
+          "n": 88,
           "mean_predicted": 1.648,
-          "mean_actual": 1.707,
-          "bias": -0.059,
-          "mae": 0.904,
-          "sd": 1.174,
-          "stderr": 0.13,
-          "z": -0.46
+          "mean_actual": 1.67,
+          "bias": -0.023,
+          "mae": 0.9,
+          "sd": 1.166,
+          "stderr": 0.124,
+          "z": -0.18
         },
         "total": {
-          "n": 82,
-          "mean_predicted": 5.724,
-          "mean_actual": 6.402,
-          "bias": -0.679,
-          "mae": 2.016,
-          "sd": 2.364,
-          "stderr": 0.261,
-          "z": -2.6
+          "n": 88,
+          "mean_predicted": 5.716,
+          "mean_actual": 6.409,
+          "bias": -0.693,
+          "mae": 2.012,
+          "sd": 2.368,
+          "stderr": 0.252,
+          "z": -2.75
         }
       },
       "level_window_days": 21,
       "value_bets": {
-        "n": 167,
-        "won": 69,
-        "hit_rate": 0.4132,
-        "avg_edge": 0.0983,
-        "roi_flat": -0.1495,
-        "roi_kelly": -0.1495,
-        "avg_disagreement": 0.1118
+        "n": 169,
+        "won": 70,
+        "hit_rate": 0.4142,
+        "avg_edge": 0.0982,
+        "roi_flat": -0.1464,
+        "roi_kelly": -0.1475,
+        "avg_disagreement": 0.1115
       },
       "value_bets_by_market": {
         "moneyline": {
-          "n": 91,
-          "won": 36,
-          "hit_rate": 0.3956,
-          "avg_edge": 0.0838,
-          "roi_flat": -0.1505,
-          "roi_kelly": -0.1881,
-          "avg_disagreement": 0.0833
+          "n": 93,
+          "won": 37,
+          "hit_rate": 0.3978,
+          "avg_edge": 0.0839,
+          "roi_flat": -0.1448,
+          "roi_kelly": -0.1836,
+          "avg_disagreement": 0.0841
         },
         "total": {
           "n": 76,
@@ -216,33 +216,33 @@
     },
     "nba": {
       "n_games_predicted": 125,
-      "n_games_settled": 99,
+      "n_games_settled": 109,
       "from": "2026-10-14",
-      "to": "2026-11-11",
+      "to": "2026-11-12",
       "markets": {
         "away_team_total": {
-          "n": 99,
-          "accuracy": 0.6162,
-          "brier": 0.4801,
-          "log_loss": 0.682,
+          "n": 109,
+          "accuracy": 0.6147,
+          "brier": 0.4674,
+          "log_loss": 0.6655,
           "calibration": [
             {
               "from": 0.5,
               "to": 0.6,
-              "n": 37,
-              "actual": 0.5405
+              "n": 42,
+              "actual": 0.5
             },
             {
               "from": 0.6,
               "to": 0.7,
-              "n": 21,
-              "actual": 0.619
+              "n": 22,
+              "actual": 0.6364
             },
             {
               "from": 0.7,
               "to": 0.8,
-              "n": 19,
-              "actual": 0.6316
+              "n": 21,
+              "actual": 0.6667
             },
             {
               "from": 0.8,
@@ -253,34 +253,34 @@
             {
               "from": 0.9,
               "to": 1.0,
-              "n": 8,
-              "actual": 0.75
+              "n": 10,
+              "actual": 0.8
             }
           ]
         },
         "home_team_total": {
-          "n": 99,
-          "accuracy": 0.6263,
-          "brier": 0.4907,
-          "log_loss": 0.6899,
+          "n": 109,
+          "accuracy": 0.6239,
+          "brier": 0.4952,
+          "log_loss": 0.6945,
           "calibration": [
             {
               "from": 0.5,
               "to": 0.6,
-              "n": 29,
-              "actual": 0.6207
+              "n": 33,
+              "actual": 0.6364
             },
             {
               "from": 0.6,
               "to": 0.7,
-              "n": 29,
-              "actual": 0.6207
+              "n": 33,
+              "actual": 0.6364
             },
             {
               "from": 0.7,
               "to": 0.8,
-              "n": 31,
-              "actual": 0.6129
+              "n": 33,
+              "actual": 0.5758
             },
             {
               "from": 0.8,
@@ -291,114 +291,119 @@
           ]
         },
         "win": {
-          "n": 99,
-          "accuracy": 0.6162,
-          "brier": 0.4632,
-          "log_loss": 0.6584,
+          "n": 109,
+          "accuracy": 0.6147,
+          "brier": 0.4631,
+          "log_loss": 0.6568,
           "calibration": [
             {
               "from": 0.5,
               "to": 0.6,
-              "n": 39,
-              "actual": 0.5128
+              "n": 44,
+              "actual": 0.5227
             },
             {
               "from": 0.6,
               "to": 0.7,
-              "n": 23,
-              "actual": 0.6522
+              "n": 24,
+              "actual": 0.625
             },
             {
               "from": 0.7,
               "to": 0.8,
-              "n": 20,
-              "actual": 0.7
+              "n": 22,
+              "actual": 0.6818
             },
             {
               "from": 0.8,
               "to": 0.9,
-              "n": 16,
-              "actual": 0.6875
+              "n": 17,
+              "actual": 0.7059
             }
           ]
         }
       },
       "levels": {
         "away_team_total": {
-          "n": 99,
-          "mean_predicted": 115.08,
-          "mean_actual": 112.687,
-          "bias": 2.393,
-          "mae": 10.8,
-          "sd": 12.39,
-          "stderr": 1.245,
-          "z": 1.92
+          "n": 109,
+          "mean_predicted": 115.134,
+          "mean_actual": 113.064,
+          "bias": 2.07,
+          "mae": 10.566,
+          "sd": 12.465,
+          "stderr": 1.194,
+          "z": 1.73
         },
         "home_team_total": {
-          "n": 99,
-          "mean_predicted": 116.956,
-          "mean_actual": 115.455,
-          "bias": 1.501,
-          "mae": 10.649,
-          "sd": 12.718,
-          "stderr": 1.278,
-          "z": 1.17
+          "n": 109,
+          "mean_predicted": 116.788,
+          "mean_actual": 115.092,
+          "bias": 1.696,
+          "mae": 10.277,
+          "sd": 12.402,
+          "stderr": 1.188,
+          "z": 1.43
         },
         "total": {
-          "n": 99,
-          "mean_predicted": 231.585,
-          "mean_actual": 228.141,
-          "bias": 3.444,
-          "mae": 15.614,
-          "sd": 18.721,
-          "stderr": 1.882,
+          "n": 109,
+          "mean_predicted": 231.405,
+          "mean_actual": 228.156,
+          "bias": 3.249,
+          "mae": 15.261,
+          "sd": 18.511,
+          "stderr": 1.773,
           "z": 1.83
         }
       },
       "levels_recent": {
         "away_team_total": {
-          "n": 73,
-          "mean_predicted": 115.067,
-          "mean_actual": 112.342,
-          "bias": 2.725,
-          "mae": 10.762,
-          "sd": 12.488,
-          "stderr": 1.462,
-          "z": 1.86
+          "n": 83,
+          "mean_predicted": 115.14,
+          "mean_actual": 112.88,
+          "bias": 2.26,
+          "mae": 10.459,
+          "sd": 12.582,
+          "stderr": 1.381,
+          "z": 1.64
         },
         "home_team_total": {
-          "n": 73,
-          "mean_predicted": 117.041,
-          "mean_actual": 114.781,
-          "bias": 2.26,
-          "mae": 10.679,
-          "sd": 12.754,
-          "stderr": 1.493,
-          "z": 1.51
+          "n": 83,
+          "mean_predicted": 116.81,
+          "mean_actual": 114.386,
+          "bias": 2.424,
+          "mae": 10.187,
+          "sd": 12.323,
+          "stderr": 1.353,
+          "z": 1.79
         },
         "total": {
-          "n": 73,
-          "mean_predicted": 231.585,
-          "mean_actual": 227.123,
-          "bias": 4.462,
-          "mae": 15.827,
-          "sd": 18.781,
-          "stderr": 2.198,
-          "z": 2.03
+          "n": 83,
+          "mean_predicted": 231.348,
+          "mean_actual": 227.265,
+          "bias": 4.083,
+          "mae": 15.338,
+          "sd": 18.513,
+          "stderr": 2.032,
+          "z": 2.01
         }
       },
       "level_window_days": 21,
       "value_bets": {
-        "n": 16,
-        "insufficient": true
+        "n": 22,
+        "won": 11,
+        "hit_rate": 0.5,
+        "avg_edge": 0.076,
+        "roi_flat": 0.0764,
+        "roi_kelly": 0.0901,
+        "avg_disagreement": 0.0859
       },
       "value_bets_by_market": {
         "moneyline": {
-          "n": 10,
+          "n": 14,
           "insufficient": true
         },
         "total": {
-          "n": 6,
+          "n": 8,
           "insufficient": true
         }
       }
