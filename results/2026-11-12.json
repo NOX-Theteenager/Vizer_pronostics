@@ -1,0 +1,33 @@
+{
+  "date": "2026-11-12",
+  "generated_at": "2026-11-13T00:56:23+00:00",
+  "games": [
+    {
+      "sport": "nhl",
+      "home": "SEA",
+      "away": "CAR",
+      "home_name": "Seattle Kraken",
+      "away_name": "Carolina Hurricanes",
+      "commence_time": "2026-11-12T17:00Z",
+      "home_score": 1,
+      "away_score": 4,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 0,
+          "away": 2
+        },
+        {
+          "home": 0,
+          "away": 1
+        },
+        {
+          "home": 1,
+          "away": 1
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    }
+  ]
+}
