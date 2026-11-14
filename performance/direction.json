@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-14T00:42:15+00:00",
+  "generated_at": "2026-11-14T14:00:06+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -29,38 +29,38 @@
       {
         "market": "total",
         "status": "withheld",
-        "n": 165,
+        "n": 164,
         "counts": {
           "over": 6,
-          "under": 159
+          "under": 158
         },
         "dominant": "under",
         "minority": 6,
         "withhold": "under",
-        "level_bias": -0.658,
-        "level_z": -2.55,
+        "level_bias": -0.634,
+        "level_z": -2.51,
         "from": "2026-09-30",
         "to": "2026-11-15",
-        "reason": "159 paris sur 165 du même côté (« under »), et le modèle annonce 0.66 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
+        "reason": "158 paris sur 164 du même côté (« under »), et le modèle annonce 0.63 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
       }
     ],
     "nba": [
       {
         "market": "moneyline",
         "status": "ok",
-        "n": 21,
+        "n": 24,
         "counts": {
-          "away": 11,
-          "home": 10
+          "away": 12,
+          "home": 12
         },
         "dominant": "away",
-        "minority": 10,
+        "minority": 12,
         "withhold": null,
         "level_bias": null,
         "level_z": null,
         "from": "2026-10-26",
-        "to": "2026-11-14",
-        "reason": "21 paris, répartition away 11 / home 10."
+        "to": "2026-11-15",
+        "reason": "24 paris, répartition away 12 / home 12."
       },
       {
         "market": "total",
@@ -73,8 +73,8 @@
         "dominant": "over",
         "minority": 2,
         "withhold": null,
-        "level_bias": 1.128,
-        "level_z": 0.5,
+        "level_bias": 1.321,
+        "level_z": 0.64,
         "from": "2026-10-26",
         "to": "2026-11-14",
         "reason": "15 paris, répartition over 13 / under 2."
