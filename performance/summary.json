@@ -1,24 +1,24 @@
 {
-  "generated_at": "2026-11-14T14:00:06+00:00",
+  "generated_at": "2026-11-14T23:40:12+00:00",
   "min_sample": 20,
   "sports": {
     "nhl": {
-      "n_games_predicted": 277,
-      "n_games_settled": 254,
+      "n_games_predicted": 281,
+      "n_games_settled": 255,
       "from": "2026-09-29",
       "to": "2026-11-14",
       "markets": {
         "btts": {
-          "n": 254,
-          "accuracy": 0.9134,
-          "brier": 0.1605,
-          "log_loss": 0.3004,
+          "n": 255,
+          "accuracy": 0.9137,
+          "brier": 0.16,
+          "log_loss": 0.2997,
           "calibration": [
             {
               "from": 0.8,
               "to": 0.9,
-              "n": 249,
-              "actual": 0.9157
+              "n": 250,
+              "actual": 0.916
             },
             {
               "from": 0.9,
@@ -29,38 +29,38 @@
           ]
         },
         "exact_score": {
-          "n": 56,
-          "accuracy": 0.1071,
-          "brier": 0.9031,
-          "log_loss": 2.3181,
+          "n": 57,
+          "accuracy": 0.1053,
+          "brier": 0.9033,
+          "log_loss": 2.3188,
           "calibration": [
             {
               "from": 0.1,
               "to": 0.2,
-              "n": 56,
-              "actual": 0.1071
+              "n": 57,
+              "actual": 0.1053
             }
           ]
         },
         "goal_intervals": {
-          "n": 193,
-          "accuracy": 0.3472,
-          "brier": 0.7523,
-          "log_loss": 1.4667,
+          "n": 194,
+          "accuracy": 0.3505,
+          "brier": 0.7516,
+          "log_loss": 1.4652,
           "calibration": [
             {
               "from": 0.3,
               "to": 0.4,
-              "n": 192,
-              "actual": 0.3438
+              "n": 193,
+              "actual": 0.3472
             }
           ]
         },
         "moneyline": {
-          "n": 254,
-          "accuracy": 0.5906,
-          "brier": 0.4802,
-          "log_loss": 0.6733,
+          "n": 255,
+          "accuracy": 0.5922,
+          "brier": 0.4788,
+          "log_loss": 0.6718,
           "calibration": [
             {
               "from": 0.5,
@@ -77,44 +77,44 @@
             {
               "from": 0.7,
               "to": 0.8,
-              "n": 8,
-              "actual": 0.75
+              "n": 9,
+              "actual": 0.7778
             }
           ]
         },
         "p1_btts": {
-          "n": 254,
-          "accuracy": 0.622,
-          "brier": 0.479,
-          "log_loss": 0.673,
+          "n": 255,
+          "accuracy": 0.6235,
+          "brier": 0.478,
+          "log_loss": 0.672,
           "calibration": [
             {
               "from": 0.6,
               "to": 0.7,
-              "n": 254,
-              "actual": 0.622
+              "n": 255,
+              "actual": 0.6235
             }
           ]
         },
         "p1_total": {
-          "n": 254,
-          "accuracy": 0.4843,
-          "brier": 0.5008,
-          "log_loss": 0.6939,
+          "n": 255,
+          "accuracy": 0.4863,
+          "brier": 0.5005,
+          "log_loss": 0.6936,
           "calibration": [
             {
               "from": 0.5,
               "to": 0.6,
-              "n": 254,
-              "actual": 0.4843
+              "n": 255,
+              "actual": 0.4863
             }
           ]
         },
         "p1_winner": {
-          "n": 254,
-          "accuracy": 0.378,
-          "brier": 0.6629,
-          "log_loss": 1.0932,
+          "n": 255,
+          "accuracy": 0.3804,
+          "brier": 0.6622,
+          "log_loss": 1.0922,
           "calibration": [
             {
               "from": 0.3,
@@ -125,16 +125,16 @@
             {
               "from": 0.4,
               "to": 0.5,
-              "n": 29,
-              "actual": 0.4138
+              "n": 30,
+              "actual": 0.4333
             }
           ]
         },
         "total": {
-          "n": 192,
-          "accuracy": 0.5104,
-          "brier": 0.5035,
-          "log_loss": 0.6967,
+          "n": 193,
+          "accuracy": 0.513,
+          "brier": 0.5024,
+          "log_loss": 0.6956,
           "calibration": [
             {
               "from": 0.5,
@@ -147,46 +147,46 @@
       },
       "levels": {
         "p1_total": {
-          "n": 254,
-          "mean_predicted": 1.678,
-          "mean_actual": 1.787,
-          "bias": -0.109,
-          "mae": 0.925,
-          "sd": 1.143,
-          "stderr": 0.072,
-          "z": -1.52
+          "n": 255,
+          "mean_predicted": 1.679,
+          "mean_actual": 1.788,
+          "bias": -0.11,
+          "mae": 0.922,
+          "sd": 1.14,
+          "stderr": 0.071,
+          "z": -1.54
         },
         "total": {
-          "n": 192,
-          "mean_predicted": 5.735,
-          "mean_actual": 6.26,
-          "bias": -0.525,
-          "mae": 1.901,
-          "sd": 2.364,
-          "stderr": 0.171,
-          "z": -3.08
+          "n": 193,
+          "mean_predicted": 5.739,
+          "mean_actual": 6.259,
+          "bias": -0.52,
+          "mae": 1.894,
+          "sd": 2.359,
+          "stderr": 0.17,
+          "z": -3.06
         }
       },
       "levels_recent": {
         "p1_total": {
-          "n": 89,
-          "mean_predicted": 1.65,
-          "mean_actual": 1.663,
-          "bias": -0.013,
-          "mae": 0.882,
-          "sd": 1.142,
-          "stderr": 0.121,
-          "z": -0.11
+          "n": 90,
+          "mean_predicted": 1.652,
+          "mean_actual": 1.667,
+          "bias": -0.015,
+          "mae": 0.874,
+          "sd": 1.136,
+          "stderr": 0.12,
+          "z": -0.12
         },
         "total": {
-          "n": 89,
-          "mean_predicted": 5.725,
-          "mean_actual": 6.36,
-          "bias": -0.634,
-          "mae": 2.001,
-          "sd": 2.384,
-          "stderr": 0.253,
-          "z": -2.51
+          "n": 90,
+          "mean_predicted": 5.733,
+          "mean_actual": 6.356,
+          "bias": -0.622,
+          "mae": 1.984,
+          "sd": 2.373,
+          "stderr": 0.25,
+          "z": -2.49
         }
       },
       "level_window_days": 21,
