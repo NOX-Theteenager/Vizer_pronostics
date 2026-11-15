@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-15T14:36:23+00:00",
+  "generated_at": "2026-11-15T23:47:01+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -29,10 +29,10 @@
       {
         "market": "total",
         "status": "imbalanced",
-        "n": 163,
+        "n": 164,
         "counts": {
           "over": 6,
-          "under": 157
+          "under": 158
         },
         "dominant": "under",
         "minority": 6,
@@ -40,18 +40,18 @@
         "level_bias": -0.5,
         "level_z": -1.95,
         "from": "2026-10-01",
-        "to": "2026-11-16",
-        "reason": "157 paris sur 163 du même côté (« under ») : le rendement affiché dépend surtout de ce sens."
+        "to": "2026-11-17",
+        "reason": "158 paris sur 164 du même côté (« under ») : le rendement affiché dépend surtout de ce sens."
       }
     ],
     "nba": [
       {
         "market": "moneyline",
         "status": "ok",
-        "n": 25,
+        "n": 24,
         "counts": {
           "away": 11,
-          "home": 14
+          "home": 13
         },
         "dominant": "home",
         "minority": 11,
@@ -60,7 +60,7 @@
         "level_z": null,
         "from": "2026-10-26",
         "to": "2026-11-16",
-        "reason": "25 paris, répartition away 11 / home 14."
+        "reason": "24 paris, répartition away 11 / home 13."
       },
       {
         "market": "total",

@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-15",
+  "generated_at": "2026-11-15T23:47:00+00:00",
+  "games": [
+    {
+      "sport": "nba",
+      "home": "PHI",
+      "away": "IND",
+      "home_name": "Philadelphia 76ers",
+      "away_name": "Indiana Pacers",
+      "commence_time": "2026-11-15T18:00Z",
+      "home_score": 131,
+      "away_score": 124,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 29,
+          "away": 35
+        },
+        {
+          "home": 29,
+          "away": 22
+        },
+        {
+          "home": 39,
+          "away": 30
+        },
+        {
+          "home": 34,
+          "away": 37
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
+    {
+      "sport": "nba",
+      "home": "PHX",
+      "away": "LAL",
+      "home_name": "Phoenix Suns",
+      "away_name": "Los Angeles Lakers",
+      "commence_time": "2026-11-15T21:00Z",
+      "home_score": 123,
+      "away_score": 131,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 24,
+          "away": 33
+        },
+        {
+          "home": 30,
+          "away": 31
+        },
+        {
+          "home": 26,
+          "away": 40
+        },
+        {
+          "home": 43,
+          "away": 27
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    }
+  ]
+}
