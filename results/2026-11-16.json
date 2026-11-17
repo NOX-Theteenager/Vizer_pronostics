@@ -1,0 +1,99 @@
+{
+  "date": "2026-11-16",
+  "generated_at": "2026-11-17T02:49:02+00:00",
+  "games": [
+    {
+      "sport": "nba",
+      "home": "BOS",
+      "away": "ORL",
+      "home_name": "Boston Celtics",
+      "away_name": "Orlando Magic",
+      "commence_time": "2026-11-17T00:00Z",
+      "home_score": 105,
+      "away_score": 115,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 17,
+          "away": 20
+        },
+        {
+          "home": 24,
+          "away": 30
+        },
+        {
+          "home": 36,
+          "away": 25
+        },
+        {
+          "home": 28,
+          "away": 40
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    },
+    {
+      "sport": "nba",
+      "home": "CLE",
+      "away": "CHI",
+      "home_name": "Cleveland Cavaliers",
+      "away_name": "Chicago Bulls",
+      "commence_time": "2026-11-17T00:00Z",
+      "home_score": 126,
+      "away_score": 115,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 25,
+          "away": 31
+        },
+        {
+          "home": 32,
+          "away": 17
+        },
+        {
+          "home": 31,
+          "away": 31
+        },
+        {
+          "home": 38,
+          "away": 36
+        }
+      ],
+      "winner": "home",
+      "status": "final"
+    },
+    {
+      "sport": "nba",
+      "home": "WAS",
+      "away": "MEM",
+      "home_name": "Washington Wizards",
+      "away_name": "Memphis Grizzlies",
+      "commence_time": "2026-11-17T00:00Z",
+      "home_score": 120,
+      "away_score": 136,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 35,
+          "away": 33
+        },
+        {
+          "home": 34,
+          "away": 26
+        },
+        {
+          "home": 18,
+          "away": 42
+        },
+        {
+          "home": 33,
+          "away": 35
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-16T16:51:42+00:00",
+  "generated_at": "2026-11-17T02:49:03+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -12,36 +12,36 @@
       {
         "market": "moneyline",
         "status": "imbalanced",
-        "n": 97,
+        "n": 98,
         "counts": {
-          "away": 86,
-          "home": 11
+          "away": 88,
+          "home": 10
         },
         "dominant": "away",
-        "minority": 11,
+        "minority": 10,
         "withhold": null,
         "level_bias": null,
         "level_z": null,
-        "from": "2026-10-02",
-        "to": "2026-11-16",
-        "reason": "86 paris sur 97 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
+        "from": "2026-10-03",
+        "to": "2026-11-18",
+        "reason": "88 paris sur 98 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
-        "status": "withheld",
-        "n": 157,
+        "status": "imbalanced",
+        "n": 161,
         "counts": {
-          "over": 6,
-          "under": 151
+          "over": 7,
+          "under": 154
         },
         "dominant": "under",
-        "minority": 6,
-        "withhold": "under",
-        "level_bias": -0.516,
-        "level_z": -2.01,
-        "from": "2026-10-02",
-        "to": "2026-11-17",
-        "reason": "151 paris sur 157 du même côté (« under »), et le modèle annonce 0.52 de moins que ce qui arrive (2.0 écarts-types) : le décalage de niveau explique le sens des paris."
+        "minority": 7,
+        "withhold": null,
+        "level_bias": -0.47,
+        "level_z": -1.79,
+        "from": "2026-10-03",
+        "to": "2026-11-18",
+        "reason": "154 paris sur 161 du même côté (« under ») : le rendement affiché dépend surtout de ce sens."
       }
     ],
     "nba": [
@@ -73,8 +73,8 @@
         "dominant": "over",
         "minority": 3,
         "withhold": null,
-        "level_bias": 0.778,
-        "level_z": 0.35,
+        "level_bias": 0.535,
+        "level_z": 0.24,
         "from": "2026-10-26",
         "to": "2026-11-17",
         "reason": "18 paris, répartition over 15 / under 3."
