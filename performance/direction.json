@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-17T02:49:03+00:00",
+  "generated_at": "2026-11-17T16:46:40+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -23,61 +23,61 @@
         "level_bias": null,
         "level_z": null,
         "from": "2026-10-03",
-        "to": "2026-11-18",
+        "to": "2026-11-19",
         "reason": "88 paris sur 98 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
         "status": "imbalanced",
-        "n": 161,
+        "n": 164,
         "counts": {
-          "over": 7,
-          "under": 154
+          "over": 6,
+          "under": 158
         },
         "dominant": "under",
-        "minority": 7,
+        "minority": 6,
         "withhold": null,
-        "level_bias": -0.47,
-        "level_z": -1.79,
+        "level_bias": -0.425,
+        "level_z": -1.64,
         "from": "2026-10-03",
-        "to": "2026-11-18",
-        "reason": "154 paris sur 161 du même côté (« under ») : le rendement affiché dépend surtout de ce sens."
+        "to": "2026-11-19",
+        "reason": "158 paris sur 164 du même côté (« under ») : le rendement affiché dépend surtout de ce sens."
       }
     ],
     "nba": [
       {
         "market": "moneyline",
         "status": "ok",
-        "n": 26,
+        "n": 27,
         "counts": {
           "away": 13,
-          "home": 13
+          "home": 14
         },
-        "dominant": "away",
+        "dominant": "home",
         "minority": 13,
         "withhold": null,
         "level_bias": null,
         "level_z": null,
         "from": "2026-10-26",
-        "to": "2026-11-17",
-        "reason": "26 paris, répartition away 13 / home 13."
+        "to": "2026-11-18",
+        "reason": "27 paris, répartition away 13 / home 14."
       },
       {
         "market": "total",
         "status": "ok",
-        "n": 18,
+        "n": 19,
         "counts": {
-          "over": 15,
+          "over": 16,
           "under": 3
         },
         "dominant": "over",
         "minority": 3,
         "withhold": null,
-        "level_bias": 0.535,
-        "level_z": 0.24,
+        "level_bias": 0.768,
+        "level_z": 0.36,
         "from": "2026-10-26",
-        "to": "2026-11-17",
-        "reason": "18 paris, répartition over 15 / under 3."
+        "to": "2026-11-18",
+        "reason": "19 paris, répartition over 16 / under 3."
       }
     ]
   }
