@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-18T16:18:45+00:00",
+  "generated_at": "2026-11-19T01:45:46+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -12,9 +12,9 @@
       {
         "market": "moneyline",
         "status": "imbalanced",
-        "n": 93,
+        "n": 91,
         "counts": {
-          "away": 84,
+          "away": 82,
           "home": 9
         },
         "dominant": "away",
@@ -22,26 +22,26 @@
         "withhold": null,
         "level_bias": null,
         "level_z": null,
-        "from": "2026-10-04",
+        "from": "2026-10-06",
         "to": "2026-11-20",
-        "reason": "84 paris sur 93 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
+        "reason": "82 paris sur 91 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
         "status": "withheld",
-        "n": 162,
+        "n": 160,
         "counts": {
           "over": 6,
-          "under": 156
+          "under": 154
         },
         "dominant": "under",
         "minority": 6,
         "withhold": "under",
-        "level_bias": -0.52,
-        "level_z": -2.0,
+        "level_bias": -0.667,
+        "level_z": -2.44,
         "from": "2026-10-05",
         "to": "2026-11-20",
-        "reason": "156 paris sur 162 du même côté (« under »), et le modèle annonce 0.52 de moins que ce qui arrive (2.0 écarts-types) : le décalage de niveau explique le sens des paris."
+        "reason": "154 paris sur 160 du même côté (« under »), et le modèle annonce 0.67 de moins que ce qui arrive (2.4 écarts-types) : le décalage de niveau explique le sens des paris."
       }
     ],
     "nba": [
@@ -73,8 +73,8 @@
         "dominant": "over",
         "minority": 5,
         "withhold": null,
-        "level_bias": 1.364,
-        "level_z": 0.65,
+        "level_bias": 1.642,
+        "level_z": 0.78,
         "from": "2026-10-26",
         "to": "2026-11-19",
         "reason": "18 paris sur 23 du même côté (« over ») : le rendement affiché dépend surtout de ce sens."
