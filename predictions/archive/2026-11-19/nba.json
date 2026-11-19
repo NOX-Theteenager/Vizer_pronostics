@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-19T01:45:43+00:00",
+  "generated_at": "2026-11-19T16:26:33+00:00",
   "n_games": 4,
   "detection_source": "ESPN",
   "models_trained_at": "2026-11-16T18:35:31+00:00",
@@ -9,8 +9,8 @@
     {
       "home": "MEM",
       "away": "GSW",
-      "commence_time": "2026-11-20T01:00Z",
-      "has_odds": false,
+      "commence_time": "2026-11-20T01:10:00Z",
+      "has_odds": true,
       "predictions": {
         "home_team": "MEM",
         "away_team": "GSW",
@@ -116,8 +116,8 @@
     {
       "home": "MIL",
       "away": "POR",
-      "commence_time": "2026-11-20T01:00Z",
-      "has_odds": false,
+      "commence_time": "2026-11-20T01:10:00Z",
+      "has_odds": true,
       "predictions": {
         "home_team": "MIL",
         "away_team": "POR",
@@ -144,7 +144,48 @@
           "over_default_proba": 0.8405697329928481
         }
       },
-      "value_bets": [],
+      "value_bets": [
+        {
+          "market": "total",
+          "selection": "over_229.0",
+          "predicted_proba": 0.5849,
+          "bookmaker_odds": 1.91,
+          "implied_proba": 0.5236,
+          "edge": 0.0613,
+          "kelly_stake": 0.0106,
+          "expected_value_per_unit": 0.1171,
+          "confidence": "medium",
+          "model_proba": 0.5849,
+          "market_proba": 0.5026,
+          "books": [
+            {
+              "name": "MyBookie.ag",
+              "odds": 1.91,
+              "best": true
+            },
+            {
+              "name": "LowVig.ag",
+              "odds": 1.91,
+              "best": true
+            },
+            {
+              "name": "BetUS",
+              "odds": 1.91,
+              "best": true
+            },
+            {
+              "name": "Bovada",
+              "odds": 1.91,
+              "best": true
+            },
+            {
+              "name": "BetOnline.ag",
+              "odds": 1.88,
+              "best": false
+            }
+          ]
+        }
+      ],
       "withheld_bets": [],
       "form": {
         "home": {
@@ -223,8 +264,8 @@
     {
       "home": "MIN",
       "away": "NYK",
-      "commence_time": "2026-11-20T01:00Z",
-      "has_odds": false,
+      "commence_time": "2026-11-20T01:10:00Z",
+      "has_odds": true,
       "predictions": {
         "home_team": "MIN",
         "away_team": "NYK",
