@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-20T15:58:41+00:00",
+  "generated_at": "2026-11-21T01:07:54+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -12,72 +12,72 @@
       {
         "market": "moneyline",
         "status": "imbalanced",
-        "n": 96,
+        "n": 88,
         "counts": {
-          "away": 85,
-          "home": 11
+          "away": 78,
+          "home": 10
         },
         "dominant": "away",
-        "minority": 11,
+        "minority": 10,
         "withhold": null,
         "level_bias": null,
         "level_z": null,
-        "from": "2026-10-06",
+        "from": "2026-10-07",
         "to": "2026-11-22",
-        "reason": "85 paris sur 96 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
+        "reason": "78 paris sur 88 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
-        "status": "withheld",
-        "n": 169,
+        "status": "imbalanced",
+        "n": 171,
         "counts": {
           "over": 6,
-          "under": 163
+          "under": 165
         },
         "dominant": "under",
         "minority": 6,
-        "withhold": "under",
-        "level_bias": -0.601,
-        "level_z": -2.34,
+        "withhold": null,
+        "level_bias": -0.456,
+        "level_z": -1.72,
         "from": "2026-10-14",
         "to": "2026-11-22",
-        "reason": "163 paris sur 169 du même côté (« under »), et le modèle annonce 0.60 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+        "reason": "165 paris sur 171 du même côté (« under ») : le rendement affiché dépend surtout de ce sens."
       }
     ],
     "nba": [
       {
         "market": "moneyline",
         "status": "ok",
-        "n": 33,
+        "n": 35,
         "counts": {
-          "away": 17,
-          "home": 16
+          "away": 18,
+          "home": 17
         },
         "dominant": "away",
-        "minority": 16,
+        "minority": 17,
         "withhold": null,
         "level_bias": null,
         "level_z": null,
         "from": "2026-10-26",
-        "to": "2026-11-21",
-        "reason": "33 paris, répartition away 17 / home 16."
+        "to": "2026-11-22",
+        "reason": "35 paris, répartition away 18 / home 17."
       },
       {
         "market": "total",
         "status": "imbalanced",
-        "n": 28,
+        "n": 29,
         "counts": {
-          "over": 22,
+          "over": 23,
           "under": 6
         },
         "dominant": "over",
         "minority": 6,
         "withhold": null,
-        "level_bias": 1.075,
-        "level_z": 0.57,
+        "level_bias": 0.668,
+        "level_z": 0.33,
         "from": "2026-10-26",
-        "to": "2026-11-21",
-        "reason": "22 paris sur 28 du même côté (« over ») : le rendement affiché dépend surtout de ce sens."
+        "to": "2026-11-22",
+        "reason": "23 paris sur 29 du même côté (« over ») : le rendement affiché dépend surtout de ce sens."
       }
     ]
   }
