@@ -1,311 +1,20 @@
 {
-  "generated_at": "2026-11-22T15:08:31+00:00",
-  "n_games": 5,
+  "generated_at": "2026-11-23T00:38:24+00:00",
+  "n_games": 11,
   "models_trained_at": "2026-11-16T18:33:26+00:00",
   "model_version": "v2026.11.16",
-  "withheld_markets": [],
-  "games": [
+  "withheld_markets": [
     {
-      "home": "NYR",
-      "away": "CAR",
-      "commence_time": "2026-11-22T17:40:00Z",
-      "predictions": {
-        "btts": {
-          "probabilities": {
-            "yes": 0.8937720075439838,
-            "no": 0.10622799245601622
-          },
-          "expected_value": null,
-          "confidence": "high",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 2.673788070678711,
-            "lambda_away": 3.2189505100250244,
-            "p_home_scores": 0.9310096107748863,
-            "p_away_scores": 0.9600029872947182,
-            "home_team": "NYR",
-            "away_team": "CAR"
-          }
-        },
-        "exact_score": {
-          "probabilities": {
-            "2-3": 0.1278987067673786,
-            "2-2": 0.11919913621137121,
-            "3-3": 0.1139913454699505,
-            "3-2": 0.10623774281239037,
-            "2-4": 0.10292490184509856,
-            "1-3": 0.09566854469128735,
-            "3-4": 0.09173312490973393,
-            "1-2": 0.08916124469140434,
-            "1-4": 0.07698807768184278,
-            "4-3": 0.07619717491954234
-          },
-          "expected_value": null,
-          "confidence": "high",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 2.673788070678711,
-            "lambda_away": 3.2189505100250244,
-            "top_score": "2-3",
-            "top_proba": 0.1278987067673786,
-            "top_n": 10,
-            "home_team": "NYR",
-            "away_team": "CAR"
-          }
-        },
-        "goal_intervals": {
-          "probabilities": {
-            "0-2": 0.06692926314264344,
-            "3-4": 0.23274103807468546,
-            "5-6": 0.32385559314148243,
-            "7-8": 0.23458687822186497,
-            "9+": 0.1418872274193237
-          },
-          "expected_value": 5.892738580703735,
-          "confidence": "medium",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 2.673788070678711,
-            "lambda_away": 3.2189505100250244,
-            "lambda_total": 5.892738580703735,
-            "modal_bucket": "5-6",
-            "modal_proba": 0.32385559314148243,
-            "home_team": "NYR",
-            "away_team": "CAR"
-          }
-        },
-        "moneyline": {
-          "probabilities": {
-            "home": 0.37079474329948425,
-            "away": 0.6292052567005157
-          },
-          "expected_value": null,
-          "confidence": "medium",
-          "metadata": {
-            "home_team": "NYR",
-            "away_team": "CAR",
-            "temperature": 1.0027519068934918,
-            "best_model": "XGB",
-            "engine": "NHLMoneylineEngine"
-          }
-        },
-        "p1_btts": {
-          "probabilities": {
-            "yes": 0.3145798869274697,
-            "no": 0.6854201130725304
-          },
-          "expected_value": null,
-          "confidence": "medium",
-          "metadata": {
-            "model": "poisson_p1_independent",
-            "mode": "dedicated",
-            "lambda_p1_home": 0.8132681846618652,
-            "lambda_p1_away": 0.8328413367271423,
-            "p_p1_home_scores": 0.5565934389004412,
-            "p_p1_away_scores": 0.5651879180410876,
-            "home_team": "NYR",
-            "away_team": "CAR"
-          }
-        },
-        "p1_total": {
-          "probabilities": {
-            "over_1.5": 0.4898339740943978,
-            "under_1.5": 0.5101660259056022
-          },
-          "expected_value": 1.6461095213890076,
-          "confidence": "low",
-          "metadata": {
-            "model": "poisson_p1_independent",
-            "mode": "dedicated",
-            "lambda_p1_home": 0.8132681846618652,
-            "lambda_p1_away": 0.8328413367271423,
-            "lambda_p1_total": 1.6461095213890076,
-            "line_used": 1.5,
-            "home_team": "NYR",
-            "away_team": "CAR"
-          }
-        },
-        "p1_winner": {
-          "probabilities": {
-            "home_lead": 0.3208425326138033,
-            "tied": 0.3472345662218794,
-            "away_lead": 0.33192290116431733
-          },
-          "expected_value": null,
-          "confidence": "low",
-          "metadata": {
-            "model": "poisson_p1_independent",
-            "mode": "dedicated",
-            "lambda_p1_home": 0.8132681846618652,
-            "lambda_p1_away": 0.8328413367271423,
-            "home_team": "NYR",
-            "away_team": "CAR"
-          }
-        },
-        "total": {
-          "probabilities": {
-            "over_5.5": 0.5369414643854497,
-            "under_5.5": 0.46305853561455035
-          },
-          "expected_value": 5.892738580703735,
-          "confidence": "low",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 2.673788070678711,
-            "lambda_away": 3.2189505100250244,
-            "lambda_total": 5.892738580703735,
-            "line_used": 5.5,
-            "home_team": "NYR",
-            "away_team": "CAR"
-          }
-        }
-      },
-      "value_bets": [
-        {
-          "market": "total",
-          "selection": "under_6.0",
-          "predicted_proba": 0.5516,
-          "bookmaker_odds": 2.02,
-          "edge": 0.0565,
-          "kelly_stake": 0.0098,
-          "confidence": "medium",
-          "model_proba": 0.5516,
-          "market_proba": 0.4783,
-          "books": [
-            {
-              "name": "betonlineag",
-              "odds": 2.02,
-              "best": true
-            },
-            {
-              "name": "lowvig",
-              "odds": 2.02,
-              "best": true
-            },
-            {
-              "name": "betmgm",
-              "odds": 2.0,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 2.0,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 2.0,
-              "best": false
-            },
-            {
-              "name": "mybookieag",
-              "odds": 1.98,
-              "best": false
-            }
-          ]
-        }
-      ],
-      "withheld_bets": [],
-      "form": {
-        "home": {
-          "results": [
-            "L",
-            "L",
-            "W",
-            "W",
-            "W"
-          ],
-          "wins": 3,
-          "draws": 0,
-          "losses": 2,
-          "goals_for": 14,
-          "goals_against": 16
-        },
-        "away": {
-          "results": [
-            "W",
-            "W",
-            "L",
-            "W",
-            "W"
-          ],
-          "wins": 4,
-          "draws": 0,
-          "losses": 1,
-          "goals_for": 25,
-          "goals_against": 11
-        }
-      },
-      "h2h": [
-        {
-          "date": "2026-02-05",
-          "home": "NYR",
-          "away": "CAR",
-          "home_score": 0,
-          "away_score": 2,
-          "winner": "away"
-        },
-        {
-          "date": "2025-12-29",
-          "home": "CAR",
-          "away": "NYR",
-          "home_score": 3,
-          "away_score": 2,
-          "winner": "away"
-        },
-        {
-          "date": "2025-11-26",
-          "home": "CAR",
-          "away": "NYR",
-          "home_score": 2,
-          "away_score": 4,
-          "winner": "home"
-        },
-        {
-          "date": "2025-11-04",
-          "home": "NYR",
-          "away": "CAR",
-          "home_score": 0,
-          "away_score": 3,
-          "winner": "away"
-        },
-        {
-          "date": "2025-04-12",
-          "home": "CAR",
-          "away": "NYR",
-          "home_score": 7,
-          "away_score": 3,
-          "winner": "away"
-        }
-      ],
-      "factors": [
-        {
-          "feature": "diff_xGF_season",
-          "label": "Buts attendus — saison",
-          "value": -0.079,
-          "contribution": -0.2158,
-          "direction": "away"
-        },
-        {
-          "feature": "diff_elo",
-          "label": "Écart Elo",
-          "value": -251.3206,
-          "contribution": -0.2137,
-          "direction": "away"
-        },
-        {
-          "feature": "diff_xGF_20",
-          "label": "Buts attendus — 20 derniers matchs",
-          "value": -0.0528,
-          "contribution": -0.0708,
-          "direction": "away"
-        }
-      ]
-    },
+      "market": "total",
+      "side": "under",
+      "reason": "169 paris sur 175 du même côté (« under »), et le modèle annonce 0.65 de moins que ce qui arrive (2.4 écarts-types) : le décalage de niveau explique le sens des paris."
+    }
+  ],
+  "games": [
     {
       "home": "TBL",
       "away": "BUF",
-      "commence_time": "2026-11-22T22:10:00Z",
+      "commence_time": "2026-11-22T22:12:05Z",
       "predictions": {
         "btts": {
           "probabilities": {
@@ -425,8 +134,8 @@
         "p1_winner": {
           "probabilities": {
             "home_lead": 0.3668386462385981,
-            "tied": 0.34420743877887106,
-            "away_lead": 0.2889539149825309
+            "tied": 0.344207438778871,
+            "away_lead": 0.28895391498253087
           },
           "expected_value": null,
           "confidence": "low",
@@ -457,66 +166,7 @@
           }
         }
       },
-      "value_bets": [
-        {
-          "market": "total",
-          "selection": "under_6.5",
-          "predicted_proba": 0.6608,
-          "bookmaker_odds": 1.89,
-          "edge": 0.1317,
-          "kelly_stake": 0.0301,
-          "confidence": "high",
-          "model_proba": 0.6608,
-          "market_proba": 0.5106,
-          "books": [
-            {
-              "name": "betrivers",
-              "odds": 1.89,
-              "best": true
-            },
-            {
-              "name": "betonlineag",
-              "odds": 1.89,
-              "best": true
-            },
-            {
-              "name": "lowvig",
-              "odds": 1.89,
-              "best": true
-            },
-            {
-              "name": "fanduel",
-              "odds": 1.88,
-              "best": false
-            },
-            {
-              "name": "draftkings",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "betmgm",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "mybookieag",
-              "odds": 1.85,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 1.83,
-              "best": false
-            }
-          ]
-        }
-      ],
+      "value_bets": [],
       "withheld_bets": [],
       "form": {
         "home": {
@@ -615,9 +265,262 @@
       ]
     },
     {
+      "home": "STL",
+      "away": "EDM",
+      "commence_time": "2026-11-23T00:08:22Z",
+      "predictions": {
+        "btts": {
+          "probabilities": {
+            "yes": 0.8840524953169211,
+            "no": 0.1159475046830789
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.9458701610565186,
+            "lambda_away": 2.7044425010681152,
+            "p_home_scores": 0.9474436925388252,
+            "p_away_scores": 0.933092385625538,
+            "home_team": "STL",
+            "away_team": "EDM"
+          }
+        },
+        "exact_score": {
+          "probabilities": {
+            "2-2": 0.12657562178489243,
+            "3-2": 0.12429178244443007,
+            "2-3": 0.11410549705139543,
+            "3-3": 0.11204665965874283,
+            "2-1": 0.09360570375217929,
+            "3-1": 0.09191674986274707,
+            "4-2": 0.0915368632918937,
+            "1-2": 0.08593428417734258,
+            "4-3": 0.08251872783368638,
+            "1-3": 0.07746811014269019
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.9458701610565186,
+            "lambda_away": 2.7044425010681152,
+            "top_score": "2-2",
+            "top_proba": 0.12657562178489243,
+            "top_n": 10,
+            "home_team": "STL",
+            "away_team": "EDM"
+          }
+        },
+        "goal_intervals": {
+          "probabilities": {
+            "0-2": 0.07951789885819979,
+            "3-4": 0.2550632995096681,
+            "5-6": 0.3276935368453837,
+            "7-8": 0.218891968924537,
+            "9+": 0.11883329586221134
+          },
+          "expected_value": 5.650312662124634,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.9458701610565186,
+            "lambda_away": 2.7044425010681152,
+            "lambda_total": 5.650312662124634,
+            "modal_bucket": "5-6",
+            "modal_proba": 0.3276935368453837,
+            "home_team": "STL",
+            "away_team": "EDM"
+          }
+        },
+        "moneyline": {
+          "probabilities": {
+            "home": 0.48063772916793823,
+            "away": 0.5193622708320618
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "home_team": "STL",
+            "away_team": "EDM",
+            "temperature": 1.0027519068934918,
+            "best_model": "XGB",
+            "engine": "NHLMoneylineEngine"
+          }
+        },
+        "p1_btts": {
+          "probabilities": {
+            "yes": 0.3128454934912487,
+            "no": 0.6871545065087513
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8647804856300354,
+            "lambda_p1_away": 0.7775179147720337,
+            "p_p1_home_scores": 0.5788560103611262,
+            "p_p1_away_scores": 0.540454772674946,
+            "home_team": "STL",
+            "away_team": "EDM"
+          }
+        },
+        "p1_total": {
+          "probabilities": {
+            "over_1.5": 0.48862354414200987,
+            "under_1.5": 0.5113764558579901
+          },
+          "expected_value": 1.642298400402069,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8647804856300354,
+            "lambda_p1_away": 0.7775179147720337,
+            "lambda_p1_total": 1.642298400402069,
+            "line_used": 1.5,
+            "home_team": "STL",
+            "away_team": "EDM"
+          }
+        },
+        "p1_winner": {
+          "probabilities": {
+            "home_lead": 0.35109065539790707,
+            "tied": 0.34724311742245106,
+            "away_lead": 0.30166622717964187
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8647804856300354,
+            "lambda_p1_away": 0.7775179147720337,
+            "home_team": "STL",
+            "away_team": "EDM"
+          }
+        },
+        "total": {
+          "probabilities": {
+            "over_5.5": 0.49665412740460435,
+            "under_5.5": 0.5033458725953956
+          },
+          "expected_value": 5.650312662124634,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.9458701610565186,
+            "lambda_away": 2.7044425010681152,
+            "lambda_total": 5.650312662124634,
+            "line_used": 5.5,
+            "home_team": "STL",
+            "away_team": "EDM"
+          }
+        }
+      },
+      "value_bets": [],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "W",
+            "W",
+            "L",
+            "L",
+            "L"
+          ],
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "goals_for": 15,
+          "goals_against": 16
+        },
+        "away": {
+          "results": [
+            "W",
+            "W",
+            "D",
+            "L",
+            "W"
+          ],
+          "wins": 3,
+          "draws": 1,
+          "losses": 1,
+          "goals_for": 19,
+          "goals_against": 11
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-03-13",
+          "home": "STL",
+          "away": "EDM",
+          "home_score": 3,
+          "away_score": 2,
+          "winner": "home"
+        },
+        {
+          "date": "2026-01-18",
+          "home": "EDM",
+          "away": "STL",
+          "home_score": 5,
+          "away_score": 0,
+          "winner": "away"
+        },
+        {
+          "date": "2025-11-03",
+          "home": "STL",
+          "away": "EDM",
+          "home_score": 3,
+          "away_score": 2,
+          "winner": "home"
+        },
+        {
+          "date": "2025-04-09",
+          "home": "EDM",
+          "away": "STL",
+          "home_score": 4,
+          "away_score": 3,
+          "winner": "away"
+        },
+        {
+          "date": "2025-02-04",
+          "home": "STL",
+          "away": "EDM",
+          "home_score": 2,
+          "away_score": 3,
+          "winner": "away"
+        }
+      ],
+      "factors": [
+        {
+          "feature": "diff_elo",
+          "label": "Écart Elo",
+          "value": -23.2023,
+          "contribution": -0.0902,
+          "direction": "away"
+        },
+        {
+          "feature": "diff_xGF_season",
+          "label": "Buts attendus — saison",
+          "value": 0.0007,
+          "contribution": -0.0752,
+          "direction": "away"
+        },
+        {
+          "feature": "diff_pp",
+          "label": "Efficacité en supériorité numérique",
+          "value": -0.1377,
+          "contribution": 0.0565,
+          "direction": "home"
+        }
+      ]
+    },
+    {
       "home": "DAL",
       "away": "PIT",
-      "commence_time": "2026-11-23T00:10:00Z",
+      "commence_time": "2026-11-23T00:08:45Z",
       "predictions": {
         "btts": {
           "probabilities": {
@@ -772,43 +675,76 @@
       "value_bets": [
         {
           "market": "total",
-          "selection": "under_6.0",
-          "predicted_proba": 0.5695,
-          "bookmaker_odds": 2.03,
-          "edge": 0.0769,
-          "kelly_stake": 0.0153,
-          "confidence": "medium",
-          "model_proba": 0.5695,
-          "market_proba": 0.4779,
+          "selection": "over_4.5",
+          "predicted_proba": 0.6873,
+          "bookmaker_odds": 1.69,
+          "edge": 0.0955,
+          "kelly_stake": 0.0245,
+          "confidence": "high",
+          "model_proba": 0.6873,
+          "market_proba": 0.5762,
           "books": [
             {
-              "name": "lowvig",
-              "odds": 2.03,
-              "best": true
-            },
-            {
-              "name": "betonlineag",
-              "odds": 2.03,
+              "name": "draftkings",
+              "odds": 1.69,
               "best": true
             },
             {
               "name": "betmgm",
-              "odds": 2.0,
+              "odds": 1.67,
               "best": false
             },
             {
               "name": "bovada",
-              "odds": 2.0,
+              "odds": 1.65,
               "best": false
             },
             {
-              "name": "betus",
-              "odds": 2.0,
+              "name": "fanduel",
+              "odds": 1.59,
               "best": false
             },
             {
               "name": "mybookieag",
-              "odds": 1.97,
+              "odds": 1.55,
+              "best": false
+            }
+          ]
+        },
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.4538,
+          "bookmaker_odds": 2.75,
+          "edge": 0.0901,
+          "kelly_stake": 0.0174,
+          "confidence": "low",
+          "model_proba": 0.4538,
+          "market_proba": 0.3619,
+          "books": [
+            {
+              "name": "betmgm",
+              "odds": 2.75,
+              "best": true
+            },
+            {
+              "name": "fanduel",
+              "odds": 2.72,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 2.7,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 2.5,
+              "best": false
+            },
+            {
+              "name": "draftkings",
+              "odds": 2.4,
               "best": false
             }
           ]
@@ -912,303 +848,6 @@
       ]
     },
     {
-      "home": "STL",
-      "away": "EDM",
-      "commence_time": "2026-11-23T00:10:00Z",
-      "predictions": {
-        "btts": {
-          "probabilities": {
-            "yes": 0.8840524953169211,
-            "no": 0.1159475046830789
-          },
-          "expected_value": null,
-          "confidence": "high",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 2.9458701610565186,
-            "lambda_away": 2.7044425010681152,
-            "p_home_scores": 0.9474436925388252,
-            "p_away_scores": 0.933092385625538,
-            "home_team": "STL",
-            "away_team": "EDM"
-          }
-        },
-        "exact_score": {
-          "probabilities": {
-            "2-2": 0.12657562178489243,
-            "3-2": 0.12429178244443007,
-            "2-3": 0.11410549705139543,
-            "3-3": 0.11204665965874283,
-            "2-1": 0.09360570375217929,
-            "3-1": 0.09191674986274707,
-            "4-2": 0.0915368632918937,
-            "1-2": 0.08593428417734258,
-            "4-3": 0.08251872783368638,
-            "1-3": 0.07746811014269019
-          },
-          "expected_value": null,
-          "confidence": "high",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 2.9458701610565186,
-            "lambda_away": 2.7044425010681152,
-            "top_score": "2-2",
-            "top_proba": 0.12657562178489243,
-            "top_n": 10,
-            "home_team": "STL",
-            "away_team": "EDM"
-          }
-        },
-        "goal_intervals": {
-          "probabilities": {
-            "0-2": 0.07951789885819979,
-            "3-4": 0.2550632995096681,
-            "5-6": 0.3276935368453837,
-            "7-8": 0.218891968924537,
-            "9+": 0.11883329586221134
-          },
-          "expected_value": 5.650312662124634,
-          "confidence": "medium",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 2.9458701610565186,
-            "lambda_away": 2.7044425010681152,
-            "lambda_total": 5.650312662124634,
-            "modal_bucket": "5-6",
-            "modal_proba": 0.3276935368453837,
-            "home_team": "STL",
-            "away_team": "EDM"
-          }
-        },
-        "moneyline": {
-          "probabilities": {
-            "home": 0.48063772916793823,
-            "away": 0.5193622708320618
-          },
-          "expected_value": null,
-          "confidence": "low",
-          "metadata": {
-            "home_team": "STL",
-            "away_team": "EDM",
-            "temperature": 1.0027519068934918,
-            "best_model": "XGB",
-            "engine": "NHLMoneylineEngine"
-          }
-        },
-        "p1_btts": {
-          "probabilities": {
-            "yes": 0.3128454934912487,
-            "no": 0.6871545065087513
-          },
-          "expected_value": null,
-          "confidence": "medium",
-          "metadata": {
-            "model": "poisson_p1_independent",
-            "mode": "dedicated",
-            "lambda_p1_home": 0.8647804856300354,
-            "lambda_p1_away": 0.7775179147720337,
-            "p_p1_home_scores": 0.5788560103611262,
-            "p_p1_away_scores": 0.540454772674946,
-            "home_team": "STL",
-            "away_team": "EDM"
-          }
-        },
-        "p1_total": {
-          "probabilities": {
-            "over_1.5": 0.48862354414200987,
-            "under_1.5": 0.5113764558579901
-          },
-          "expected_value": 1.642298400402069,
-          "confidence": "low",
-          "metadata": {
-            "model": "poisson_p1_independent",
-            "mode": "dedicated",
-            "lambda_p1_home": 0.8647804856300354,
-            "lambda_p1_away": 0.7775179147720337,
-            "lambda_p1_total": 1.642298400402069,
-            "line_used": 1.5,
-            "home_team": "STL",
-            "away_team": "EDM"
-          }
-        },
-        "p1_winner": {
-          "probabilities": {
-            "home_lead": 0.3510906553979071,
-            "tied": 0.3472431174224511,
-            "away_lead": 0.30166622717964187
-          },
-          "expected_value": null,
-          "confidence": "low",
-          "metadata": {
-            "model": "poisson_p1_independent",
-            "mode": "dedicated",
-            "lambda_p1_home": 0.8647804856300354,
-            "lambda_p1_away": 0.7775179147720337,
-            "home_team": "STL",
-            "away_team": "EDM"
-          }
-        },
-        "total": {
-          "probabilities": {
-            "over_5.5": 0.49665412740460435,
-            "under_5.5": 0.5033458725953956
-          },
-          "expected_value": 5.650312662124634,
-          "confidence": "low",
-          "metadata": {
-            "model": "poisson_independent",
-            "lambda_home": 2.9458701610565186,
-            "lambda_away": 2.7044425010681152,
-            "lambda_total": 5.650312662124634,
-            "line_used": 5.5,
-            "home_team": "STL",
-            "away_team": "EDM"
-          }
-        }
-      },
-      "value_bets": [
-        {
-          "market": "total",
-          "selection": "under_6.0",
-          "predicted_proba": 0.5985,
-          "bookmaker_odds": 1.94,
-          "edge": 0.083,
-          "kelly_stake": 0.0173,
-          "confidence": "medium",
-          "model_proba": 0.5985,
-          "market_proba": 0.4994,
-          "books": [
-            {
-              "name": "lowvig",
-              "odds": 1.94,
-              "best": true
-            },
-            {
-              "name": "betonlineag",
-              "odds": 1.94,
-              "best": true
-            },
-            {
-              "name": "betmgm",
-              "odds": 1.91,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 1.91,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 1.91,
-              "best": false
-            },
-            {
-              "name": "mybookieag",
-              "odds": 1.89,
-              "best": false
-            }
-          ]
-        }
-      ],
-      "withheld_bets": [],
-      "form": {
-        "home": {
-          "results": [
-            "W",
-            "W",
-            "L",
-            "L",
-            "L"
-          ],
-          "wins": 2,
-          "draws": 0,
-          "losses": 3,
-          "goals_for": 15,
-          "goals_against": 16
-        },
-        "away": {
-          "results": [
-            "W",
-            "W",
-            "D",
-            "L",
-            "W"
-          ],
-          "wins": 3,
-          "draws": 1,
-          "losses": 1,
-          "goals_for": 19,
-          "goals_against": 11
-        }
-      },
-      "h2h": [
-        {
-          "date": "2026-03-13",
-          "home": "STL",
-          "away": "EDM",
-          "home_score": 3,
-          "away_score": 2,
-          "winner": "home"
-        },
-        {
-          "date": "2026-01-18",
-          "home": "EDM",
-          "away": "STL",
-          "home_score": 5,
-          "away_score": 0,
-          "winner": "away"
-        },
-        {
-          "date": "2025-11-03",
-          "home": "STL",
-          "away": "EDM",
-          "home_score": 3,
-          "away_score": 2,
-          "winner": "home"
-        },
-        {
-          "date": "2025-04-09",
-          "home": "EDM",
-          "away": "STL",
-          "home_score": 4,
-          "away_score": 3,
-          "winner": "away"
-        },
-        {
-          "date": "2025-02-04",
-          "home": "STL",
-          "away": "EDM",
-          "home_score": 2,
-          "away_score": 3,
-          "winner": "away"
-        }
-      ],
-      "factors": [
-        {
-          "feature": "diff_elo",
-          "label": "Écart Elo",
-          "value": -23.2023,
-          "contribution": -0.0902,
-          "direction": "away"
-        },
-        {
-          "feature": "diff_xGF_season",
-          "label": "Buts attendus — saison",
-          "value": 0.0007,
-          "contribution": -0.0752,
-          "direction": "away"
-        },
-        {
-          "feature": "diff_pp",
-          "label": "Efficacité en supériorité numérique",
-          "value": -0.1377,
-          "contribution": 0.0565,
-          "direction": "home"
-        }
-      ]
-    },
-    {
       "home": "VAN",
       "away": "CHI",
       "commence_time": "2026-11-23T01:10:00Z",
@@ -1233,9 +872,9 @@
         "exact_score": {
           "probabilities": {
             "2-2": 0.1267094715070897,
-            "2-3": 0.12170444762423878,
+            "2-3": 0.12170444762423879,
             "3-2": 0.11896626327912678,
-            "3-3": 0.1142670961065114,
+            "3-3": 0.11426709610651141,
             "1-2": 0.0899711101677958,
             "2-1": 0.08794688270378044,
             "2-4": 0.08767284163141063,
@@ -1363,25 +1002,26 @@
           }
         }
       },
-      "value_bets": [
+      "value_bets": [],
+      "withheld_bets": [
         {
           "market": "total",
           "selection": "under_6.5",
           "predicted_proba": 0.6547,
           "bookmaker_odds": 1.91,
           "edge": 0.1311,
-          "kelly_stake": 0.0308,
+          "kelly_stake": 0.0293,
           "confidence": "high",
           "model_proba": 0.6547,
-          "market_proba": 0.5097,
+          "market_proba": 0.5042,
           "books": [
             {
-              "name": "betonlineag",
+              "name": "betmgm",
               "odds": 1.91,
               "best": true
             },
             {
-              "name": "lowvig",
+              "name": "fanduel",
               "odds": 1.91,
               "best": true
             },
@@ -1392,38 +1032,38 @@
             },
             {
               "name": "draftkings",
-              "odds": 1.87,
+              "odds": 1.89,
               "best": false
             },
             {
-              "name": "betrivers",
-              "odds": 1.87,
+              "name": "betonlineag",
+              "odds": 1.89,
+              "best": false
+            },
+            {
+              "name": "lowvig",
+              "odds": 1.89,
               "best": false
             },
             {
               "name": "bovada",
-              "odds": 1.87,
-              "best": false
-            },
-            {
-              "name": "betmgm",
-              "odds": 1.85,
+              "odds": 1.89,
               "best": false
             },
             {
               "name": "mybookieag",
-              "odds": 1.85,
+              "odds": 1.89,
               "best": false
             },
             {
-              "name": "fanduel",
-              "odds": 1.83,
+              "name": "betrivers",
+              "odds": 1.88,
               "best": false
             }
-          ]
+          ],
+          "withheld_reason": "169 paris sur 175 du même côté (« under »), et le modèle annonce 0.65 de moins que ce qui arrive (2.4 écarts-types) : le décalage de niveau explique le sens des paris."
         }
       ],
-      "withheld_bets": [],
       "form": {
         "home": {
           "results": [
@@ -1517,6 +1157,2214 @@
           "value": 0.0765,
           "contribution": 0.025,
           "direction": "home"
+        }
+      ]
+    },
+    {
+      "home": "NJD",
+      "away": "CBJ",
+      "commence_time": "2026-11-24T00:10:00Z",
+      "predictions": {
+        "btts": {
+          "probabilities": {
+            "yes": 0.8886487341777586,
+            "no": 0.11135126582224142
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.502676486968994,
+            "lambda_away": 2.47983455657959,
+            "p_home_scores": 0.9698833314166178,
+            "p_away_scores": 0.9162429184959727,
+            "home_team": "NJD",
+            "away_team": "CBJ"
+          }
+        },
+        "exact_score": {
+          "probabilities": {
+            "3-2": 0.12808154545903713,
+            "4-2": 0.11215705442350488,
+            "2-2": 0.1097002928493729,
+            "3-3": 0.10587368082981334,
+            "3-1": 0.1032984600679964,
+            "4-3": 0.09271031310786175,
+            "2-3": 0.09067952569159196,
+            "4-1": 0.09045527180506908,
+            "2-1": 0.08847388029037016,
+            "5-2": 0.07856997547538248
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.502676486968994,
+            "lambda_away": 2.47983455657959,
+            "top_score": "3-2",
+            "top_proba": 0.12808154545903713,
+            "top_n": 10,
+            "home_team": "NJD",
+            "away_team": "CBJ"
+          }
+        },
+        "goal_intervals": {
+          "probabilities": {
+            "0-2": 0.06275368307501898,
+            "3-4": 0.22465058322306292,
+            "5-6": 0.3217076233317544,
+            "7-8": 0.23992620037886347,
+            "9+": 0.15096190999130027
+          },
+          "expected_value": 5.982511043548584,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.502676486968994,
+            "lambda_away": 2.47983455657959,
+            "lambda_total": 5.982511043548584,
+            "modal_bucket": "5-6",
+            "modal_proba": 0.3217076233317544,
+            "home_team": "NJD",
+            "away_team": "CBJ"
+          }
+        },
+        "moneyline": {
+          "probabilities": {
+            "home": 0.6194842457771301,
+            "away": 0.3805157542228699
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "home_team": "NJD",
+            "away_team": "CBJ",
+            "temperature": 1.0027519068934918,
+            "best_model": "XGB",
+            "engine": "NHLMoneylineEngine"
+          }
+        },
+        "p1_btts": {
+          "probabilities": {
+            "yes": 0.3187965142226906,
+            "no": 0.6812034857773094
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.9048355221748352,
+            "lambda_p1_away": 0.7666647434234619,
+            "p_p1_home_scores": 0.5953915712552047,
+            "p_p1_away_scores": 0.5354400861782502,
+            "home_team": "NJD",
+            "away_team": "CBJ"
+          }
+        },
+        "p1_total": {
+          "probabilities": {
+            "over_1.5": 0.4978518351644108,
+            "under_1.5": 0.5021481648355892
+          },
+          "expected_value": 1.6715002655982971,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.9048355221748352,
+            "lambda_p1_away": 0.7666647434234619,
+            "lambda_p1_total": 1.6715002655982971,
+            "line_used": 1.5,
+            "home_team": "NJD",
+            "away_team": "CBJ"
+          }
+        },
+        "p1_winner": {
+          "probabilities": {
+            "home_lead": 0.36744336090489,
+            "tied": 0.34279149794413893,
+            "away_lead": 0.28976514115097113
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.9048355221748352,
+            "lambda_p1_away": 0.7666647434234619,
+            "home_team": "NJD",
+            "away_team": "CBJ"
+          }
+        },
+        "total": {
+          "probabilities": {
+            "over_5.5": 0.5515071494331163,
+            "under_5.5": 0.4484928505668837
+          },
+          "expected_value": 5.982511043548584,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.502676486968994,
+            "lambda_away": 2.47983455657959,
+            "lambda_total": 5.982511043548584,
+            "line_used": 5.5,
+            "home_team": "NJD",
+            "away_team": "CBJ"
+          }
+        }
+      },
+      "value_bets": [],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "L",
+            "W",
+            "D",
+            "W",
+            "W"
+          ],
+          "wins": 3,
+          "draws": 1,
+          "losses": 1,
+          "goals_for": 20,
+          "goals_against": 18
+        },
+        "away": {
+          "results": [
+            "L",
+            "L",
+            "W",
+            "D",
+            "L"
+          ],
+          "wins": 1,
+          "draws": 1,
+          "losses": 3,
+          "goals_for": 13,
+          "goals_against": 14
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-02-03",
+          "home": "NJD",
+          "away": "CBJ",
+          "home_score": 0,
+          "away_score": 3,
+          "winner": "away"
+        },
+        {
+          "date": "2025-12-31",
+          "home": "CBJ",
+          "away": "NJD",
+          "home_score": 2,
+          "away_score": 3,
+          "winner": "home"
+        },
+        {
+          "date": "2025-12-01",
+          "home": "NJD",
+          "away": "CBJ",
+          "home_score": 3,
+          "away_score": 5,
+          "winner": "away"
+        },
+        {
+          "date": "2025-10-13",
+          "home": "CBJ",
+          "away": "NJD",
+          "home_score": 2,
+          "away_score": 3,
+          "winner": "home"
+        },
+        {
+          "date": "2025-03-17",
+          "home": "CBJ",
+          "away": "NJD",
+          "home_score": 1,
+          "away_score": 2,
+          "winner": "home"
+        }
+      ],
+      "factors": [
+        {
+          "feature": "diff_elo",
+          "label": "Écart Elo",
+          "value": 77.0097,
+          "contribution": 0.1223,
+          "direction": "home"
+        },
+        {
+          "feature": "diff_xGF_season",
+          "label": "Buts attendus — saison",
+          "value": 0.0157,
+          "contribution": 0.1089,
+          "direction": "home"
+        },
+        {
+          "feature": "diff_xGF_pct",
+          "label": "Part de buts attendus (xGF %)",
+          "value": 0.1221,
+          "contribution": 0.0948,
+          "direction": "home"
+        }
+      ]
+    },
+    {
+      "home": "OTT",
+      "away": "CGY",
+      "commence_time": "2026-11-24T00:40:00Z",
+      "predictions": {
+        "btts": {
+          "probabilities": {
+            "yes": 0.883614321974776,
+            "no": 0.11638567802522404
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.347343921661377,
+            "lambda_away": 2.4749300479888916,
+            "p_home_scores": 0.9648223352408509,
+            "p_away_scores": 0.9158311221663388,
+            "home_team": "OTT",
+            "away_team": "CGY"
+          }
+        },
+        "exact_score": {
+          "probabilities": {
+            "3-2": 0.12892203930281013,
+            "2-2": 0.1155441827789443,
+            "4-2": 0.10788660115711264,
+            "3-3": 0.10635767630617657,
+            "3-1": 0.10418237025128946,
+            "2-3": 0.09532125660997662,
+            "2-1": 0.09337167559368766,
+            "4-3": 0.08900393032637707,
+            "4-1": 0.08718355595123219,
+            "5-2": 0.07222671172239331
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.347343921661377,
+            "lambda_away": 2.4749300479888916,
+            "top_score": "3-2",
+            "top_proba": 0.12892203930281013,
+            "top_n": 10,
+            "home_team": "OTT",
+            "away_team": "CGY"
+          }
+        },
+        "goal_intervals": {
+          "probabilities": {
+            "0-2": 0.07038481698396434,
+            "3-4": 0.23916479790216696,
+            "5-6": 0.32527467634099616,
+            "7-8": 0.23021095090297605,
+            "9+": 0.1349647578698965
+          },
+          "expected_value": 5.8222739696502686,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.347343921661377,
+            "lambda_away": 2.4749300479888916,
+            "lambda_total": 5.8222739696502686,
+            "modal_bucket": "5-6",
+            "modal_proba": 0.32527467634099616,
+            "home_team": "OTT",
+            "away_team": "CGY"
+          }
+        },
+        "moneyline": {
+          "probabilities": {
+            "home": 0.5821118950843811,
+            "away": 0.4178881049156189
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "home_team": "OTT",
+            "away_team": "CGY",
+            "temperature": 1.0027519068934918,
+            "best_model": "XGB",
+            "engine": "NHLMoneylineEngine"
+          }
+        },
+        "p1_btts": {
+          "probabilities": {
+            "yes": 0.3082753582154641,
+            "no": 0.691724641784536
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.9055621027946472,
+            "lambda_p1_away": 0.7288026809692383,
+            "p_p1_home_scores": 0.5956854451236859,
+            "p_p1_away_scores": 0.5175136655411396,
+            "home_team": "OTT",
+            "away_team": "CGY"
+          }
+        },
+        "p1_total": {
+          "probabilities": {
+            "over_1.5": 0.4860980033037919,
+            "under_1.5": 0.5139019966962082
+          },
+          "expected_value": 1.6343647837638855,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.9055621027946472,
+            "lambda_p1_away": 0.7288026809692383,
+            "lambda_p1_total": 1.6343647837638855,
+            "line_used": 1.5,
+            "home_team": "OTT",
+            "away_team": "CGY"
+          }
+        },
+        "p1_winner": {
+          "probabilities": {
+            "home_lead": 0.3767429597088898,
+            "tied": 0.3466880635328127,
+            "away_lead": 0.2765689767582975
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.9055621027946472,
+            "lambda_p1_away": 0.7288026809692383,
+            "home_team": "OTT",
+            "away_team": "CGY"
+          }
+        },
+        "total": {
+          "probabilities": {
+            "over_5.5": 0.525368095272153,
+            "under_5.5": 0.474631904727847
+          },
+          "expected_value": 5.8222739696502686,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.347343921661377,
+            "lambda_away": 2.4749300479888916,
+            "lambda_total": 5.8222739696502686,
+            "line_used": 5.5,
+            "home_team": "OTT",
+            "away_team": "CGY"
+          }
+        }
+      },
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.4179,
+          "bookmaker_odds": 2.8,
+          "edge": 0.0607,
+          "kelly_stake": 0.0095,
+          "confidence": "medium",
+          "model_proba": 0.4179,
+          "market_proba": 0.345,
+          "books": [
+            {
+              "name": "draftkings",
+              "odds": 2.8,
+              "best": true
+            },
+            {
+              "name": "betmgm",
+              "odds": 2.8,
+              "best": true
+            },
+            {
+              "name": "fanduel",
+              "odds": 2.8,
+              "best": true
+            },
+            {
+              "name": "betrivers",
+              "odds": 2.8,
+              "best": true
+            },
+            {
+              "name": "bovada",
+              "odds": 2.8,
+              "best": true
+            },
+            {
+              "name": "lowvig",
+              "odds": 2.79,
+              "best": false
+            },
+            {
+              "name": "betonlineag",
+              "odds": 2.79,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 2.75,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 2.75,
+              "best": false
+            }
+          ]
+        }
+      ],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "L",
+            "W",
+            "L",
+            "W",
+            "W"
+          ],
+          "wins": 3,
+          "draws": 0,
+          "losses": 2,
+          "goals_for": 19,
+          "goals_against": 16
+        },
+        "away": {
+          "results": [
+            "W",
+            "L",
+            "W",
+            "L",
+            "L"
+          ],
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "goals_for": 14,
+          "goals_against": 15
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-03-05",
+          "home": "CGY",
+          "away": "OTT",
+          "home_score": 1,
+          "away_score": 4,
+          "winner": "home"
+        },
+        {
+          "date": "2025-10-30",
+          "home": "OTT",
+          "away": "CGY",
+          "home_score": 3,
+          "away_score": 3,
+          "winner": null
+        },
+        {
+          "date": "2024-12-19",
+          "home": "CGY",
+          "away": "OTT",
+          "home_score": 2,
+          "away_score": 3,
+          "winner": "home"
+        },
+        {
+          "date": "2024-11-25",
+          "home": "OTT",
+          "away": "CGY",
+          "home_score": 4,
+          "away_score": 3,
+          "winner": "home"
+        },
+        {
+          "date": "2024-01-09",
+          "home": "CGY",
+          "away": "OTT",
+          "home_score": 6,
+          "away_score": 3,
+          "winner": "away"
+        }
+      ],
+      "factors": [
+        {
+          "feature": "diff_elo",
+          "label": "Écart Elo",
+          "value": 77.9063,
+          "contribution": 0.1174,
+          "direction": "home"
+        },
+        {
+          "feature": "diff_xGF_pct",
+          "label": "Part de buts attendus (xGF %)",
+          "value": 0.1294,
+          "contribution": 0.1136,
+          "direction": "home"
+        },
+        {
+          "feature": "diff_xGF_season",
+          "label": "Buts attendus — saison",
+          "value": 0.0927,
+          "contribution": 0.0968,
+          "direction": "home"
+        }
+      ]
+    },
+    {
+      "home": "MTL",
+      "away": "LAK",
+      "commence_time": "2026-11-24T00:40:00Z",
+      "predictions": {
+        "btts": {
+          "probabilities": {
+            "yes": 0.8931512012892745,
+            "no": 0.1068487987107255
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.236701011657715,
+            "lambda_away": 2.654719829559326,
+            "p_home_scores": 0.9607066903164116,
+            "p_away_scores": 0.9296814629188358,
+            "home_team": "MTL",
+            "away_team": "LAK"
+          }
+        },
+        "exact_score": {
+          "probabilities": {
+            "3-2": 0.12811065073438674,
+            "2-2": 0.11874187662650992,
+            "3-3": 0.11336596162744186,
+            "2-3": 0.105075471493161,
+            "4-2": 0.10366396820902944,
+            "3-1": 0.09651538313604464,
+            "4-3": 0.0917329306717727,
+            "2-1": 0.08945718136005384,
+            "4-1": 0.07809785955924192,
+            "3-4": 0.07523871658235787
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.236701011657715,
+            "lambda_away": 2.654719829559326,
+            "top_score": "3-2",
+            "top_proba": 0.12811065073438674,
+            "top_n": 10,
+            "home_team": "MTL",
+            "away_team": "LAK"
+          }
+        },
+        "goal_intervals": {
+          "probabilities": {
+            "0-2": 0.06699242270294671,
+            "3-4": 0.23286060229262645,
+            "5-6": 0.3238843209916677,
+            "7-8": 0.2345065137781286,
+            "9+": 0.14175614023463057
+          },
+          "expected_value": 5.891420841217041,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.236701011657715,
+            "lambda_away": 2.654719829559326,
+            "lambda_total": 5.891420841217041,
+            "modal_bucket": "5-6",
+            "modal_proba": 0.3238843209916677,
+            "home_team": "MTL",
+            "away_team": "LAK"
+          }
+        },
+        "moneyline": {
+          "probabilities": {
+            "home": 0.5336453318595886,
+            "away": 0.4663546681404114
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "home_team": "MTL",
+            "away_team": "LAK",
+            "temperature": 1.0027519068934918,
+            "best_model": "XGB",
+            "engine": "NHLMoneylineEngine"
+          }
+        },
+        "p1_btts": {
+          "probabilities": {
+            "yes": 0.3172731494349862,
+            "no": 0.6827268505650138
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8913706541061401,
+            "lambda_p1_away": 0.7718357443809509,
+            "p_p1_home_scores": 0.5899067286695785,
+            "p_p1_away_scores": 0.5378361256372426,
+            "home_team": "MTL",
+            "away_team": "LAK"
+          }
+        },
+        "p1_total": {
+          "probabilities": {
+            "over_1.5": 0.4952417053075239,
+            "under_1.5": 0.504758294692476
+          },
+          "expected_value": 1.663206398487091,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8913706541061401,
+            "lambda_p1_away": 0.7718357443809509,
+            "lambda_p1_total": 1.663206398487091,
+            "line_used": 1.5,
+            "home_team": "MTL",
+            "away_team": "LAK"
+          }
+        },
+        "p1_winner": {
+          "probabilities": {
+            "home_lead": 0.3616023388097284,
+            "tied": 0.34414372942410215,
+            "away_lead": 0.2942539317661694
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8913706541061401,
+            "lambda_p1_away": 0.7718357443809509,
+            "home_team": "MTL",
+            "away_team": "LAK"
+          }
+        },
+        "total": {
+          "probabilities": {
+            "over_5.5": 0.5367261397738473,
+            "under_5.5": 0.4632738602261527
+          },
+          "expected_value": 5.891420841217041,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.236701011657715,
+            "lambda_away": 2.654719829559326,
+            "lambda_total": 5.891420841217041,
+            "line_used": 5.5,
+            "home_team": "MTL",
+            "away_team": "LAK"
+          }
+        }
+      },
+      "value_bets": [],
+      "withheld_bets": [
+        {
+          "market": "total",
+          "selection": "under_6.5",
+          "predicted_proba": 0.6237,
+          "bookmaker_odds": 1.8,
+          "edge": 0.0682,
+          "kelly_stake": 0.0144,
+          "confidence": "medium",
+          "model_proba": 0.6237,
+          "market_proba": 0.5386,
+          "books": [
+            {
+              "name": "lowvig",
+              "odds": 1.8,
+              "best": true
+            },
+            {
+              "name": "betus",
+              "odds": 1.8,
+              "best": true
+            },
+            {
+              "name": "betonlineag",
+              "odds": 1.8,
+              "best": true
+            },
+            {
+              "name": "draftkings",
+              "odds": 1.77,
+              "best": false
+            },
+            {
+              "name": "betrivers",
+              "odds": 1.77,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 1.75,
+              "best": false
+            }
+          ],
+          "withheld_reason": "169 paris sur 175 du même côté (« under »), et le modèle annonce 0.65 de moins que ce qui arrive (2.4 écarts-types) : le décalage de niveau explique le sens des paris."
+        }
+      ],
+      "form": {
+        "home": {
+          "results": [
+            "W",
+            "W",
+            "L",
+            "W",
+            "W"
+          ],
+          "wins": 4,
+          "draws": 0,
+          "losses": 1,
+          "goals_for": 23,
+          "goals_against": 17
+        },
+        "away": {
+          "results": [
+            "L",
+            "W",
+            "L",
+            "W",
+            "L"
+          ],
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "goals_for": 18,
+          "goals_against": 17
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-03-07",
+          "home": "LAK",
+          "away": "MTL",
+          "home_score": 3,
+          "away_score": 4,
+          "winner": "home"
+        },
+        {
+          "date": "2025-11-11",
+          "home": "MTL",
+          "away": "LAK",
+          "home_score": 1,
+          "away_score": 5,
+          "winner": "away"
+        },
+        {
+          "date": "2025-02-05",
+          "home": "LAK",
+          "away": "MTL",
+          "home_score": 6,
+          "away_score": 3,
+          "winner": "away"
+        },
+        {
+          "date": "2024-10-17",
+          "home": "MTL",
+          "away": "LAK",
+          "home_score": 1,
+          "away_score": 4,
+          "winner": "away"
+        },
+        {
+          "date": "2023-12-07",
+          "home": "MTL",
+          "away": "LAK",
+          "home_score": 0,
+          "away_score": 4,
+          "winner": "away"
+        }
+      ],
+      "factors": [
+        {
+          "feature": "diff_elo",
+          "label": "Écart Elo",
+          "value": 150.8637,
+          "contribution": 0.4532,
+          "direction": "home"
+        },
+        {
+          "feature": "diff_xGF_20",
+          "label": "Buts attendus — 20 derniers matchs",
+          "value": -0.0229,
+          "contribution": -0.1329,
+          "direction": "away"
+        },
+        {
+          "feature": "diff_pp_5",
+          "label": "Supériorité numérique — 5 derniers matchs",
+          "value": -0.0477,
+          "contribution": -0.0484,
+          "direction": "away"
+        }
+      ]
+    },
+    {
+      "home": "NYI",
+      "away": "TOR",
+      "commence_time": "2026-11-24T00:40:00Z",
+      "predictions": {
+        "btts": {
+          "probabilities": {
+            "yes": 0.8792422039023461,
+            "no": 0.12075779609765391
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.024122714996338,
+            "lambda_away": 2.579084873199463,
+            "p_home_scores": 0.9513995609903607,
+            "p_away_scores": 0.924156621416871,
+            "home_team": "NYI",
+            "away_team": "TOR"
+          }
+        },
+        "exact_score": {
+          "probabilities": {
+            "3-2": 0.12662001386402533,
+            "2-2": 0.12560999582073373,
+            "3-3": 0.10885458746700469,
+            "2-3": 0.1079862800479674,
+            "3-1": 0.09818987748700794,
+            "2-1": 0.09740663994892829,
+            "4-2": 0.09572861502483754,
+            "1-2": 0.08307202296907178,
+            "4-3": 0.08229740764763113,
+            "4-1": 0.07423455972279204
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.024122714996338,
+            "lambda_away": 2.579084873199463,
+            "top_score": "3-2",
+            "top_proba": 0.12662001386402533,
+            "top_n": 10,
+            "home_team": "NYI",
+            "away_team": "TOR"
+          }
+        },
+        "goal_intervals": {
+          "probabilities": {
+            "0-2": 0.08220261125083402,
+            "3-4": 0.2594615907130204,
+            "5-6": 0.3280854660725242,
+            "7-8": 0.21564314320258293,
+            "9+": 0.11460718876103851
+          },
+          "expected_value": 5.603207588195801,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.024122714996338,
+            "lambda_away": 2.579084873199463,
+            "lambda_total": 5.603207588195801,
+            "modal_bucket": "5-6",
+            "modal_proba": 0.3280854660725242,
+            "home_team": "NYI",
+            "away_team": "TOR"
+          }
+        },
+        "moneyline": {
+          "probabilities": {
+            "home": 0.5180729031562805,
+            "away": 0.4819270968437195
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "home_team": "NYI",
+            "away_team": "TOR",
+            "temperature": 1.0027519068934918,
+            "best_model": "XGB",
+            "engine": "NHLMoneylineEngine"
+          }
+        },
+        "p1_btts": {
+          "probabilities": {
+            "yes": 0.31174261631785094,
+            "no": 0.6882573836821491
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8818926215171814,
+            "lambda_p1_away": 0.7592501044273376,
+            "p_p1_home_scores": 0.5860013729709119,
+            "p_p1_away_scores": 0.5319827404795607,
+            "home_team": "NYI",
+            "away_team": "TOR"
+          }
+        },
+        "p1_total": {
+          "probabilities": {
+            "over_1.5": 0.4882561395619236,
+            "under_1.5": 0.5117438604380764
+          },
+          "expected_value": 1.641142725944519,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8818926215171814,
+            "lambda_p1_away": 0.7592501044273376,
+            "lambda_p1_total": 1.641142725944519,
+            "line_used": 1.5,
+            "home_team": "NYI",
+            "away_team": "TOR"
+          }
+        },
+        "p1_winner": {
+          "probabilities": {
+            "home_lead": 0.3612785689862141,
+            "tied": 0.34689719425764826,
+            "away_lead": 0.2918242367561377
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8818926215171814,
+            "lambda_p1_away": 0.7592501044273376,
+            "home_team": "NYI",
+            "away_team": "TOR"
+          }
+        },
+        "total": {
+          "probabilities": {
+            "over_5.5": 0.4886833306927398,
+            "under_5.5": 0.5113166693072602
+          },
+          "expected_value": 5.603207588195801,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 3.024122714996338,
+            "lambda_away": 2.579084873199463,
+            "lambda_total": 5.603207588195801,
+            "line_used": 5.5,
+            "home_team": "NYI",
+            "away_team": "TOR"
+          }
+        }
+      },
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.4819,
+          "bookmaker_odds": 2.41,
+          "edge": 0.067,
+          "kelly_stake": 0.0126,
+          "confidence": "low",
+          "model_proba": 0.4819,
+          "market_proba": 0.4069,
+          "books": [
+            {
+              "name": "lowvig",
+              "odds": 2.41,
+              "best": true
+            },
+            {
+              "name": "betonlineag",
+              "odds": 2.41,
+              "best": true
+            },
+            {
+              "name": "bovada",
+              "odds": 2.4,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 2.38,
+              "best": false
+            },
+            {
+              "name": "draftkings",
+              "odds": 2.36,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 2.35,
+              "best": false
+            },
+            {
+              "name": "betrivers",
+              "odds": 2.35,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 2.32,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 2.28,
+              "best": false
+            }
+          ]
+        }
+      ],
+      "withheld_bets": [
+        {
+          "market": "total",
+          "selection": "under_6.5",
+          "predicted_proba": 0.6697,
+          "bookmaker_odds": 1.91,
+          "edge": 0.1462,
+          "kelly_stake": 0.034,
+          "confidence": "high",
+          "model_proba": 0.6697,
+          "market_proba": 0.507,
+          "books": [
+            {
+              "name": "lowvig",
+              "odds": 1.91,
+              "best": true
+            },
+            {
+              "name": "betus",
+              "odds": 1.91,
+              "best": true
+            },
+            {
+              "name": "betonlineag",
+              "odds": 1.91,
+              "best": true
+            },
+            {
+              "name": "draftkings",
+              "odds": 1.89,
+              "best": false
+            },
+            {
+              "name": "betrivers",
+              "odds": 1.89,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 1.87,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 1.87,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.87,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 1.83,
+              "best": false
+            }
+          ],
+          "withheld_reason": "169 paris sur 175 du même côté (« under »), et le modèle annonce 0.65 de moins que ce qui arrive (2.4 écarts-types) : le décalage de niveau explique le sens des paris."
+        }
+      ],
+      "form": {
+        "home": {
+          "results": [
+            "D",
+            "W",
+            "L",
+            "L",
+            "L"
+          ],
+          "wins": 1,
+          "draws": 1,
+          "losses": 3,
+          "goals_for": 14,
+          "goals_against": 20
+        },
+        "away": {
+          "results": [
+            "L",
+            "L",
+            "W",
+            "L",
+            "L"
+          ],
+          "wins": 1,
+          "draws": 0,
+          "losses": 4,
+          "goals_for": 14,
+          "goals_against": 19
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-10-17",
+          "home": "TOR",
+          "away": "NYI",
+          "home_score": 1,
+          "away_score": 4,
+          "winner": "home"
+        },
+        {
+          "date": "2026-09-30",
+          "home": "TOR",
+          "away": "NYI",
+          "home_score": 2,
+          "away_score": 1,
+          "winner": "away"
+        },
+        {
+          "date": "2026-04-09",
+          "home": "NYI",
+          "away": "TOR",
+          "home_score": 5,
+          "away_score": 3,
+          "winner": "home"
+        },
+        {
+          "date": "2026-03-17",
+          "home": "TOR",
+          "away": "NYI",
+          "home_score": 1,
+          "away_score": 3,
+          "winner": "home"
+        },
+        {
+          "date": "2026-01-03",
+          "home": "NYI",
+          "away": "TOR",
+          "home_score": 4,
+          "away_score": 3,
+          "winner": "home"
+        }
+      ],
+      "factors": [
+        {
+          "feature": "diff_xGF_season",
+          "label": "Buts attendus — saison",
+          "value": 0.0632,
+          "contribution": 0.1218,
+          "direction": "home"
+        },
+        {
+          "feature": "diff_days_rest",
+          "label": "Jours de repos",
+          "value": -2.0,
+          "contribution": -0.0748,
+          "direction": "away"
+        },
+        {
+          "feature": "diff_xGF_20",
+          "label": "Buts attendus — 20 derniers matchs",
+          "value": 0.0782,
+          "contribution": 0.0528,
+          "direction": "home"
+        }
+      ]
+    },
+    {
+      "home": "WPG",
+      "away": "ARI",
+      "commence_time": "2026-11-24T00:40:00Z",
+      "predictions": {
+        "btts": {
+          "probabilities": {
+            "yes": 0.8914019221822534,
+            "no": 0.10859807781774655
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.741149663925171,
+            "lambda_away": 3.054581880569458,
+            "p_home_scores": 0.9355038446494486,
+            "p_away_scores": 0.9528575721848359,
+            "home_team": "WPG",
+            "away_team": "ARI"
+          }
+        },
+        "exact_score": {
+          "probabilities": {
+            "2-3": 0.12546964448771372,
+            "2-2": 0.12322764560921448,
+            "3-3": 0.11464369127343575,
+            "3-2": 0.11259513978266282,
+            "2-4": 0.09581432565341545,
+            "1-3": 0.09154527105101465,
+            "1-2": 0.08990946188086607,
+            "3-4": 0.08754713552135891,
+            "2-1": 0.08068380578898834,
+            "4-3": 0.07856387895132984
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.741149663925171,
+            "lambda_away": 3.054581880569458,
+            "top_score": "2-3",
+            "top_proba": 0.12546964448771372,
+            "top_n": 10,
+            "home_team": "WPG",
+            "away_team": "ARI"
+          }
+        },
+        "goal_intervals": {
+          "probabilities": {
+            "0-2": 0.07172851183741058,
+            "3-4": 0.2415995869177877,
+            "5-6": 0.32574627638579945,
+            "7-8": 0.22852189121853428,
+            "9+": 0.13240373364046804
+          },
+          "expected_value": 5.795731544494629,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.741149663925171,
+            "lambda_away": 3.054581880569458,
+            "lambda_total": 5.795731544494629,
+            "modal_bucket": "5-6",
+            "modal_proba": 0.32574627638579945,
+            "home_team": "WPG",
+            "away_team": "ARI"
+          }
+        },
+        "moneyline": {
+          "probabilities": {
+            "home": 0.4080830514431,
+            "away": 0.5919169485569
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "home_team": "WPG",
+            "away_team": "ARI",
+            "temperature": 1.0027519068934918,
+            "best_model": "XGB",
+            "engine": "NHLMoneylineEngine"
+          }
+        },
+        "p1_btts": {
+          "probabilities": {
+            "yes": 0.3143213487526592,
+            "no": 0.6856786512473407
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8172342777252197,
+            "lambda_p1_away": 0.8277037143707275,
+            "p_p1_home_scores": 0.5583485478233625,
+            "p_p1_away_scores": 0.5629482694599879,
+            "home_team": "WPG",
+            "away_team": "ARI"
+          }
+        },
+        "p1_total": {
+          "probabilities": {
+            "over_1.5": 0.48946208331030516,
+            "under_1.5": 0.5105379166896948
+          },
+          "expected_value": 1.6449379920959473,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8172342777252197,
+            "lambda_p1_away": 0.8277037143707275,
+            "lambda_p1_total": 1.6449379920959473,
+            "line_used": 1.5,
+            "home_team": "WPG",
+            "away_team": "ARI"
+          }
+        },
+        "p1_winner": {
+          "probabilities": {
+            "home_lead": 0.3233341366860949,
+            "tied": 0.34740325628475066,
+            "away_lead": 0.3292626070291545
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8172342777252197,
+            "lambda_p1_away": 0.8277037143707275,
+            "home_team": "WPG",
+            "away_team": "ARI"
+          }
+        },
+        "total": {
+          "probabilities": {
+            "over_5.5": 0.5209782644455645,
+            "under_5.5": 0.4790217355544355
+          },
+          "expected_value": 5.795731544494629,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.741149663925171,
+            "lambda_away": 3.054581880569458,
+            "lambda_total": 5.795731544494629,
+            "line_used": 5.5,
+            "home_team": "WPG",
+            "away_team": "ARI"
+          }
+        }
+      },
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.5919,
+          "bookmaker_odds": 1.89,
+          "edge": 0.0628,
+          "kelly_stake": 0.0134,
+          "confidence": "medium",
+          "model_proba": 0.5919,
+          "market_proba": 0.5166,
+          "books": [
+            {
+              "name": "draftkings",
+              "odds": 1.89,
+              "best": true
+            },
+            {
+              "name": "betrivers",
+              "odds": 1.88,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 1.87,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.87,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 1.85,
+              "best": false
+            },
+            {
+              "name": "lowvig",
+              "odds": 1.84,
+              "best": false
+            },
+            {
+              "name": "betonlineag",
+              "odds": 1.84,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 1.83,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 1.83,
+              "best": false
+            }
+          ]
+        }
+      ],
+      "withheld_bets": [
+        {
+          "market": "total",
+          "selection": "under_6.5",
+          "predicted_proba": 0.6391,
+          "bookmaker_odds": 1.93,
+          "edge": 0.1209,
+          "kelly_stake": 0.0271,
+          "confidence": "medium",
+          "model_proba": 0.6391,
+          "market_proba": 0.5016,
+          "books": [
+            {
+              "name": "lowvig",
+              "odds": 1.93,
+              "best": true
+            },
+            {
+              "name": "betonlineag",
+              "odds": 1.93,
+              "best": true
+            },
+            {
+              "name": "draftkings",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 1.89,
+              "best": false
+            },
+            {
+              "name": "betrivers",
+              "odds": 1.85,
+              "best": false
+            }
+          ],
+          "withheld_reason": "169 paris sur 175 du même côté (« under »), et le modèle annonce 0.65 de moins que ce qui arrive (2.4 écarts-types) : le décalage de niveau explique le sens des paris."
+        }
+      ],
+      "form": {
+        "home": {
+          "results": [
+            "L",
+            "L",
+            "L",
+            "W",
+            "W"
+          ],
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "goals_for": 17,
+          "goals_against": 24
+        },
+        "away": {
+          "results": [
+            "W",
+            "L",
+            "W",
+            "L",
+            "L"
+          ],
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "goals_for": 16,
+          "goals_against": 20
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-04-14",
+          "home": "ARI",
+          "away": "WPG",
+          "home_score": 5,
+          "away_score": 3,
+          "winner": "away"
+        },
+        {
+          "date": "2025-12-21",
+          "home": "ARI",
+          "away": "WPG",
+          "home_score": 4,
+          "away_score": 3,
+          "winner": "away"
+        },
+        {
+          "date": "2025-10-26",
+          "home": "WPG",
+          "away": "ARI",
+          "home_score": 2,
+          "away_score": 3,
+          "winner": "away"
+        },
+        {
+          "date": "2025-04-05",
+          "home": "ARI",
+          "away": "WPG",
+          "home_score": 4,
+          "away_score": 1,
+          "winner": "away"
+        },
+        {
+          "date": "2025-01-24",
+          "home": "WPG",
+          "away": "ARI",
+          "home_score": 5,
+          "away_score": 2,
+          "winner": "home"
+        }
+      ],
+      "factors": [
+        {
+          "feature": "diff_xGF_20",
+          "label": "Buts attendus — 20 derniers matchs",
+          "value": -0.1103,
+          "contribution": -0.2095,
+          "direction": "away"
+        },
+        {
+          "feature": "diff_xGF_season",
+          "label": "Buts attendus — saison",
+          "value": -0.0483,
+          "contribution": -0.1011,
+          "direction": "away"
+        },
+        {
+          "feature": "diff_xGF_pct",
+          "label": "Part de buts attendus (xGF %)",
+          "value": -0.1099,
+          "contribution": -0.0727,
+          "direction": "away"
+        }
+      ]
+    },
+    {
+      "home": "SEA",
+      "away": "ANA",
+      "commence_time": "2026-11-24T02:50:00Z",
+      "predictions": {
+        "btts": {
+          "probabilities": {
+            "yes": 0.8837002523443835,
+            "no": 0.11629974765561646
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.91961407661438,
+            "lambda_away": 2.7196033000946045,
+            "p_home_scores": 0.9460454944115684,
+            "p_away_scores": 0.9340991078806807,
+            "home_team": "SEA",
+            "away_team": "ANA"
+          }
+        },
+        "exact_score": {
+          "probabilities": {
+            "2-2": 0.1270099893820296,
+            "3-2": 0.12360671762347218,
+            "2-3": 0.11513892875611613,
+            "3-3": 0.11205374572088564,
+            "2-1": 0.09340332053399952,
+            "3-1": 0.09090054981119665,
+            "4-2": 0.09022097818439702,
+            "1-2": 0.08700464242816087,
+            "4-3": 0.08178842333601649,
+            "1-3": 0.0788727042237258
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.91961407661438,
+            "lambda_away": 2.7196033000946045,
+            "top_score": "2-2",
+            "top_proba": 0.1270099893820296,
+            "top_n": 10,
+            "home_team": "SEA",
+            "away_team": "ANA"
+          }
+        },
+        "goal_intervals": {
+          "probabilities": {
+            "0-2": 0.08014294302689487,
+            "3-4": 0.2560979198919512,
+            "5-6": 0.32779662130133147,
+            "7-8": 0.21813220489084695,
+            "9+": 0.11783031088897561
+          },
+          "expected_value": 5.639217376708984,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.91961407661438,
+            "lambda_away": 2.7196033000946045,
+            "lambda_total": 5.639217376708984,
+            "modal_bucket": "5-6",
+            "modal_proba": 0.32779662130133147,
+            "home_team": "SEA",
+            "away_team": "ANA"
+          }
+        },
+        "moneyline": {
+          "probabilities": {
+            "home": 0.45189377665519714,
+            "away": 0.5481062233448029
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "home_team": "SEA",
+            "away_team": "ANA",
+            "temperature": 1.0027519068934918,
+            "best_model": "XGB",
+            "engine": "NHLMoneylineEngine"
+          }
+        },
+        "p1_btts": {
+          "probabilities": {
+            "yes": 0.3089300316081827,
+            "no": 0.6910699683918173
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8347582221031189,
+            "lambda_p1_away": 0.7892020344734192,
+            "p_p1_home_scores": 0.5660206046249527,
+            "p_p1_away_scores": 0.5457929076855441,
+            "home_team": "SEA",
+            "away_team": "ANA"
+          }
+        },
+        "p1_total": {
+          "probabilities": {
+            "over_1.5": 0.4827740874481702,
+            "under_1.5": 0.5172259125518298
+          },
+          "expected_value": 1.623960256576538,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8347582221031189,
+            "lambda_p1_away": 0.7892020344734192,
+            "lambda_p1_total": 1.623960256576538,
+            "line_used": 1.5,
+            "home_team": "SEA",
+            "away_team": "ANA"
+          }
+        },
+        "p1_winner": {
+          "probabilities": {
+            "home_lead": 0.33796359654059793,
+            "tied": 0.34999490840939074,
+            "away_lead": 0.3120414950500113
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8347582221031189,
+            "lambda_p1_away": 0.7892020344734192,
+            "home_team": "SEA",
+            "away_team": "ANA"
+          }
+        },
+        "total": {
+          "probabilities": {
+            "over_5.5": 0.49478044511654856,
+            "under_5.5": 0.5052195548834515
+          },
+          "expected_value": 5.639217376708984,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.91961407661438,
+            "lambda_away": 2.7196033000946045,
+            "lambda_total": 5.639217376708984,
+            "line_used": 5.5,
+            "home_team": "SEA",
+            "away_team": "ANA"
+          }
+        }
+      },
+      "value_bets": [],
+      "withheld_bets": [
+        {
+          "market": "total",
+          "selection": "under_6.5",
+          "predicted_proba": 0.664,
+          "bookmaker_odds": 2.05,
+          "edge": 0.1762,
+          "kelly_stake": 0.0406,
+          "confidence": "high",
+          "model_proba": 0.664,
+          "market_proba": 0.478,
+          "books": [
+            {
+              "name": "draftkings",
+              "odds": 2.05,
+              "best": true
+            },
+            {
+              "name": "lowvig",
+              "odds": 2.04,
+              "best": false
+            },
+            {
+              "name": "betonlineag",
+              "odds": 2.04,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 2.0,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 2.0,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 2.0,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 1.96,
+              "best": false
+            },
+            {
+              "name": "betrivers",
+              "odds": 1.93,
+              "best": false
+            }
+          ],
+          "withheld_reason": "169 paris sur 175 du même côté (« under »), et le modèle annonce 0.65 de moins que ce qui arrive (2.4 écarts-types) : le décalage de niveau explique le sens des paris."
+        }
+      ],
+      "form": {
+        "home": {
+          "results": [
+            "L",
+            "W",
+            "L",
+            "W",
+            "L"
+          ],
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "goals_for": 13,
+          "goals_against": 20
+        },
+        "away": {
+          "results": [
+            "L",
+            "W",
+            "W",
+            "W",
+            "W"
+          ],
+          "wins": 4,
+          "draws": 0,
+          "losses": 1,
+          "goals_for": 27,
+          "goals_against": 21
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-02-03",
+          "home": "ANA",
+          "away": "SEA",
+          "home_score": 4,
+          "away_score": 2,
+          "winner": "away"
+        },
+        {
+          "date": "2026-01-23",
+          "home": "SEA",
+          "away": "ANA",
+          "home_score": 2,
+          "away_score": 4,
+          "winner": "away"
+        },
+        {
+          "date": "2025-12-22",
+          "home": "ANA",
+          "away": "SEA",
+          "home_score": 1,
+          "away_score": 3,
+          "winner": "home"
+        },
+        {
+          "date": "2025-10-09",
+          "home": "SEA",
+          "away": "ANA",
+          "home_score": 3,
+          "away_score": 1,
+          "winner": "home"
+        },
+        {
+          "date": "2025-01-28",
+          "home": "SEA",
+          "away": "ANA",
+          "home_score": 4,
+          "away_score": 6,
+          "winner": "away"
+        }
+      ],
+      "factors": [
+        {
+          "feature": "diff_xGF_season",
+          "label": "Buts attendus — saison",
+          "value": -0.0502,
+          "contribution": -0.1256,
+          "direction": "away"
+        },
+        {
+          "feature": "diff_b2b",
+          "label": "Matchs consécutifs (back-to-back)",
+          "value": -1.0,
+          "contribution": 0.1052,
+          "direction": "home"
+        },
+        {
+          "feature": "diff_elo",
+          "label": "Écart Elo",
+          "value": -37.7903,
+          "contribution": -0.0874,
+          "direction": "away"
+        }
+      ]
+    },
+    {
+      "home": "SJS",
+      "away": "MIN",
+      "commence_time": "2026-11-24T03:10:00Z",
+      "predictions": {
+        "btts": {
+          "probabilities": {
+            "yes": 0.8886271876706434,
+            "no": 0.11137281232935659
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.551865577697754,
+            "lambda_away": 3.3169610500335693,
+            "p_home_scores": 0.9220638656210589,
+            "p_away_scores": 0.9637371344902512,
+            "home_team": "SJS",
+            "away_team": "MIN"
+          }
+        },
+        "exact_score": {
+          "probabilities": {
+            "2-3": 0.12900526455358607,
+            "2-2": 0.11667782280917692,
+            "3-3": 0.10973469798536285,
+            "2-4": 0.10697635944338031,
+            "1-3": 0.1011066301305512,
+            "3-2": 0.09924870656915218,
+            "1-2": 0.0914451167247152,
+            "3-4": 0.09099642976366144,
+            "1-4": 0.08384168851079721,
+            "2-5": 0.07096728350961669
+          },
+          "expected_value": null,
+          "confidence": "high",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.551865577697754,
+            "lambda_away": 3.3169610500335693,
+            "top_score": "2-3",
+            "top_proba": 0.12900526455358607,
+            "top_n": 10,
+            "home_team": "SJS",
+            "away_team": "MIN"
+          }
+        },
+        "goal_intervals": {
+          "probabilities": {
+            "0-2": 0.06808395944612192,
+            "3-4": 0.2349141074152585,
+            "5-6": 0.3243640172136465,
+            "7-8": 0.23311978658660004,
+            "9+": 0.13951812933837304
+          },
+          "expected_value": 5.868826627731323,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.551865577697754,
+            "lambda_away": 3.3169610500335693,
+            "lambda_total": 5.868826627731323,
+            "modal_bucket": "5-6",
+            "modal_proba": 0.3243640172136465,
+            "home_team": "SJS",
+            "away_team": "MIN"
+          }
+        },
+        "moneyline": {
+          "probabilities": {
+            "home": 0.36021751165390015,
+            "away": 0.6397824883460999
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "home_team": "SJS",
+            "away_team": "MIN",
+            "temperature": 1.0027519068934918,
+            "best_model": "XGB",
+            "engine": "NHLMoneylineEngine"
+          }
+        },
+        "p1_btts": {
+          "probabilities": {
+            "yes": 0.31664257874259266,
+            "no": 0.6833574212574074
+          },
+          "expected_value": null,
+          "confidence": "medium",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8063124418258667,
+            "lambda_p1_away": 0.8488070964813232,
+            "p_p1_home_scores": 0.5534984654484295,
+            "p_p1_away_scores": 0.5720748990443133,
+            "home_team": "SJS",
+            "away_team": "MIN"
+          }
+        },
+        "p1_total": {
+          "probabilities": {
+            "over_1.5": 0.4926883960762211,
+            "under_1.5": 0.5073116039237788
+          },
+          "expected_value": 1.65511953830719,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8063124418258667,
+            "lambda_p1_away": 0.8488070964813232,
+            "lambda_p1_total": 1.65511953830719,
+            "line_used": 1.5,
+            "home_team": "SJS",
+            "away_team": "MIN"
+          }
+        },
+        "p1_winner": {
+          "probabilities": {
+            "home_lead": 0.3150037965230747,
+            "tied": 0.3459887589727404,
+            "away_lead": 0.339007444504185
+          },
+          "expected_value": null,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_p1_independent",
+            "mode": "dedicated",
+            "lambda_p1_home": 0.8063124418258667,
+            "lambda_p1_away": 0.8488070964813232,
+            "home_team": "SJS",
+            "away_team": "MIN"
+          }
+        },
+        "total": {
+          "probabilities": {
+            "over_5.5": 0.5330275012655774,
+            "under_5.5": 0.4669724987344226
+          },
+          "expected_value": 5.868826627731323,
+          "confidence": "low",
+          "metadata": {
+            "model": "poisson_independent",
+            "lambda_home": 2.551865577697754,
+            "lambda_away": 3.3169610500335693,
+            "lambda_total": 5.868826627731323,
+            "line_used": 5.5,
+            "home_team": "SJS",
+            "away_team": "MIN"
+          }
+        }
+      },
+      "value_bets": [],
+      "withheld_bets": [
+        {
+          "market": "total",
+          "selection": "under_6.0",
+          "predicted_proba": 0.5562,
+          "bookmaker_odds": 2.04,
+          "edge": 0.066,
+          "kelly_stake": 0.0125,
+          "confidence": "medium",
+          "model_proba": 0.5562,
+          "market_proba": 0.4751,
+          "books": [
+            {
+              "name": "lowvig",
+              "odds": 2.04,
+              "best": true
+            },
+            {
+              "name": "betonlineag",
+              "odds": 2.04,
+              "best": true
+            },
+            {
+              "name": "bovada",
+              "odds": 2.02,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 2.0,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 2.0,
+              "best": false
+            }
+          ],
+          "withheld_reason": "169 paris sur 175 du même côté (« under »), et le modèle annonce 0.65 de moins que ce qui arrive (2.4 écarts-types) : le décalage de niveau explique le sens des paris."
+        }
+      ],
+      "form": {
+        "home": {
+          "results": [
+            "L",
+            "L",
+            "L",
+            "L",
+            "L"
+          ],
+          "wins": 0,
+          "draws": 0,
+          "losses": 5,
+          "goals_for": 8,
+          "goals_against": 22
+        },
+        "away": {
+          "results": [
+            "L",
+            "W",
+            "W",
+            "W",
+            "L"
+          ],
+          "wins": 3,
+          "draws": 0,
+          "losses": 2,
+          "goals_for": 19,
+          "goals_against": 12
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-11-06",
+          "home": "MIN",
+          "away": "SJS",
+          "home_score": 4,
+          "away_score": 1,
+          "winner": "away"
+        },
+        {
+          "date": "2025-12-31",
+          "home": "SJS",
+          "away": "MIN",
+          "home_score": 3,
+          "away_score": 3,
+          "winner": null
+        },
+        {
+          "date": "2025-11-11",
+          "home": "MIN",
+          "away": "SJS",
+          "home_score": 1,
+          "away_score": 2,
+          "winner": "home"
+        },
+        {
+          "date": "2025-10-26",
+          "home": "MIN",
+          "away": "SJS",
+          "home_score": 5,
+          "away_score": 6,
+          "winner": "home"
+        },
+        {
+          "date": "2025-04-09",
+          "home": "MIN",
+          "away": "SJS",
+          "home_score": 8,
+          "away_score": 7,
+          "winner": "away"
+        }
+      ],
+      "factors": [
+        {
+          "feature": "diff_elo",
+          "label": "Écart Elo",
+          "value": -139.1554,
+          "contribution": -0.3798,
+          "direction": "away"
+        },
+        {
+          "feature": "diff_xGF_20",
+          "label": "Buts attendus — 20 derniers matchs",
+          "value": -0.0765,
+          "contribution": -0.1134,
+          "direction": "away"
+        },
+        {
+          "feature": "diff_xGF_season",
+          "label": "Buts attendus — saison",
+          "value": -0.0496,
+          "contribution": -0.0795,
+          "direction": "away"
         }
       ]
     }
