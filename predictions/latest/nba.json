@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-11-23T00:38:24+00:00",
+  "generated_at": "2026-11-23T19:03:52+00:00",
   "n_games": 10,
   "detection_source": "ESPN",
-  "models_trained_at": "2026-11-16T18:35:31+00:00",
-  "model_version": "v2026.11.16",
+  "models_trained_at": "2026-11-23T14:10:44+00:00",
+  "model_version": "v2026.11.23",
   "withheld_markets": [],
   "games": [
     {
       "home": "CHA",
       "away": "MEM",
-      "commence_time": "2026-11-24T00:00Z",
-      "has_odds": false,
+      "commence_time": "2026-11-24T00:10:00Z",
+      "has_odds": true,
       "predictions": {
         "home_team": "CHA",
         "away_team": "MEM",
@@ -37,7 +37,63 @@
           "over_default_proba": 0.6230845347251639
         }
       },
-      "value_bets": [],
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "home",
+          "predicted_proba": 0.4747,
+          "bookmaker_odds": 2.35,
+          "implied_proba": 0.4255,
+          "edge": 0.0492,
+          "kelly_stake": 0.0096,
+          "expected_value_per_unit": 0.1157,
+          "confidence": "low",
+          "model_proba": 0.4747,
+          "market_proba": 0.4206,
+          "books": [
+            {
+              "name": "BetMGM",
+              "odds": 2.35,
+              "best": true
+            },
+            {
+              "name": "Bovada",
+              "odds": 2.35,
+              "best": true
+            },
+            {
+              "name": "BetRivers",
+              "odds": 2.32,
+              "best": false
+            },
+            {
+              "name": "BetUS",
+              "odds": 2.29,
+              "best": false
+            },
+            {
+              "name": "LowVig.ag",
+              "odds": 2.27,
+              "best": false
+            },
+            {
+              "name": "BetOnline.ag",
+              "odds": 2.25,
+              "best": false
+            },
+            {
+              "name": "DraftKings",
+              "odds": 2.25,
+              "best": false
+            },
+            {
+              "name": "FanDuel",
+              "odds": 2.22,
+              "best": false
+            }
+          ]
+        }
+      ],
       "withheld_bets": [],
       "form": {
         "home": {
@@ -223,8 +279,8 @@
     {
       "home": "IND",
       "away": "OKC",
-      "commence_time": "2026-11-24T00:30Z",
-      "has_odds": false,
+      "commence_time": "2026-11-24T00:40:00Z",
+      "has_odds": true,
       "predictions": {
         "home_team": "IND",
         "away_team": "OKC",
@@ -251,7 +307,113 @@
           "over_default_proba": 0.6802652268939878
         }
       },
-      "value_bets": [],
+      "value_bets": [
+        {
+          "market": "total",
+          "selection": "over_223.5",
+          "predicted_proba": 0.595,
+          "bookmaker_odds": 1.93,
+          "implied_proba": 0.5181,
+          "edge": 0.0769,
+          "kelly_stake": 0.0153,
+          "expected_value_per_unit": 0.1484,
+          "confidence": "medium",
+          "model_proba": 0.595,
+          "market_proba": 0.5004,
+          "books": [
+            {
+              "name": "FanDuel",
+              "odds": 1.93,
+              "best": true
+            },
+            {
+              "name": "BetMGM",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "BetRivers",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "Bovada",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "BetUS",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "DraftKings",
+              "odds": 1.86,
+              "best": false
+            }
+          ]
+        },
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.75,
+          "bookmaker_odds": 1.47,
+          "implied_proba": 0.6803,
+          "edge": 0.0697,
+          "kelly_stake": 0.022,
+          "expected_value_per_unit": 0.1025,
+          "confidence": "high",
+          "model_proba": 0.75,
+          "market_proba": 0.6667,
+          "books": [
+            {
+              "name": "BetUS",
+              "odds": 1.47,
+              "best": true
+            },
+            {
+              "name": "LowVig.ag",
+              "odds": 1.46,
+              "best": false
+            },
+            {
+              "name": "BetOnline.ag",
+              "odds": 1.45,
+              "best": false
+            },
+            {
+              "name": "Bovada",
+              "odds": 1.45,
+              "best": false
+            },
+            {
+              "name": "FanDuel",
+              "odds": 1.44,
+              "best": false
+            },
+            {
+              "name": "DraftKings",
+              "odds": 1.44,
+              "best": false
+            },
+            {
+              "name": "BetMGM",
+              "odds": 1.44,
+              "best": false
+            },
+            {
+              "name": "MyBookie.ag",
+              "odds": 1.41,
+              "best": false
+            },
+            {
+              "name": "BetRivers",
+              "odds": 1.4,
+              "best": false
+            }
+          ]
+        }
+      ],
       "withheld_bets": [],
       "form": {
         "home": {
@@ -330,8 +492,8 @@
     {
       "home": "TOR",
       "away": "MIL",
-      "commence_time": "2026-11-24T00:30Z",
-      "has_odds": false,
+      "commence_time": "2026-11-24T00:40:00Z",
+      "has_odds": true,
       "predictions": {
         "home_team": "TOR",
         "away_team": "MIL",
@@ -437,8 +599,8 @@
     {
       "home": "MIN",
       "away": "BKN",
-      "commence_time": "2026-11-24T00:30Z",
-      "has_odds": false,
+      "commence_time": "2026-11-24T00:40:00Z",
+      "has_odds": true,
       "predictions": {
         "home_team": "MIN",
         "away_team": "BKN",
@@ -544,8 +706,8 @@
     {
       "home": "CHI",
       "away": "CLE",
-      "commence_time": "2026-11-24T01:00Z",
-      "has_odds": false,
+      "commence_time": "2026-11-24T01:10:00Z",
+      "has_odds": true,
       "predictions": {
         "home_team": "CHI",
         "away_team": "CLE",
@@ -651,8 +813,8 @@
     {
       "home": "NOP",
       "away": "PHX",
-      "commence_time": "2026-11-24T01:00Z",
-      "has_odds": false,
+      "commence_time": "2026-11-24T01:10:00Z",
+      "has_odds": true,
       "predictions": {
         "home_team": "NOP",
         "away_team": "PHX",
@@ -679,7 +841,68 @@
           "over_default_proba": 0.6696458696299155
         }
       },
-      "value_bets": [],
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "home",
+          "predicted_proba": 0.4747,
+          "bookmaker_odds": 2.38,
+          "implied_proba": 0.4202,
+          "edge": 0.0546,
+          "kelly_stake": 0.0113,
+          "expected_value_per_unit": 0.1299,
+          "confidence": "low",
+          "model_proba": 0.4747,
+          "market_proba": 0.4178,
+          "books": [
+            {
+              "name": "BetRivers",
+              "odds": 2.38,
+              "best": true
+            },
+            {
+              "name": "LowVig.ag",
+              "odds": 2.32,
+              "best": false
+            },
+            {
+              "name": "DraftKings",
+              "odds": 2.31,
+              "best": false
+            },
+            {
+              "name": "FanDuel",
+              "odds": 2.3,
+              "best": false
+            },
+            {
+              "name": "BetOnline.ag",
+              "odds": 2.3,
+              "best": false
+            },
+            {
+              "name": "Bovada",
+              "odds": 2.3,
+              "best": false
+            },
+            {
+              "name": "BetUS",
+              "odds": 2.29,
+              "best": false
+            },
+            {
+              "name": "MyBookie.ag",
+              "odds": 2.27,
+              "best": false
+            },
+            {
+              "name": "BetMGM",
+              "odds": 2.25,
+              "best": false
+            }
+          ]
+        }
+      ],
       "withheld_bets": [],
       "form": {
         "home": {
@@ -786,7 +1009,43 @@
           "over_default_proba": 0.4514472983658707
         }
       },
-      "value_bets": [],
+      "value_bets": [
+        {
+          "market": "total",
+          "selection": "over_224.0",
+          "predicted_proba": 0.5964,
+          "bookmaker_odds": 1.93,
+          "implied_proba": 0.5181,
+          "edge": 0.0782,
+          "kelly_stake": 0.0156,
+          "expected_value_per_unit": 0.151,
+          "confidence": "medium",
+          "model_proba": 0.5964,
+          "market_proba": 0.5,
+          "books": [
+            {
+              "name": "LowVig.ag",
+              "odds": 1.93,
+              "best": true
+            },
+            {
+              "name": "BetOnline.ag",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "BetUS",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "MyBookie.ag",
+              "odds": 1.91,
+              "best": false
+            }
+          ]
+        }
+      ],
       "withheld_bets": [],
       "form": {
         "home": {
@@ -865,8 +1124,8 @@
     {
       "home": "LAL",
       "away": "UTA",
-      "commence_time": "2026-11-24T03:00Z",
-      "has_odds": false,
+      "commence_time": "2026-11-24T03:10:00Z",
+      "has_odds": true,
       "predictions": {
         "home_team": "LAL",
         "away_team": "UTA",
@@ -972,8 +1231,8 @@
     {
       "home": "SAC",
       "away": "SAS",
-      "commence_time": "2026-11-24T03:00Z",
-      "has_odds": false,
+      "commence_time": "2026-11-24T03:10:00Z",
+      "has_odds": true,
       "predictions": {
         "home_team": "SAC",
         "away_team": "SAS",
@@ -1000,7 +1259,68 @@
           "over_default_proba": 0.8117352904183397
         }
       },
-      "value_bets": [],
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "home",
+          "predicted_proba": 0.25,
+          "bookmaker_odds": 4.81,
+          "implied_proba": 0.2079,
+          "edge": 0.0421,
+          "kelly_stake": 0.0059,
+          "expected_value_per_unit": 0.2025,
+          "confidence": "high",
+          "model_proba": 0.25,
+          "market_proba": 0.2034,
+          "books": [
+            {
+              "name": "LowVig.ag",
+              "odds": 4.81,
+              "best": true
+            },
+            {
+              "name": "BetRivers",
+              "odds": 4.8,
+              "best": false
+            },
+            {
+              "name": "BetUS",
+              "odds": 4.8,
+              "best": false
+            },
+            {
+              "name": "BetMGM",
+              "odds": 4.75,
+              "best": false
+            },
+            {
+              "name": "BetOnline.ag",
+              "odds": 4.74,
+              "best": false
+            },
+            {
+              "name": "DraftKings",
+              "odds": 4.71,
+              "best": false
+            },
+            {
+              "name": "FanDuel",
+              "odds": 4.7,
+              "best": false
+            },
+            {
+              "name": "MyBookie.ag",
+              "odds": 4.6,
+              "best": false
+            },
+            {
+              "name": "Bovada",
+              "odds": 4.55,
+              "best": false
+            }
+          ]
+        }
+      ],
       "withheld_bets": [],
       "form": {
         "home": {
