@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-24T04:39:35+00:00",
+  "generated_at": "2026-11-24T18:44:26+00:00",
   "n_games": 3,
   "detection_source": "ESPN",
   "models_trained_at": "2026-11-23T14:10:44+00:00",
@@ -144,68 +144,7 @@
           "over_default_proba": 0.7172977508210316
         }
       },
-      "value_bets": [
-        {
-          "market": "moneyline",
-          "selection": "away",
-          "predicted_proba": 0.9091,
-          "bookmaker_odds": 1.22,
-          "implied_proba": 0.8197,
-          "edge": 0.0894,
-          "kelly_stake": 0.0408,
-          "expected_value_per_unit": 0.1091,
-          "confidence": "high",
-          "model_proba": 0.9091,
-          "market_proba": 0.7891,
-          "books": [
-            {
-              "name": "DraftKings",
-              "odds": 1.22,
-              "best": true
-            },
-            {
-              "name": "LowVig.ag",
-              "odds": 1.22,
-              "best": true
-            },
-            {
-              "name": "BetOnline.ag",
-              "odds": 1.22,
-              "best": true
-            },
-            {
-              "name": "FanDuel",
-              "odds": 1.22,
-              "best": true
-            },
-            {
-              "name": "BetUS",
-              "odds": 1.22,
-              "best": true
-            },
-            {
-              "name": "BetRivers",
-              "odds": 1.21,
-              "best": false
-            },
-            {
-              "name": "BetMGM",
-              "odds": 1.21,
-              "best": false
-            },
-            {
-              "name": "MyBookie.ag",
-              "odds": 1.21,
-              "best": false
-            },
-            {
-              "name": "Bovada",
-              "odds": 1.21,
-              "best": false
-            }
-          ]
-        }
-      ],
+      "value_bets": [],
       "withheld_bets": [],
       "form": {
         "home": {
@@ -312,53 +251,7 @@
           "over_default_proba": 0.6723287655777457
         }
       },
-      "value_bets": [
-        {
-          "market": "total",
-          "selection": "over_231.5",
-          "predicted_proba": 0.579,
-          "bookmaker_odds": 1.93,
-          "implied_proba": 0.5181,
-          "edge": 0.0609,
-          "kelly_stake": 0.0119,
-          "expected_value_per_unit": 0.1175,
-          "confidence": "medium",
-          "model_proba": 0.579,
-          "market_proba": 0.5031,
-          "books": [
-            {
-              "name": "LowVig.ag",
-              "odds": 1.93,
-              "best": true
-            },
-            {
-              "name": "DraftKings",
-              "odds": 1.91,
-              "best": false
-            },
-            {
-              "name": "BetOnline.ag",
-              "odds": 1.91,
-              "best": false
-            },
-            {
-              "name": "BetUS",
-              "odds": 1.91,
-              "best": false
-            },
-            {
-              "name": "FanDuel",
-              "odds": 1.88,
-              "best": false
-            },
-            {
-              "name": "BetMGM",
-              "odds": 1.87,
-              "best": false
-            }
-          ]
-        }
-      ],
+      "value_bets": [],
       "withheld_bets": [],
       "form": {
         "home": {
