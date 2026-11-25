@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-24",
+  "generated_at": "2026-11-25T03:24:30+00:00",
+  "games": [
+    {
+      "sport": "nba",
+      "home": "ORL",
+      "away": "DET",
+      "home_name": "Orlando Magic",
+      "away_name": "Detroit Pistons",
+      "commence_time": "2026-11-25T00:00Z",
+      "home_score": 86,
+      "away_score": 104,
+      "overtime": false,
+      "periods": [
+        {
+          "home": 22,
+          "away": 16
+        },
+        {
+          "home": 14,
+          "away": 32
+        },
+        {
+          "home": 25,
+          "away": 25
+        },
+        {
+          "home": 25,
+          "away": 31
+        }
+      ],
+      "winner": "away",
+      "status": "final"
+    }
+  ]
+}
