@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T03:24:31+00:00",
+  "generated_at": "2026-11-25T17:53:40+00:00",
   "window_days": 45,
   "thresholds": {
     "min_sample": 12,
@@ -12,9 +12,9 @@
       {
         "market": "moneyline",
         "status": "imbalanced",
-        "n": 82,
+        "n": 81,
         "counts": {
-          "away": 73,
+          "away": 72,
           "home": 9
         },
         "dominant": "away",
@@ -23,8 +23,8 @@
         "level_bias": null,
         "level_z": null,
         "from": "2026-10-11",
-        "to": "2026-11-26",
-        "reason": "73 paris sur 82 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
+        "to": "2026-11-24",
+        "reason": "72 paris sur 81 du même côté (« away ») : le rendement affiché dépend surtout de ce sens."
       },
       {
         "market": "total",
@@ -37,11 +37,11 @@
         "dominant": "under",
         "minority": 6,
         "withhold": "under",
-        "level_bias": -0.574,
-        "level_z": -2.27,
+        "level_bias": -0.59,
+        "level_z": -2.35,
         "from": "2026-10-14",
         "to": "2026-11-26",
-        "reason": "186 paris sur 192 du même côté (« under »), et le modèle annonce 0.57 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+        "reason": "186 paris sur 192 du même côté (« under »), et le modèle annonce 0.59 de moins que ce qui arrive (2.4 écarts-types) : le décalage de niveau explique le sens des paris."
       }
     ],
     "nba": [
@@ -65,19 +65,19 @@
       {
         "market": "total",
         "status": "imbalanced",
-        "n": 34,
+        "n": 35,
         "counts": {
-          "over": 27,
+          "over": 28,
           "under": 7
         },
         "dominant": "over",
         "minority": 7,
         "withhold": null,
-        "level_bias": 2.422,
-        "level_z": 1.27,
+        "level_bias": 2.316,
+        "level_z": 1.23,
         "from": "2026-10-26",
         "to": "2026-11-26",
-        "reason": "27 paris sur 34 du même côté (« over ») : le rendement affiché dépend surtout de ce sens."
+        "reason": "28 paris sur 35 du même côté (« over ») : le rendement affiché dépend surtout de ce sens."
       }
     ]
   }
