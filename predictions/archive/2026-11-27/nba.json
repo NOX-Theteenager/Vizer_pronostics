@@ -1,0 +1,1645 @@
+{
+  "generated_at": "2026-11-27T02:41:53+00:00",
+  "n_games": 11,
+  "detection_source": "ESPN",
+  "models_trained_at": "2026-11-25T20:08:27+00:00",
+  "model_version": "v2026.11.25",
+  "withheld_markets": [],
+  "games": [
+    {
+      "home": "NYK",
+      "away": "MIA",
+      "commence_time": "2026-11-28T00:10:00Z",
+      "has_odds": true,
+      "predictions": {
+        "home_team": "NYK",
+        "away_team": "MIA",
+        "win": {
+          "prediction": 1,
+          "home_win_proba": 0.6938775777816772,
+          "away_win_proba": 0.30612242221832275
+        },
+        "total": {
+          "prediction": 227.75509643554688
+        },
+        "talent": {
+          "home_ratio": 1.0,
+          "away_ratio": 1.0
+        },
+        "home_team_total": {
+          "prediction": 118.96349334716797,
+          "line_default": 112.5,
+          "over_default_proba": 0.7286652191140391
+        },
+        "away_team_total": {
+          "prediction": 112.83824157714844,
+          "line_default": 110.5,
+          "over_default_proba": 0.5863880880240049
+        }
+      },
+      "value_bets": [
+        {
+          "market": "total",
+          "selection": "over_223.5",
+          "predicted_proba": 0.5976,
+          "bookmaker_odds": 1.98,
+          "implied_proba": 0.5051,
+          "edge": 0.0926,
+          "kelly_stake": 0.0206,
+          "expected_value_per_unit": 0.1833,
+          "confidence": "medium",
+          "model_proba": 0.5976,
+          "market_proba": 0.4941,
+          "books": [
+            {
+              "name": "LowVig.ag",
+              "odds": 1.98,
+              "best": true
+            },
+            {
+              "name": "BetOnline.ag",
+              "odds": 1.95,
+              "best": false
+            },
+            {
+              "name": "BetUS",
+              "odds": 1.95,
+              "best": false
+            },
+            {
+              "name": "FanDuel",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "BetMGM",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "BetRivers",
+              "odds": 1.88,
+              "best": false
+            }
+          ]
+        },
+        {
+          "market": "moneyline",
+          "selection": "home",
+          "predicted_proba": 0.6939,
+          "bookmaker_odds": 1.61,
+          "implied_proba": 0.6211,
+          "edge": 0.0728,
+          "kelly_stake": 0.0182,
+          "expected_value_per_unit": 0.1171,
+          "confidence": "medium",
+          "model_proba": 0.6939,
+          "market_proba": 0.6034,
+          "books": [
+            {
+              "name": "Bovada",
+              "odds": 1.61,
+              "best": true
+            },
+            {
+              "name": "BetUS",
+              "odds": 1.61,
+              "best": true
+            },
+            {
+              "name": "DraftKings",
+              "odds": 1.6,
+              "best": false
+            },
+            {
+              "name": "FanDuel",
+              "odds": 1.6,
+              "best": false
+            },
+            {
+              "name": "BetMGM",
+              "odds": 1.59,
+              "best": false
+            },
+            {
+              "name": "MyBookie.ag",
+              "odds": 1.59,
+              "best": false
+            },
+            {
+              "name": "BetRivers",
+              "odds": 1.53,
+              "best": false
+            }
+          ]
+        }
+      ],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "W",
+            "L",
+            "W",
+            "W",
+            "W"
+          ],
+          "wins": 4,
+          "draws": 0,
+          "losses": 1,
+          "goals_for": 573,
+          "goals_against": 517
+        },
+        "away": {
+          "results": [
+            "W",
+            "W",
+            "L",
+            "W",
+            "L"
+          ],
+          "wins": 3,
+          "draws": 0,
+          "losses": 2,
+          "goals_for": 608,
+          "goals_against": 616
+        }
+      },
+      "h2h": [
+        {
+          "date": "2025-12-21",
+          "home": "NYK",
+          "away": "MIA",
+          "home_score": 132,
+          "away_score": 125,
+          "winner": "home"
+        },
+        {
+          "date": "2025-11-17",
+          "home": "MIA",
+          "away": "NYK",
+          "home_score": 115,
+          "away_score": 113,
+          "winner": "away"
+        },
+        {
+          "date": "2025-11-14",
+          "home": "NYK",
+          "away": "MIA",
+          "home_score": 140,
+          "away_score": 132,
+          "winner": "home"
+        },
+        {
+          "date": "2025-10-26",
+          "home": "MIA",
+          "away": "NYK",
+          "home_score": 115,
+          "away_score": 107,
+          "winner": "away"
+        },
+        {
+          "date": "2025-03-17",
+          "home": "NYK",
+          "away": "MIA",
+          "home_score": 116,
+          "away_score": 95,
+          "winner": "home"
+        }
+      ],
+      "factors": []
+    },
+    {
+      "home": "DET",
+      "away": "MIL",
+      "commence_time": "2026-11-28T00:40:00Z",
+      "has_odds": true,
+      "predictions": {
+        "home_team": "DET",
+        "away_team": "MIL",
+        "win": {
+          "prediction": 1,
+          "home_win_proba": 0.8999999761581421,
+          "away_win_proba": 0.10000002384185791
+        },
+        "total": {
+          "prediction": 216.54969787597656
+        },
+        "talent": {
+          "home_ratio": 1.0,
+          "away_ratio": 1.0
+        },
+        "home_team_total": {
+          "prediction": 114.30155181884766,
+          "line_default": 112.5,
+          "over_default_proba": 0.5673706249657671
+        },
+        "away_team_total": {
+          "prediction": 103.76190948486328,
+          "line_default": 110.5,
+          "over_default_proba": 0.2646850052472717
+        }
+      },
+      "value_bets": [
+        {
+          "market": "total",
+          "selection": "under_219.5",
+          "predicted_proba": 0.568,
+          "bookmaker_odds": 1.95,
+          "implied_proba": 0.5128,
+          "edge": 0.0552,
+          "kelly_stake": 0.0093,
+          "expected_value_per_unit": 0.1077,
+          "confidence": "medium",
+          "model_proba": 0.568,
+          "market_proba": 0.4939,
+          "books": [
+            {
+              "name": "Bovada",
+              "odds": 1.95,
+              "best": true
+            },
+            {
+              "name": "DraftKings",
+              "odds": 1.94,
+              "best": false
+            },
+            {
+              "name": "BetMGM",
+              "odds": 1.91,
+              "best": false
+            }
+          ]
+        }
+      ],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "W",
+            "W",
+            "W",
+            "L",
+            "L"
+          ],
+          "wins": 3,
+          "draws": 0,
+          "losses": 2,
+          "goals_for": 444,
+          "goals_against": 402
+        },
+        "away": {
+          "results": [
+            "L",
+            "L",
+            "L",
+            "L",
+            "L"
+          ],
+          "wins": 0,
+          "draws": 0,
+          "losses": 5,
+          "goals_for": 520,
+          "goals_against": 610
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-04-08",
+          "home": "DET",
+          "away": "MIL",
+          "home_score": 137,
+          "away_score": 111,
+          "winner": "home"
+        },
+        {
+          "date": "2025-12-06",
+          "home": "DET",
+          "away": "MIL",
+          "home_score": 124,
+          "away_score": 112,
+          "winner": "home"
+        },
+        {
+          "date": "2025-12-03",
+          "home": "MIL",
+          "away": "DET",
+          "home_score": 113,
+          "away_score": 109,
+          "winner": "away"
+        },
+        {
+          "date": "2025-11-22",
+          "home": "MIL",
+          "away": "DET",
+          "home_score": 116,
+          "away_score": 129,
+          "winner": "home"
+        },
+        {
+          "date": "2025-04-13",
+          "home": "MIL",
+          "away": "DET",
+          "home_score": 140,
+          "away_score": 133,
+          "winner": "away"
+        }
+      ],
+      "factors": []
+    },
+    {
+      "home": "IND",
+      "away": "PHI",
+      "commence_time": "2026-11-28T00:40:00Z",
+      "has_odds": true,
+      "predictions": {
+        "home_team": "IND",
+        "away_team": "PHI",
+        "win": {
+          "prediction": 0,
+          "home_win_proba": 0.32203391194343567,
+          "away_win_proba": 0.6779660880565643
+        },
+        "total": {
+          "prediction": 228.6309356689453
+        },
+        "talent": {
+          "home_ratio": 1.0,
+          "away_ratio": 1.0
+        },
+        "home_team_total": {
+          "prediction": 114.71993255615234,
+          "line_default": 112.5,
+          "over_default_proba": 0.5828110756648041
+        },
+        "away_team_total": {
+          "prediction": 114.99946594238281,
+          "line_default": 110.5,
+          "over_default_proba": 0.6627584683653827
+        }
+      },
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.678,
+          "bookmaker_odds": 1.71,
+          "implied_proba": 0.5848,
+          "edge": 0.0932,
+          "kelly_stake": 0.026,
+          "expected_value_per_unit": 0.1593,
+          "confidence": "medium",
+          "model_proba": 0.678,
+          "market_proba": 0.5779,
+          "books": [
+            {
+              "name": "MyBookie.ag",
+              "odds": 1.71,
+              "best": true
+            },
+            {
+              "name": "DraftKings",
+              "odds": 1.68,
+              "best": false
+            },
+            {
+              "name": "Bovada",
+              "odds": 1.67,
+              "best": false
+            },
+            {
+              "name": "BetUS",
+              "odds": 1.67,
+              "best": false
+            },
+            {
+              "name": "BetMGM",
+              "odds": 1.65,
+              "best": false
+            },
+            {
+              "name": "FanDuel",
+              "odds": 1.63,
+              "best": false
+            },
+            {
+              "name": "BetRivers",
+              "odds": 1.6,
+              "best": false
+            }
+          ]
+        },
+        {
+          "market": "total",
+          "selection": "under_232.5",
+          "predicted_proba": 0.5889,
+          "bookmaker_odds": 1.91,
+          "implied_proba": 0.5236,
+          "edge": 0.0654,
+          "kelly_stake": 0.0126,
+          "expected_value_per_unit": 0.1248,
+          "confidence": "medium",
+          "model_proba": 0.5889,
+          "market_proba": 0.5061,
+          "books": [
+            {
+              "name": "BetMGM",
+              "odds": 1.91,
+              "best": true
+            },
+            {
+              "name": "DraftKings",
+              "odds": 1.88,
+              "best": false
+            },
+            {
+              "name": "Bovada",
+              "odds": 1.87,
+              "best": false
+            }
+          ]
+        }
+      ],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "L",
+            "L",
+            "L",
+            "L",
+            "W"
+          ],
+          "wins": 1,
+          "draws": 0,
+          "losses": 4,
+          "goals_for": 535,
+          "goals_against": 568
+        },
+        "away": {
+          "results": [
+            "W",
+            "W",
+            "W",
+            "L",
+            "W"
+          ],
+          "wins": 4,
+          "draws": 0,
+          "losses": 1,
+          "goals_for": 569,
+          "goals_against": 557
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-10-28",
+          "home": "IND",
+          "away": "PHI",
+          "home_score": 109,
+          "away_score": 114,
+          "winner": "away"
+        },
+        {
+          "date": "2026-04-10",
+          "home": "IND",
+          "away": "PHI",
+          "home_score": 94,
+          "away_score": 105,
+          "winner": "away"
+        },
+        {
+          "date": "2026-02-24",
+          "home": "IND",
+          "away": "PHI",
+          "home_score": 114,
+          "away_score": 135,
+          "winner": "away"
+        },
+        {
+          "date": "2026-01-19",
+          "home": "PHI",
+          "away": "IND",
+          "home_score": 113,
+          "away_score": 104,
+          "winner": "away"
+        },
+        {
+          "date": "2025-12-12",
+          "home": "PHI",
+          "away": "IND",
+          "home_score": 115,
+          "away_score": 105,
+          "winner": "away"
+        }
+      ],
+      "factors": []
+    },
+    {
+      "home": "TOR",
+      "away": "BKN",
+      "commence_time": "2026-11-28T00:40:00Z",
+      "has_odds": true,
+      "predictions": {
+        "home_team": "TOR",
+        "away_team": "BKN",
+        "win": {
+          "prediction": 1,
+          "home_win_proba": 0.8999999761581421,
+          "away_win_proba": 0.10000002384185791
+        },
+        "total": {
+          "prediction": 227.07083129882812
+        },
+        "talent": {
+          "home_ratio": 1.0,
+          "away_ratio": 1.0
+        },
+        "home_team_total": {
+          "prediction": 119.66681671142578,
+          "line_default": 112.5,
+          "over_default_proba": 0.750170194733111
+        },
+        "away_team_total": {
+          "prediction": 107.8453140258789,
+          "line_default": 110.5,
+          "over_default_proba": 0.40214379198084294
+        }
+      },
+      "value_bets": [],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "L",
+            "L",
+            "W",
+            "L",
+            "W"
+          ],
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "goals_for": 594,
+          "goals_against": 605
+        },
+        "away": {
+          "results": [
+            "L",
+            "W",
+            "L",
+            "W",
+            "L"
+          ],
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "goals_for": 517,
+          "goals_against": 531
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-04-12",
+          "home": "TOR",
+          "away": "BKN",
+          "home_score": 136,
+          "away_score": 101,
+          "winner": "home"
+        },
+        {
+          "date": "2025-12-21",
+          "home": "BKN",
+          "away": "TOR",
+          "home_score": 96,
+          "away_score": 81,
+          "winner": "away"
+        },
+        {
+          "date": "2025-11-23",
+          "home": "TOR",
+          "away": "BKN",
+          "home_score": 119,
+          "away_score": 109,
+          "winner": "home"
+        },
+        {
+          "date": "2025-11-11",
+          "home": "BKN",
+          "away": "TOR",
+          "home_score": 109,
+          "away_score": 119,
+          "winner": "home"
+        },
+        {
+          "date": "2025-04-06",
+          "home": "BKN",
+          "away": "TOR",
+          "home_score": 109,
+          "away_score": 120,
+          "winner": "home"
+        }
+      ],
+      "factors": []
+    },
+    {
+      "home": "BOS",
+      "away": "ATL",
+      "commence_time": "2026-11-28T01:10:00Z",
+      "has_odds": true,
+      "predictions": {
+        "home_team": "BOS",
+        "away_team": "ATL",
+        "win": {
+          "prediction": 1,
+          "home_win_proba": 0.6851052045822144,
+          "away_win_proba": 0.31489479541778564
+        },
+        "total": {
+          "prediction": 229.0557861328125
+        },
+        "talent": {
+          "home_ratio": 1.0,
+          "away_ratio": 1.0
+        },
+        "home_team_total": {
+          "prediction": 118.38539123535156,
+          "line_default": 112.5,
+          "over_default_proba": 0.7103238334881736
+        },
+        "away_team_total": {
+          "prediction": 112.15556335449219,
+          "line_default": 110.5,
+          "over_default_proba": 0.5614075360549653
+        }
+      },
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.3149,
+          "bookmaker_odds": 4.4,
+          "implied_proba": 0.2273,
+          "edge": 0.0876,
+          "kelly_stake": 0.0142,
+          "expected_value_per_unit": 0.3855,
+          "confidence": "medium",
+          "model_proba": 0.3149,
+          "market_proba": 0.2271,
+          "books": [
+            {
+              "name": "Bovada",
+              "odds": 4.4,
+              "best": true
+            },
+            {
+              "name": "BetUS",
+              "odds": 4.38,
+              "best": false
+            },
+            {
+              "name": "DraftKings",
+              "odds": 4.31,
+              "best": false
+            },
+            {
+              "name": "MyBookie.ag",
+              "odds": 4.3,
+              "best": false
+            },
+            {
+              "name": "FanDuel",
+              "odds": 4.2,
+              "best": false
+            },
+            {
+              "name": "BetMGM",
+              "odds": 4.2,
+              "best": false
+            },
+            {
+              "name": "BetRivers",
+              "odds": 3.8,
+              "best": false
+            }
+          ]
+        }
+      ],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "W",
+            "W",
+            "L",
+            "W",
+            "W"
+          ],
+          "wins": 4,
+          "draws": 0,
+          "losses": 1,
+          "goals_for": 554,
+          "goals_against": 499
+        },
+        "away": {
+          "results": [
+            "L",
+            "W",
+            "W",
+            "W",
+            "W"
+          ],
+          "wins": 4,
+          "draws": 0,
+          "losses": 1,
+          "goals_for": 590,
+          "goals_against": 583
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-03-30",
+          "home": "ATL",
+          "away": "BOS",
+          "home_score": 112,
+          "away_score": 102,
+          "winner": "away"
+        },
+        {
+          "date": "2026-03-27",
+          "home": "BOS",
+          "away": "ATL",
+          "home_score": 109,
+          "away_score": 102,
+          "winner": "home"
+        },
+        {
+          "date": "2026-01-28",
+          "home": "BOS",
+          "away": "ATL",
+          "home_score": 106,
+          "away_score": 117,
+          "winner": "away"
+        },
+        {
+          "date": "2026-01-17",
+          "home": "ATL",
+          "away": "BOS",
+          "home_score": 106,
+          "away_score": 132,
+          "winner": "home"
+        },
+        {
+          "date": "2025-01-18",
+          "home": "BOS",
+          "away": "ATL",
+          "home_score": 115,
+          "away_score": 119,
+          "winner": "away"
+        }
+      ],
+      "factors": []
+    },
+    {
+      "home": "MIN",
+      "away": "MEM",
+      "commence_time": "2026-11-28T01:40:00Z",
+      "has_odds": true,
+      "predictions": {
+        "home_team": "MIN",
+        "away_team": "MEM",
+        "win": {
+          "prediction": 1,
+          "home_win_proba": 0.6938775777816772,
+          "away_win_proba": 0.30612242221832275
+        },
+        "total": {
+          "prediction": 230.94346618652344
+        },
+        "talent": {
+          "home_ratio": 1.0,
+          "away_ratio": 1.0
+        },
+        "home_team_total": {
+          "prediction": 121.36668395996094,
+          "line_default": 112.5,
+          "over_default_proba": 0.7981782710799409
+        },
+        "away_team_total": {
+          "prediction": 112.88089752197266,
+          "line_default": 110.5,
+          "over_default_proba": 0.5879384989558005
+        }
+      },
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "home",
+          "predicted_proba": 0.6939,
+          "bookmaker_odds": 1.62,
+          "implied_proba": 0.6173,
+          "edge": 0.0766,
+          "kelly_stake": 0.0186,
+          "expected_value_per_unit": 0.1241,
+          "confidence": "medium",
+          "model_proba": 0.6939,
+          "market_proba": 0.5975,
+          "books": [
+            {
+              "name": "DraftKings",
+              "odds": 1.62,
+              "best": true
+            },
+            {
+              "name": "BetRivers",
+              "odds": 1.61,
+              "best": false
+            },
+            {
+              "name": "Bovada",
+              "odds": 1.61,
+              "best": false
+            },
+            {
+              "name": "BetUS",
+              "odds": 1.61,
+              "best": false
+            },
+            {
+              "name": "FanDuel",
+              "odds": 1.6,
+              "best": false
+            },
+            {
+              "name": "MyBookie.ag",
+              "odds": 1.6,
+              "best": false
+            },
+            {
+              "name": "BetMGM",
+              "odds": 1.59,
+              "best": false
+            }
+          ]
+        }
+      ],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "W",
+            "L",
+            "W",
+            "W",
+            "W"
+          ],
+          "wins": 4,
+          "draws": 0,
+          "losses": 1,
+          "goals_for": 582,
+          "goals_against": 538
+        },
+        "away": {
+          "results": [
+            "W",
+            "W",
+            "L",
+            "L",
+            "L"
+          ],
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "goals_for": 594,
+          "goals_against": 578
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-03-03",
+          "home": "MIN",
+          "away": "MEM",
+          "home_score": 117,
+          "away_score": 110,
+          "winner": "home"
+        },
+        {
+          "date": "2026-02-02",
+          "home": "MEM",
+          "away": "MIN",
+          "home_score": 137,
+          "away_score": 128,
+          "winner": "away"
+        },
+        {
+          "date": "2026-01-31",
+          "home": "MEM",
+          "away": "MIN",
+          "home_score": 114,
+          "away_score": 131,
+          "winner": "home"
+        },
+        {
+          "date": "2025-12-17",
+          "home": "MIN",
+          "away": "MEM",
+          "home_score": 110,
+          "away_score": 116,
+          "winner": "away"
+        },
+        {
+          "date": "2025-04-10",
+          "home": "MEM",
+          "away": "MIN",
+          "home_score": 125,
+          "away_score": 141,
+          "winner": "home"
+        }
+      ],
+      "factors": []
+    },
+    {
+      "home": "PHX",
+      "away": "DAL",
+      "commence_time": "2026-11-28T02:10:00Z",
+      "has_odds": true,
+      "predictions": {
+        "home_team": "PHX",
+        "away_team": "DAL",
+        "win": {
+          "prediction": 1,
+          "home_win_proba": 0.6666666865348816,
+          "away_win_proba": 0.3333333134651184
+        },
+        "total": {
+          "prediction": 226.15328979492188
+        },
+        "talent": {
+          "home_ratio": 1.0,
+          "away_ratio": 1.0
+        },
+        "home_team_total": {
+          "prediction": 114.5692138671875,
+          "line_default": 112.5,
+          "over_default_proba": 0.5772621652440707
+        },
+        "away_team_total": {
+          "prediction": 113.46339416503906,
+          "line_default": 110.5,
+          "over_default_proba": 0.6089634477173576
+        }
+      },
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "home",
+          "predicted_proba": 0.6667,
+          "bookmaker_odds": 1.75,
+          "implied_proba": 0.5714,
+          "edge": 0.0952,
+          "kelly_stake": 0.0228,
+          "expected_value_per_unit": 0.1667,
+          "confidence": "medium",
+          "model_proba": 0.6667,
+          "market_proba": 0.5543,
+          "books": [
+            {
+              "name": "FanDuel",
+              "odds": 1.75,
+              "best": true
+            },
+            {
+              "name": "DraftKings",
+              "odds": 1.74,
+              "best": false
+            },
+            {
+              "name": "Bovada",
+              "odds": 1.74,
+              "best": false
+            },
+            {
+              "name": "BetRivers",
+              "odds": 1.72,
+              "best": false
+            },
+            {
+              "name": "BetUS",
+              "odds": 1.72,
+              "best": false
+            },
+            {
+              "name": "BetMGM",
+              "odds": 1.71,
+              "best": false
+            }
+          ]
+        }
+      ],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "L",
+            "L",
+            "L",
+            "W",
+            "W"
+          ],
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "goals_for": 571,
+          "goals_against": 578
+        },
+        "away": {
+          "results": [
+            "W",
+            "W",
+            "L",
+            "L",
+            "W"
+          ],
+          "wins": 3,
+          "draws": 0,
+          "losses": 2,
+          "goals_for": 559,
+          "goals_against": 534
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-04-08",
+          "home": "PHX",
+          "away": "DAL",
+          "home_score": 112,
+          "away_score": 107,
+          "winner": "home"
+        },
+        {
+          "date": "2026-02-10",
+          "home": "PHX",
+          "away": "DAL",
+          "home_score": 120,
+          "away_score": 111,
+          "winner": "home"
+        },
+        {
+          "date": "2025-11-12",
+          "home": "DAL",
+          "away": "PHX",
+          "home_score": 114,
+          "away_score": 123,
+          "winner": "home"
+        },
+        {
+          "date": "2025-03-09",
+          "home": "DAL",
+          "away": "PHX",
+          "home_score": 116,
+          "away_score": 125,
+          "winner": "home"
+        },
+        {
+          "date": "2024-12-27",
+          "home": "PHX",
+          "away": "DAL",
+          "home_score": 89,
+          "away_score": 98,
+          "winner": "away"
+        }
+      ],
+      "factors": []
+    },
+    {
+      "home": "SAS",
+      "away": "LAL",
+      "commence_time": "2026-11-28T02:40:00Z",
+      "has_odds": true,
+      "predictions": {
+        "home_team": "SAS",
+        "away_team": "LAL",
+        "win": {
+          "prediction": 0,
+          "home_win_proba": 0.4747474789619446,
+          "away_win_proba": 0.5252525210380554
+        },
+        "total": {
+          "prediction": 225.2965850830078
+        },
+        "talent": {
+          "home_ratio": 1.0,
+          "away_ratio": 1.0
+        },
+        "home_team_total": {
+          "prediction": 116.75194549560547,
+          "line_default": 112.5,
+          "over_default_proba": 0.6555987289086628
+        },
+        "away_team_total": {
+          "prediction": 112.42108154296875,
+          "line_default": 110.5,
+          "over_default_proba": 0.5711582004799339
+        }
+      },
+      "value_bets": [],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "W",
+            "W",
+            "W",
+            "W",
+            "W"
+          ],
+          "wins": 5,
+          "draws": 0,
+          "losses": 0,
+          "goals_for": 601,
+          "goals_against": 531
+        },
+        "away": {
+          "results": [
+            "W",
+            "W",
+            "W",
+            "W",
+            "W"
+          ],
+          "wins": 5,
+          "draws": 0,
+          "losses": 0,
+          "goals_for": 525,
+          "goals_against": 470
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-02-10",
+          "home": "LAL",
+          "away": "SAS",
+          "home_score": 108,
+          "away_score": 136,
+          "winner": "home"
+        },
+        {
+          "date": "2026-01-07",
+          "home": "SAS",
+          "away": "LAL",
+          "home_score": 107,
+          "away_score": 91,
+          "winner": "home"
+        },
+        {
+          "date": "2025-12-10",
+          "home": "LAL",
+          "away": "SAS",
+          "home_score": 119,
+          "away_score": 132,
+          "winner": "home"
+        },
+        {
+          "date": "2025-11-05",
+          "home": "LAL",
+          "away": "SAS",
+          "home_score": 118,
+          "away_score": 116,
+          "winner": "away"
+        },
+        {
+          "date": "2025-03-17",
+          "home": "LAL",
+          "away": "SAS",
+          "home_score": 125,
+          "away_score": 109,
+          "winner": "away"
+        }
+      ],
+      "factors": []
+    },
+    {
+      "home": "UTA",
+      "away": "DEN",
+      "commence_time": "2026-11-28T02:40:00Z",
+      "has_odds": true,
+      "predictions": {
+        "home_team": "UTA",
+        "away_team": "DEN",
+        "win": {
+          "prediction": 0,
+          "home_win_proba": 0.25,
+          "away_win_proba": 0.75
+        },
+        "total": {
+          "prediction": 236.9019775390625
+        },
+        "talent": {
+          "home_ratio": 1.0,
+          "away_ratio": 1.0
+        },
+        "home_team_total": {
+          "prediction": 112.22248077392578,
+          "line_default": 112.5,
+          "over_default_proba": 0.4895732845020917
+        },
+        "away_team_total": {
+          "prediction": 124.5207290649414,
+          "line_default": 110.5,
+          "over_default_proba": 0.9046933385673044
+        }
+      },
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "home",
+          "predicted_proba": 0.25,
+          "bookmaker_odds": 4.85,
+          "implied_proba": 0.2062,
+          "edge": 0.0438,
+          "kelly_stake": 0.0075,
+          "expected_value_per_unit": 0.2125,
+          "confidence": "high",
+          "model_proba": 0.25,
+          "market_proba": 0.2101,
+          "books": [
+            {
+              "name": "FanDuel",
+              "odds": 4.85,
+              "best": true
+            },
+            {
+              "name": "BetUS",
+              "odds": 4.82,
+              "best": false
+            },
+            {
+              "name": "BetMGM",
+              "odds": 4.75,
+              "best": false
+            },
+            {
+              "name": "DraftKings",
+              "odds": 4.61,
+              "best": false
+            },
+            {
+              "name": "Bovada",
+              "odds": 4.55,
+              "best": false
+            },
+            {
+              "name": "MyBookie.ag",
+              "odds": 4.5,
+              "best": false
+            },
+            {
+              "name": "BetRivers",
+              "odds": 3.9,
+              "best": false
+            }
+          ]
+        }
+      ],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "L",
+            "L",
+            "L",
+            "L",
+            "L"
+          ],
+          "wins": 0,
+          "draws": 0,
+          "losses": 5,
+          "goals_for": 511,
+          "goals_against": 580
+        },
+        "away": {
+          "results": [
+            "L",
+            "W",
+            "W",
+            "L",
+            "W"
+          ],
+          "wins": 3,
+          "draws": 0,
+          "losses": 2,
+          "goals_for": 583,
+          "goals_against": 572
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-04-01",
+          "home": "UTA",
+          "away": "DEN",
+          "home_score": 117,
+          "away_score": 130,
+          "winner": "away"
+        },
+        {
+          "date": "2026-03-27",
+          "home": "DEN",
+          "away": "UTA",
+          "home_score": 135,
+          "away_score": 129,
+          "winner": "away"
+        },
+        {
+          "date": "2026-03-02",
+          "home": "UTA",
+          "away": "DEN",
+          "home_score": 125,
+          "away_score": 128,
+          "winner": "away"
+        },
+        {
+          "date": "2025-12-22",
+          "home": "DEN",
+          "away": "UTA",
+          "home_score": 135,
+          "away_score": 112,
+          "winner": "away"
+        },
+        {
+          "date": "2025-03-28",
+          "home": "DEN",
+          "away": "UTA",
+          "home_score": 129,
+          "away_score": 93,
+          "winner": "away"
+        }
+      ],
+      "factors": []
+    },
+    {
+      "home": "LAC",
+      "away": "NOP",
+      "commence_time": "2026-11-28T02:40:00Z",
+      "has_odds": true,
+      "predictions": {
+        "home_team": "LAC",
+        "away_team": "NOP",
+        "win": {
+          "prediction": 0,
+          "home_win_proba": 0.4747474789619446,
+          "away_win_proba": 0.5252525210380554
+        },
+        "total": {
+          "prediction": 230.4172821044922
+        },
+        "talent": {
+          "home_ratio": 1.0,
+          "away_ratio": 1.0
+        },
+        "home_team_total": {
+          "prediction": 118.07127380371094,
+          "line_default": 112.5,
+          "over_default_proba": 0.7001197766138413
+        },
+        "away_team_total": {
+          "prediction": 113.82910919189453,
+          "line_default": 110.5,
+          "over_default_proba": 0.6220069997066353
+        }
+      },
+      "value_bets": [
+        {
+          "market": "moneyline",
+          "selection": "away",
+          "predicted_proba": 0.5253,
+          "bookmaker_odds": 2.42,
+          "implied_proba": 0.4132,
+          "edge": 0.112,
+          "kelly_stake": 0.0233,
+          "expected_value_per_unit": 0.2711,
+          "confidence": "low",
+          "model_proba": 0.5253,
+          "market_proba": 0.4108,
+          "books": [
+            {
+              "name": "BetUS",
+              "odds": 2.42,
+              "best": true
+            },
+            {
+              "name": "FanDuel",
+              "odds": 2.36,
+              "best": false
+            },
+            {
+              "name": "BetMGM",
+              "odds": 2.35,
+              "best": false
+            },
+            {
+              "name": "Bovada",
+              "odds": 2.35,
+              "best": false
+            },
+            {
+              "name": "DraftKings",
+              "odds": 2.33,
+              "best": false
+            },
+            {
+              "name": "MyBookie.ag",
+              "odds": 2.27,
+              "best": false
+            },
+            {
+              "name": "BetRivers",
+              "odds": 2.25,
+              "best": false
+            }
+          ]
+        }
+      ],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "L",
+            "L",
+            "L",
+            "L",
+            "L"
+          ],
+          "wins": 0,
+          "draws": 0,
+          "losses": 5,
+          "goals_for": 534,
+          "goals_against": 596
+        },
+        "away": {
+          "results": [
+            "W",
+            "W",
+            "W",
+            "W",
+            "L"
+          ],
+          "wins": 4,
+          "draws": 0,
+          "losses": 1,
+          "goals_for": 617,
+          "goals_against": 581
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-03-19",
+          "home": "NOP",
+          "away": "LAC",
+          "home_score": 105,
+          "away_score": 99,
+          "winner": "away"
+        },
+        {
+          "date": "2026-03-18",
+          "home": "NOP",
+          "away": "LAC",
+          "home_score": 124,
+          "away_score": 109,
+          "winner": "away"
+        },
+        {
+          "date": "2026-03-01",
+          "home": "LAC",
+          "away": "NOP",
+          "home_score": 137,
+          "away_score": 117,
+          "winner": "home"
+        },
+        {
+          "date": "2025-10-31",
+          "home": "LAC",
+          "away": "NOP",
+          "home_score": 126,
+          "away_score": 124,
+          "winner": "home"
+        },
+        {
+          "date": "2025-04-02",
+          "home": "LAC",
+          "away": "NOP",
+          "home_score": 114,
+          "away_score": 98,
+          "winner": "home"
+        }
+      ],
+      "factors": []
+    },
+    {
+      "home": "POR",
+      "away": "GSW",
+      "commence_time": "2026-11-28T02:40:00Z",
+      "has_odds": true,
+      "predictions": {
+        "home_team": "POR",
+        "away_team": "GSW",
+        "win": {
+          "prediction": 1,
+          "home_win_proba": 0.550000011920929,
+          "away_win_proba": 0.44999998807907104
+        },
+        "total": {
+          "prediction": 230.11141967773438
+        },
+        "talent": {
+          "home_ratio": 1.0,
+          "away_ratio": 1.0
+        },
+        "home_team_total": {
+          "prediction": 114.90628051757812,
+          "line_default": 112.5,
+          "over_default_proba": 0.5896488728193888
+        },
+        "away_team_total": {
+          "prediction": 113.0921859741211,
+          "line_default": 110.5,
+          "over_default_proba": 0.5955975047519289
+        }
+      },
+      "value_bets": [],
+      "withheld_bets": [],
+      "form": {
+        "home": {
+          "results": [
+            "W",
+            "W",
+            "W",
+            "L",
+            "L"
+          ],
+          "wins": 3,
+          "draws": 0,
+          "losses": 2,
+          "goals_for": 583,
+          "goals_against": 568
+        },
+        "away": {
+          "results": [
+            "W",
+            "W",
+            "W",
+            "W",
+            "W"
+          ],
+          "wins": 5,
+          "draws": 0,
+          "losses": 0,
+          "goals_for": 598,
+          "goals_against": 539
+        }
+      },
+      "h2h": [
+        {
+          "date": "2026-01-13",
+          "home": "GSW",
+          "away": "POR",
+          "home_score": 119,
+          "away_score": 97,
+          "winner": "away"
+        },
+        {
+          "date": "2025-12-14",
+          "home": "POR",
+          "away": "GSW",
+          "home_score": 136,
+          "away_score": 131,
+          "winner": "home"
+        },
+        {
+          "date": "2025-11-21",
+          "home": "GSW",
+          "away": "POR",
+          "home_score": 123,
+          "away_score": 127,
+          "winner": "home"
+        },
+        {
+          "date": "2025-10-24",
+          "home": "POR",
+          "away": "GSW",
+          "home_score": 139,
+          "away_score": 119,
+          "winner": "home"
+        },
+        {
+          "date": "2025-04-11",
+          "home": "POR",
+          "away": "GSW",
+          "home_score": 86,
+          "away_score": 103,
+          "winner": "away"
+        }
+      ],
+      "factors": []
+    }
+  ]
+}

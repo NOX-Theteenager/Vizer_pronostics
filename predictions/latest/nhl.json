@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26T17:36:54+00:00",
+  "generated_at": "2026-11-27T02:41:53+00:00",
   "n_games": 15,
   "models_trained_at": "2026-11-25T20:06:08+00:00",
   "model_version": "v2026.11.25",
@@ -7,7 +7,7 @@
     {
       "market": "total",
       "side": "under",
-      "reason": "195 paris sur 204 du même côté (« under »), et le modèle annonce 0.56 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+      "reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
     }
   ],
   "games": [
@@ -172,31 +172,36 @@
           "market": "total",
           "selection": "under_6.5",
           "predicted_proba": 0.6562,
-          "bookmaker_odds": 2.04,
-          "edge": 0.166,
-          "kelly_stake": 0.0393,
+          "bookmaker_odds": 1.99,
+          "edge": 0.1537,
+          "kelly_stake": 0.0352,
           "confidence": "high",
           "model_proba": 0.6562,
-          "market_proba": 0.4844,
+          "market_proba": 0.489,
           "books": [
             {
               "name": "lowvig",
-              "odds": 2.04,
+              "odds": 1.99,
               "best": true
             },
             {
               "name": "betonlineag",
-              "odds": 2.04,
+              "odds": 1.99,
               "best": true
-            },
-            {
-              "name": "betus",
-              "odds": 2.0,
-              "best": false
             },
             {
               "name": "draftkings",
               "odds": 1.98,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.95,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 1.95,
               "best": false
             },
             {
@@ -220,7 +225,7 @@
               "best": false
             }
           ],
-          "withheld_reason": "195 paris sur 204 du même côté (« under »), et le modèle annonce 0.56 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
         }
       ],
       "form": {
@@ -479,57 +484,107 @@
           "market": "moneyline",
           "selection": "away",
           "predicted_proba": 0.3584,
-          "bookmaker_odds": 3.25,
-          "edge": 0.0507,
-          "kelly_stake": 0.0089,
+          "bookmaker_odds": 3.44,
+          "edge": 0.0677,
+          "kelly_stake": 0.0122,
           "confidence": "medium",
           "model_proba": 0.3584,
-          "market_proba": 0.3063,
+          "market_proba": 0.2924,
           "books": [
             {
-              "name": "betrivers",
-              "odds": 3.25,
+              "name": "lowvig",
+              "odds": 3.44,
               "best": true
             },
             {
+              "name": "betonlineag",
+              "odds": 3.44,
+              "best": true
+            },
+            {
+              "name": "betus",
+              "odds": 3.38,
+              "best": false
+            },
+            {
               "name": "bovada",
+              "odds": 3.3,
+              "best": false
+            },
+            {
+              "name": "betrivers",
+              "odds": 3.25,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 3.25,
+              "best": false
+            },
+            {
+              "name": "fanduel",
               "odds": 3.2,
               "best": false
             },
             {
-              "name": "lowvig",
-              "odds": 3.16,
-              "best": false
-            },
-            {
-              "name": "betonlineag",
-              "odds": 3.16,
+              "name": "mybookieag",
+              "odds": 3.18,
               "best": false
             },
             {
               "name": "draftkings",
               "odds": 3.15,
               "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 3.1,
-              "best": false
-            },
-            {
-              "name": "fanduel",
-              "odds": 3.1,
-              "best": false
-            },
-            {
-              "name": "betmgm",
-              "odds": 3.0,
-              "best": false
             }
           ]
         }
       ],
-      "withheld_bets": [],
+      "withheld_bets": [
+        {
+          "market": "total",
+          "selection": "under_6.0",
+          "predicted_proba": 0.5453,
+          "bookmaker_odds": 2.09,
+          "edge": 0.0668,
+          "kelly_stake": 0.0133,
+          "confidence": "low",
+          "model_proba": 0.5453,
+          "market_proba": 0.4674,
+          "books": [
+            {
+              "name": "lowvig",
+              "odds": 2.09,
+              "best": true
+            },
+            {
+              "name": "betonlineag",
+              "odds": 2.09,
+              "best": true
+            },
+            {
+              "name": "betus",
+              "odds": 2.05,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 2.05,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 2.05,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.98,
+              "best": false
+            }
+          ],
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
+        }
+      ],
       "form": {
         "home": {
           "results": [
@@ -786,22 +841,17 @@
           "market": "moneyline",
           "selection": "away",
           "predicted_proba": 0.596,
-          "bookmaker_odds": 1.92,
-          "edge": 0.0752,
-          "kelly_stake": 0.017,
+          "bookmaker_odds": 1.93,
+          "edge": 0.0779,
+          "kelly_stake": 0.019,
           "confidence": "medium",
           "model_proba": 0.596,
-          "market_proba": 0.5109,
+          "market_proba": 0.5133,
           "books": [
             {
               "name": "betrivers",
-              "odds": 1.92,
+              "odds": 1.93,
               "best": true
-            },
-            {
-              "name": "draftkings",
-              "odds": 1.89,
-              "best": false
             },
             {
               "name": "lowvig",
@@ -819,13 +869,23 @@
               "best": false
             },
             {
+              "name": "mybookieag",
+              "odds": 1.85,
+              "best": false
+            },
+            {
               "name": "betmgm",
-              "odds": 1.87,
+              "odds": 1.85,
+              "best": false
+            },
+            {
+              "name": "draftkings",
+              "odds": 1.85,
               "best": false
             },
             {
               "name": "bovada",
-              "odds": 1.87,
+              "odds": 1.85,
               "best": false
             },
             {
@@ -843,10 +903,10 @@
           "predicted_proba": 0.6613,
           "bookmaker_odds": 1.94,
           "edge": 0.1459,
-          "kelly_stake": 0.0331,
+          "kelly_stake": 0.0336,
           "confidence": "high",
           "model_proba": 0.6613,
-          "market_proba": 0.4977,
+          "market_proba": 0.4997,
           "books": [
             {
               "name": "lowvig",
@@ -859,18 +919,13 @@
               "best": true
             },
             {
-              "name": "draftkings",
-              "odds": 1.93,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 1.93,
-              "best": false
-            },
-            {
               "name": "betrivers",
-              "odds": 1.92,
+              "odds": 1.93,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.91,
               "best": false
             },
             {
@@ -884,12 +939,22 @@
               "best": false
             },
             {
-              "name": "fanduel",
+              "name": "bovada",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "draftkings",
               "odds": 1.89,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 1.88,
               "best": false
             }
           ],
-          "withheld_reason": "195 paris sur 204 du même côté (« under »), et le modèle annonce 0.56 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
         }
       ],
       "form": {
@@ -1401,16 +1466,16 @@
           "market": "moneyline",
           "selection": "away",
           "predicted_proba": 0.547,
-          "bookmaker_odds": 2.14,
-          "edge": 0.0797,
-          "kelly_stake": 0.0165,
+          "bookmaker_odds": 2.15,
+          "edge": 0.0819,
+          "kelly_stake": 0.0175,
           "confidence": "low",
           "model_proba": 0.547,
           "market_proba": 0.458,
           "books": [
             {
               "name": "fanduel",
-              "odds": 2.14,
+              "odds": 2.15,
               "best": true
             },
             {
@@ -1439,8 +1504,13 @@
               "best": false
             },
             {
+              "name": "mybookieag",
+              "odds": 2.08,
+              "best": false
+            },
+            {
               "name": "betrivers",
-              "odds": 2.07,
+              "odds": 2.06,
               "best": false
             },
             {
@@ -1451,7 +1521,52 @@
           ]
         }
       ],
-      "withheld_bets": [],
+      "withheld_bets": [
+        {
+          "market": "total",
+          "selection": "under_5.5",
+          "predicted_proba": 0.5376,
+          "bookmaker_odds": 2.06,
+          "edge": 0.0522,
+          "kelly_stake": 0.0099,
+          "confidence": "low",
+          "model_proba": 0.5376,
+          "market_proba": 0.4739,
+          "books": [
+            {
+              "name": "betrivers",
+              "odds": 2.06,
+              "best": true
+            },
+            {
+              "name": "draftkings",
+              "odds": 2.02,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 2.02,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 2.0,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 2.0,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 1.98,
+              "best": false
+            }
+          ],
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
+        }
+      ],
       "form": {
         "home": {
           "results": [
@@ -1709,22 +1824,32 @@
           "market": "total",
           "selection": "under_6.5",
           "predicted_proba": 0.6555,
-          "bookmaker_odds": 1.96,
-          "edge": 0.1453,
-          "kelly_stake": 0.0327,
+          "bookmaker_odds": 1.98,
+          "edge": 0.1505,
+          "kelly_stake": 0.0344,
           "confidence": "high",
           "model_proba": 0.6555,
-          "market_proba": 0.4931,
+          "market_proba": 0.4907,
           "books": [
+            {
+              "name": "fanduel",
+              "odds": 1.98,
+              "best": true
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.96,
+              "best": false
+            },
             {
               "name": "lowvig",
               "odds": 1.96,
-              "best": true
+              "best": false
             },
             {
               "name": "betonlineag",
               "odds": 1.96,
-              "best": true
+              "best": false
             },
             {
               "name": "betmgm",
@@ -1742,22 +1867,17 @@
               "best": false
             },
             {
-              "name": "betrivers",
-              "odds": 1.92,
-              "best": false
-            },
-            {
               "name": "betus",
               "odds": 1.91,
               "best": false
             },
             {
-              "name": "fanduel",
-              "odds": 1.91,
+              "name": "betrivers",
+              "odds": 1.89,
               "best": false
             }
           ],
-          "withheld_reason": "195 paris sur 204 du même côté (« under »), et le modèle annonce 0.56 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
         }
       ],
       "form": {
@@ -2012,7 +2132,52 @@
         }
       },
       "value_bets": [],
-      "withheld_bets": [],
+      "withheld_bets": [
+        {
+          "market": "total",
+          "selection": "under_6.0",
+          "predicted_proba": 0.5665,
+          "bookmaker_odds": 1.95,
+          "edge": 0.0537,
+          "kelly_stake": 0.0101,
+          "confidence": "medium",
+          "model_proba": 0.5665,
+          "market_proba": 0.4985,
+          "books": [
+            {
+              "name": "betmgm",
+              "odds": 1.95,
+              "best": true
+            },
+            {
+              "name": "lowvig",
+              "odds": 1.93,
+              "best": false
+            },
+            {
+              "name": "betonlineag",
+              "odds": 1.93,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.9,
+              "best": false
+            }
+          ],
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
+        }
+      ],
       "form": {
         "home": {
           "results": [
@@ -2272,10 +2437,10 @@
           "predicted_proba": 0.622,
           "bookmaker_odds": 1.83,
           "edge": 0.0755,
-          "kelly_stake": 0.0163,
+          "kelly_stake": 0.0159,
           "confidence": "medium",
           "model_proba": 0.622,
-          "market_proba": 0.5301,
+          "market_proba": 0.5284,
           "books": [
             {
               "name": "lowvig",
@@ -2298,22 +2463,17 @@
               "best": false
             },
             {
-              "name": "bovada",
-              "odds": 1.8,
-              "best": false
-            },
-            {
               "name": "betrivers",
-              "odds": 1.78,
+              "odds": 1.79,
               "best": false
             },
             {
               "name": "fanduel",
-              "odds": 1.76,
+              "odds": 1.77,
               "best": false
             }
           ],
-          "withheld_reason": "195 paris sur 204 du même côté (« under »), et le modèle annonce 0.56 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
         }
       ],
       "form": {
@@ -2575,16 +2735,11 @@
           "predicted_proba": 0.685,
           "bookmaker_odds": 1.96,
           "edge": 0.1748,
-          "kelly_stake": 0.0402,
+          "kelly_stake": 0.041,
           "confidence": "high",
           "model_proba": 0.685,
-          "market_proba": 0.4929,
+          "market_proba": 0.4962,
           "books": [
-            {
-              "name": "mybookieag",
-              "odds": 1.96,
-              "best": true
-            },
             {
               "name": "lowvig",
               "odds": 1.96,
@@ -2596,22 +2751,27 @@
               "best": true
             },
             {
-              "name": "betmgm",
-              "odds": 1.95,
-              "best": false
-            },
-            {
               "name": "draftkings",
               "odds": 1.95,
               "best": false
             },
             {
               "name": "bovada",
-              "odds": 1.95,
+              "odds": 1.93,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.92,
               "best": false
             },
             {
               "name": "betus",
+              "odds": 1.91,
+              "best": false
+            },
+            {
+              "name": "betmgm",
               "odds": 1.91,
               "best": false
             },
@@ -2622,11 +2782,11 @@
             },
             {
               "name": "betrivers",
-              "odds": 1.89,
+              "odds": 1.88,
               "best": false
             }
           ],
-          "withheld_reason": "195 paris sur 204 du même côté (« under »), et le modèle annonce 0.56 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
         }
       ],
       "form": {
@@ -2884,57 +3044,47 @@
       "withheld_bets": [
         {
           "market": "total",
-          "selection": "under_6.5",
-          "predicted_proba": 0.6612,
-          "bookmaker_odds": 1.87,
-          "edge": 0.1265,
-          "kelly_stake": 0.0299,
-          "confidence": "high",
-          "model_proba": 0.6612,
-          "market_proba": 0.5196,
+          "selection": "under_6.0",
+          "predicted_proba": 0.5972,
+          "bookmaker_odds": 2.0,
+          "edge": 0.0972,
+          "kelly_stake": 0.0203,
+          "confidence": "medium",
+          "model_proba": 0.5972,
+          "market_proba": 0.4841,
           "books": [
             {
-              "name": "betus",
-              "odds": 1.87,
+              "name": "betmgm",
+              "odds": 2.0,
               "best": true
             },
             {
               "name": "lowvig",
-              "odds": 1.86,
+              "odds": 1.99,
               "best": false
             },
             {
               "name": "betonlineag",
-              "odds": 1.86,
-              "best": false
-            },
-            {
-              "name": "draftkings",
-              "odds": 1.85,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 1.85,
+              "odds": 1.99,
               "best": false
             },
             {
               "name": "mybookieag",
-              "odds": 1.83,
+              "odds": 1.97,
               "best": false
             },
             {
-              "name": "betrivers",
-              "odds": 1.82,
+              "name": "bovada",
+              "odds": 1.97,
               "best": false
             },
             {
-              "name": "fanduel",
-              "odds": 1.77,
+              "name": "betus",
+              "odds": 1.95,
               "best": false
             }
           ],
-          "withheld_reason": "195 paris sur 204 du même côté (« under »), et le modèle annonce 0.56 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
         }
       ],
       "form": {
@@ -3196,10 +3346,10 @@
           "predicted_proba": 0.5992,
           "bookmaker_odds": 1.95,
           "edge": 0.0864,
-          "kelly_stake": 0.0172,
+          "kelly_stake": 0.0175,
           "confidence": "medium",
           "model_proba": 0.5992,
-          "market_proba": 0.4934,
+          "market_proba": 0.4945,
           "books": [
             {
               "name": "betmgm",
@@ -3210,16 +3360,6 @@
               "name": "draftkings",
               "odds": 1.95,
               "best": true
-            },
-            {
-              "name": "bovada",
-              "odds": 1.95,
-              "best": true
-            },
-            {
-              "name": "mybookieag",
-              "odds": 1.94,
-              "best": false
             },
             {
               "name": "lowvig",
@@ -3237,17 +3377,27 @@
               "best": false
             },
             {
+              "name": "mybookieag",
+              "odds": 1.93,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 1.93,
+              "best": false
+            },
+            {
               "name": "betus",
               "odds": 1.91,
               "best": false
             },
             {
               "name": "fanduel",
-              "odds": 1.91,
+              "odds": 1.89,
               "best": false
             }
           ],
-          "withheld_reason": "195 paris sur 204 du même côté (« under »), et le modèle annonce 0.56 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
         }
       ],
       "form": {
@@ -3507,45 +3657,45 @@
           "market": "total",
           "selection": "under_6.0",
           "predicted_proba": 0.5645,
-          "bookmaker_odds": 2.06,
-          "edge": 0.079,
-          "kelly_stake": 0.0166,
+          "bookmaker_odds": 2.0,
+          "edge": 0.0645,
+          "kelly_stake": 0.0122,
           "confidence": "medium",
           "model_proba": 0.5645,
-          "market_proba": 0.4747,
+          "market_proba": 0.4844,
           "books": [
-            {
-              "name": "lowvig",
-              "odds": 2.06,
-              "best": true
-            },
-            {
-              "name": "betonlineag",
-              "odds": 2.06,
-              "best": true
-            },
-            {
-              "name": "mybookieag",
-              "odds": 2.0,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 2.0,
-              "best": false
-            },
             {
               "name": "betmgm",
               "odds": 2.0,
+              "best": true
+            },
+            {
+              "name": "lowvig",
+              "odds": 1.99,
+              "best": false
+            },
+            {
+              "name": "betonlineag",
+              "odds": 1.99,
               "best": false
             },
             {
               "name": "bovada",
-              "odds": 2.0,
+              "odds": 1.97,
+              "best": false
+            },
+            {
+              "name": "mybookieag",
+              "odds": 1.96,
+              "best": false
+            },
+            {
+              "name": "betus",
+              "odds": 1.95,
               "best": false
             }
           ],
-          "withheld_reason": "195 paris sur 204 du même côté (« under »), et le modèle annonce 0.56 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
         }
       ],
       "form": {
@@ -3805,22 +3955,27 @@
           "market": "total",
           "selection": "under_6.5",
           "predicted_proba": 0.6604,
-          "bookmaker_odds": 1.87,
-          "edge": 0.1256,
-          "kelly_stake": 0.0279,
+          "bookmaker_odds": 1.88,
+          "edge": 0.1285,
+          "kelly_stake": 0.029,
           "confidence": "high",
           "model_proba": 0.6604,
-          "market_proba": 0.5131,
+          "market_proba": 0.5121,
           "books": [
+            {
+              "name": "betrivers",
+              "odds": 1.88,
+              "best": true
+            },
             {
               "name": "draftkings",
               "odds": 1.87,
-              "best": true
+              "best": false
             },
             {
               "name": "bovada",
               "odds": 1.87,
-              "best": true
+              "best": false
             },
             {
               "name": "mybookieag",
@@ -3829,16 +3984,11 @@
             },
             {
               "name": "fanduel",
-              "odds": 1.85,
-              "best": false
-            },
-            {
-              "name": "betrivers",
               "odds": 1.83,
               "best": false
             }
           ],
-          "withheld_reason": "195 paris sur 204 du même côté (« under »), et le modèle annonce 0.56 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
         }
       ],
       "form": {
@@ -4097,41 +4247,46 @@
           "market": "moneyline",
           "selection": "away",
           "predicted_proba": 0.4882,
-          "bookmaker_odds": 2.3,
-          "edge": 0.0534,
-          "kelly_stake": 0.0095,
+          "bookmaker_odds": 2.35,
+          "edge": 0.0627,
+          "kelly_stake": 0.0124,
           "confidence": "low",
           "model_proba": 0.4882,
-          "market_proba": 0.4243,
+          "market_proba": 0.4197,
           "books": [
             {
-              "name": "bovada",
-              "odds": 2.3,
+              "name": "betrivers",
+              "odds": 2.35,
               "best": true
             },
             {
               "name": "lowvig",
-              "odds": 2.29,
+              "odds": 2.32,
               "best": false
             },
             {
               "name": "betonlineag",
+              "odds": 2.32,
+              "best": false
+            },
+            {
+              "name": "draftkings",
+              "odds": 2.3,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 2.3,
+              "best": false
+            },
+            {
+              "name": "betus",
               "odds": 2.29,
               "best": false
             },
             {
               "name": "fanduel",
-              "odds": 2.28,
-              "best": false
-            },
-            {
-              "name": "betrivers",
-              "odds": 2.25,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 2.25,
+              "odds": 2.26,
               "best": false
             },
             {
@@ -4141,11 +4296,6 @@
             },
             {
               "name": "mybookieag",
-              "odds": 2.24,
-              "best": false
-            },
-            {
-              "name": "draftkings",
               "odds": 2.24,
               "best": false
             }
@@ -4157,60 +4307,60 @@
           "market": "total",
           "selection": "under_6.5",
           "predicted_proba": 0.663,
-          "bookmaker_odds": 1.96,
-          "edge": 0.1528,
-          "kelly_stake": 0.0357,
+          "bookmaker_odds": 2.02,
+          "edge": 0.168,
+          "kelly_stake": 0.0395,
           "confidence": "high",
           "model_proba": 0.663,
-          "market_proba": 0.4971,
+          "market_proba": 0.4868,
           "books": [
             {
-              "name": "fanduel",
-              "odds": 1.96,
+              "name": "lowvig",
+              "odds": 2.02,
               "best": true
             },
             {
-              "name": "lowvig",
-              "odds": 1.93,
-              "best": false
+              "name": "betonlineag",
+              "odds": 2.02,
+              "best": true
             },
             {
-              "name": "betonlineag",
-              "odds": 1.93,
+              "name": "betus",
+              "odds": 2.0,
               "best": false
             },
             {
               "name": "mybookieag",
-              "odds": 1.93,
-              "best": false
-            },
-            {
-              "name": "bovada",
-              "odds": 1.93,
-              "best": false
-            },
-            {
-              "name": "betus",
-              "odds": 1.91,
+              "odds": 1.95,
               "best": false
             },
             {
               "name": "betmgm",
-              "odds": 1.91,
+              "odds": 1.95,
               "best": false
             },
             {
               "name": "draftkings",
-              "odds": 1.91,
+              "odds": 1.95,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 1.95,
+              "best": false
+            },
+            {
+              "name": "fanduel",
+              "odds": 1.93,
               "best": false
             },
             {
               "name": "betrivers",
-              "odds": 1.89,
+              "odds": 1.91,
               "best": false
             }
           ],
-          "withheld_reason": "195 paris sur 204 du même côté (« under »), et le modèle annonce 0.56 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
         }
       ],
       "form": {
@@ -4469,21 +4619,31 @@
           "market": "moneyline",
           "selection": "away",
           "predicted_proba": 0.4409,
-          "bookmaker_odds": 2.88,
-          "edge": 0.0937,
-          "kelly_stake": 0.0181,
+          "bookmaker_odds": 2.9,
+          "edge": 0.0961,
+          "kelly_stake": 0.0185,
           "confidence": "medium",
           "model_proba": 0.4409,
-          "market_proba": 0.3478,
+          "market_proba": 0.3459,
           "books": [
             {
               "name": "betrivers",
-              "odds": 2.88,
+              "odds": 2.9,
               "best": true
             },
             {
+              "name": "betmgm",
+              "odds": 2.8,
+              "best": false
+            },
+            {
+              "name": "draftkings",
+              "odds": 2.8,
+              "best": false
+            },
+            {
               "name": "fanduel",
-              "odds": 2.84,
+              "odds": 2.8,
               "best": false
             },
             {
@@ -4493,7 +4653,7 @@
             },
             {
               "name": "mybookieag",
-              "odds": 2.79,
+              "odds": 2.74,
               "best": false
             },
             {
@@ -4508,16 +4668,6 @@
             },
             {
               "name": "betus",
-              "odds": 2.7,
-              "best": false
-            },
-            {
-              "name": "betmgm",
-              "odds": 2.7,
-              "best": false
-            },
-            {
-              "name": "draftkings",
               "odds": 2.7,
               "best": false
             }
@@ -4531,10 +4681,10 @@
           "predicted_proba": 0.6331,
           "bookmaker_odds": 1.96,
           "edge": 0.1229,
-          "kelly_stake": 0.0282,
+          "kelly_stake": 0.0295,
           "confidence": "medium",
           "model_proba": 0.6331,
-          "market_proba": 0.4978,
+          "market_proba": 0.5029,
           "books": [
             {
               "name": "lowvig",
@@ -4547,27 +4697,12 @@
               "best": true
             },
             {
-              "name": "mybookieag",
-              "odds": 1.94,
-              "best": false
-            },
-            {
               "name": "betrivers",
-              "odds": 1.92,
+              "odds": 1.93,
               "best": false
             },
             {
               "name": "betus",
-              "odds": 1.91,
-              "best": false
-            },
-            {
-              "name": "betmgm",
-              "odds": 1.91,
-              "best": false
-            },
-            {
-              "name": "bovada",
               "odds": 1.91,
               "best": false
             },
@@ -4577,12 +4712,27 @@
               "best": false
             },
             {
+              "name": "mybookieag",
+              "odds": 1.87,
+              "best": false
+            },
+            {
+              "name": "betmgm",
+              "odds": 1.87,
+              "best": false
+            },
+            {
+              "name": "bovada",
+              "odds": 1.87,
+              "best": false
+            },
+            {
               "name": "fanduel",
-              "odds": 1.88,
+              "odds": 1.83,
               "best": false
             }
           ],
-          "withheld_reason": "195 paris sur 204 du même côté (« under »), et le modèle annonce 0.56 de moins que ce qui arrive (2.3 écarts-types) : le décalage de niveau explique le sens des paris."
+          "withheld_reason": "198 paris sur 204 du même côté (« under »), et le modèle annonce 0.58 de moins que ce qui arrive (2.5 écarts-types) : le décalage de niveau explique le sens des paris."
         }
       ],
       "form": {
