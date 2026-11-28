@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-27T17:19:17+00:00",
+  "generated_at": "2026-11-28T02:31:19+00:00",
   "models": {
     "nhl": {
       "sport": "nhl",
@@ -141,15 +141,15 @@
           "model_type": "poisson_xgb_independent"
         }
       },
-      "trained_at": "2026-11-25T20:06:08+00:00",
-      "model_version": "v2026.11.25",
+      "trained_at": "2026-11-27T19:10:56+00:00",
+      "model_version": "v2026.11.27",
       "training_mode": "full",
       "metrics_in_sample": true,
       "train_until_year": 2026,
       "test_year": null,
       "n_games_train": 21422,
       "n_games_test": 0,
-      "training_duration_sec": 9.799467325210571,
+      "training_duration_sec": 9.936288595199585,
       "p1_mode": "dedicated"
     },
     "nba": {
@@ -227,15 +227,15 @@
           "feature_importance": "                    feature  importance\n38         AWAY_PTS_AVG_10G    0.047787\n95  HOME_DEF_RATING_AVG_20G    0.039767\n91        HOME_POSS_AVG_20G    0.024339\n68         AWAY_PTS_AVG_20G    0.023245\n65  HOME_DEF_RATING_AVG_10G    0.020408\n..                      ...         ...\n55     HOME_EFG_PCT_AVG_10G    0.006177\n7           HOME_PTS_AVG_5G    0.005510\n0         HOME_TALENT_RATIO    0.005509\n2          SEASON_AVG_TOTAL    0.004990\n3            HOME_REST_DAYS    0.004013\n\n[97 rows x 2 columns]"
         }
       },
-      "trained_at": "2026-11-25T20:08:27+00:00",
-      "model_version": "v2026.11.25",
+      "trained_at": "2026-11-27T19:13:15+00:00",
+      "model_version": "v2026.11.27",
       "training_mode": "full",
       "metrics_in_sample": true,
       "train_seasons": "22022-22026",
       "test_season": "None",
       "n_games_train": 5050,
       "n_games_test": 0,
-      "training_duration_sec": 65.42224383354187,
+      "training_duration_sec": 66.17866110801697,
       "models_trained": [
         "win",
         "total",

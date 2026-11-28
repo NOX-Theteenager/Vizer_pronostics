@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-27T17:18:16+00:00",
+  "generated_at": "2026-11-28T02:29:56+00:00",
   "stale": [
     "nba",
     "nhl"
@@ -9,8 +9,8 @@
       "sport": "nhl",
       "max_lag_days": 3,
       "last_in_data": "2026-11-07",
-      "last_played": "2026-11-25",
-      "lag_days": 18,
+      "last_played": "2026-11-27",
+      "lag_days": 20,
       "status": "stale"
     },
     "nba": {
